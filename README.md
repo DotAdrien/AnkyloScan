@@ -1,15 +1,15 @@
 # 🦖 AnkyloScan
 
-**AnkyloScan** est un scanner de vulnérabilités réseau robuste et cuirassé, conçu pour être déployé rapidement via **Docker**. Il protège votre réseau comme un Ankylosaure protégerait son territoire ! 🛡️✨
+**AnkyloScan** is a robust, armored network vulnerability scanner designed for rapid deployment via **Docker**. It guards your network like an Ankylosaurus protects its territory! 🛡️✨
 
-## 🚀 Fonctionnalités
-- 🔍 **Scan Réseau** : Détection des hôtes et ports ouverts.
-- 🐳 **Docker-Ready** : Déploiement ultra-simple avec Docker Compose.
-- 💻 **Web UI** : Interface de gestion intuitive. 🥵
-- 🛡️ **Sécurité** : Identification des services vulnérables.
+## 🚀 Features
+- 🔍 **Network Discovery**: Detect active hosts and open ports.
+- 🐳 **Docker-Native**: Easy one-command setup with Docker Compose.
+- 💻 **Web UI**: Intuitive dashboard to manage your scans. 🥵
+- 🛡️ **Hardened**: Identification of vulnerable services and CVEs.
 
-## 🛠️ Installation
+## 🛠️ Quick Start
 ```bash
-git clone [https://github.com/ton-pseudo/AnkyloScan.git](https://github.com/ton-pseudo/AnkyloScan.git)
+git clone [https://github.com/your-username/AnkyloScan.git](https://github.com/your-username/AnkyloScan.git)
 cd AnkyloScan
 docker-compose up --build
