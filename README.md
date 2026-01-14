@@ -1,2 +1,15 @@
-# AnkyloScan
-AnkyloScan is a self-hosted network security tool designed to hunt down open ports and vulnerable services across your local infrastructure. Fully containerized, it bridges the gap between raw Python power and a sleek web interface. 🛡️✨
+# 🦖 AnkyloScan
+
+**AnkyloScan** est un scanner de vulnérabilités réseau robuste et cuirassé, conçu pour être déployé rapidement via **Docker**. Il protège votre réseau comme un Ankylosaure protégerait son territoire ! 🛡️✨
+
+## 🚀 Fonctionnalités
+- 🔍 **Scan Réseau** : Détection des hôtes et ports ouverts.
+- 🐳 **Docker-Ready** : Déploiement ultra-simple avec Docker Compose.
+- 💻 **Web UI** : Interface de gestion intuitive. 🥵
+- 🛡️ **Sécurité** : Identification des services vulnérables.
+
+## 🛠️ Installation
+```bash
+git clone [https://github.com/ton-pseudo/AnkyloScan.git](https://github.com/ton-pseudo/AnkyloScan.git)
+cd AnkyloScan
+docker-compose up --build
