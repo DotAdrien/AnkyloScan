@@ -7,11 +7,6 @@ ankylo-scan/
 │   │   └── schemas.py      # Validation des données (Pydantic)
 │   ├── requirements.txt
 │   └── Dockerfile
-├── scanner/                # 🦾 Muscle (Script de scan)
-│   ├── worker.py           # Script Nmap qui tourne en tâche de fond
-│   ├── utils.py            # Logique de détection des vulnérabilités
-│   ├── requirements.txt
-│   └── Dockerfile
 ├── frontend/               # 🎨 Visage (Vue/React + Tailwind)
 │   ├── src/
 │   ├── package.json
@@ -20,6 +15,11 @@ ankylo-scan/
 │   ├── init/
 │   │   └── init.sql        # Création auto des tables au 1er lancement
 │   └── my.cnf              # Configuration MySQL (optionnel)
+├── scanner/                # 🦾 Muscle (Script de scan)
+│   ├── worker.py           # Script Nmap qui tourne en tâche de fond
+│   ├── utils.py            # Logique de détection des vulnérabilités
+│   ├── requirements.txt
+│   └── Dockerfile
 ├── .env                    # 🔑 Tes variables secrètes (DB_USER, DB_PASS)
 ├── .gitignore              # Ce qu'on ne veut pas sur GitHub 🚫
 ├── docker-compose.yml      # 🎼 Le chef d'orchestre
