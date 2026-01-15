@@ -1,0 +1,25 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ankyloscan
+    volumes:
+      - ./mysql/init:/docker-entrypoint-initdb.d
+
+  api:
+    build: ./api
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8000:8000"
+
+  scanner:
+    build: ./scanner
+    depends_on:
+      - db
