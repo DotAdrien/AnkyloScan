@@ -5,7 +5,8 @@ FROM nginx:alpine
 COPY ./src /usr/share/nginx/html
 
 # Expose le port 80 pour y accéder
-EXPOSE 80
+EXPOSE 8000
 
 # Démarre Nginx
 CMD ["nginx", "-g", "daemon off;"]
+
