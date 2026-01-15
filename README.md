@@ -1,3 +1,5 @@
+not working / finish
+
 # 🦖 AnkyloScan
 
 **AnkyloScan** is a robust, armored network vulnerability scanner designed for rapid deployment via **Docker**. It guards your network like an Ankylosaurus protects its territory. 🛡️✨
