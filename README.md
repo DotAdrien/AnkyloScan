@@ -5,8 +5,9 @@
 ## 🚀 Features
 - 🔍 **Network Discovery**: Detect active hosts and open ports.
 - 🐳 **Docker-Native**: Easy one-command setup with Docker Compose.
-- 💻 **Web UI**: Intuitive dashboard to manage your scans. 🥵
+- 💻 **Web UI**: Intuitive dashboard to manage your scans.
 - 🛡️ **Hardened**: Identification of vulnerable services and CVEs.
+- 📧 **Email Notifications**: Send alerts and notifications via email. 
 
 ## 🛠️ Quick Start
 ```bash
