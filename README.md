@@ -13,6 +13,6 @@ not working / finish
 
 ## 🛠️ Quick Start
 ```bash
-git clone [https://github.com/your-username/AnkyloScan.git](https://github.com/your-username/AnkyloScan.git)
+git clone https://github.com/DotAdrien/AnkyloScan
 cd AnkyloScan
 docker-compose up --build
