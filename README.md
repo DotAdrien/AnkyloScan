@@ -14,7 +14,7 @@ not working / finish
 ## 🛠️ Quick Start
 ```bash
 # Tool install
-sudo apt update && sudo apt upgrade -y
+sudo apt update -y
 sudo apt install -y docker.io docker-compose
 
 # AnkyloScan install
