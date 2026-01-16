@@ -1,16 +1,21 @@
-# Base Debian légère 🐧
-FROM debian:bookworm-slim
+# Utilise une image Nginx légère
 
-# Install Nginx et Docker 🛠️
-RUN apt update && apt upgrade -y && \
-    apt install -y nginx docker.io && \
-    apt clean
+FROM nginx:alpine
 
-# Copie du contenu 📂
-COPY ./src /var/www/html
 
-# Port 80 🌐
+
+# Copie le contenu du dossier src dans le dossier que Nginx utilise pour servir les sites
+
+COPY ./src /usr/share/nginx/html
+
+
+
+# Expose le port 80 pour y accéder
+
 EXPOSE 80
 
-# Start 🚀
+
+
+# Démarre Nginx
+
 CMD ["nginx", "-g", "daemon off;"]
