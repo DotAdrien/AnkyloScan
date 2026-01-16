@@ -10,3 +10,10 @@ services:
       - "8001:8001"
     volumes:
       - ./api:/app
+  db:
+    build: ./mysql
+    ports:
+      - "8002:3306"
+    environment:
+      MYSQL_DATABASE: ankyloscan
+      MYSQL_ROOT_PASSWORD: root_password
