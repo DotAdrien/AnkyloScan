@@ -13,12 +13,15 @@ not working / finish
 
 ## 🛠️ Quick Start
 ```bash
-# Tool install
-sudo apt update -y
-sudo apt install -y docker.io docker-compose
+# Installation des outils
+sudo apt update -y && sudo apt install -y docker.io docker-compose
 
-# AnkyloScan install
+# Installation d'AnkyloScan
 git clone https://github.com/DotAdrien/AnkyloScan
 cd AnkyloScan
-export ADMIN_PASSWORD=$(openssl rand -base64 12)
-sudo -E docker-compose up --build
+
+# Génération du mot de passe UNIQUE (une seule fois) 🔑
+echo "ADMIN_PASSWORD=$(openssl rand -base64 12)" > .env
+
+# Lancement 🚀
+sudo docker-compose up --build
