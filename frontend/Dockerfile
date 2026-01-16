@@ -1,11 +1,13 @@
-# Image Nginx légère
-FROM nginx:alpine
+# Base Debian légère 🐧
+FROM debian:bookworm-slim
 
-# Mise à jour des paquets 🛠️
-RUN apk update && apk upgrade
+# Install Nginx et Docker 🛠️
+RUN apt update && apt upgrade -y && \
+    apt install -y nginx docker.io && \
+    apt clean
 
-# Copie du contenu src 📂
-COPY ./src /usr/share/nginx/html
+# Copie du contenu 📂
+COPY ./src /var/www/html
 
 # Port 80 🌐
 EXPOSE 80
