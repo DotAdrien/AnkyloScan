@@ -4,10 +4,12 @@ services:
     ports:
       - "8000:80"
 
-  api:
+api:
     build: ./api
     ports:
       - "8001:8001"
+    env_file:
+      - .env  # Ajoute cette ligne pour que l'API voit le MDP 🔑
     volumes:
       - ./api:/app
 
