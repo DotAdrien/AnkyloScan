@@ -13,6 +13,11 @@ not working / finish
 
 ## 🛠️ Quick Start
 ```bash
-git clone [https://github.com/your-username/AnkyloScan.git](https://github.com/your-username/AnkyloScan.git)
+# Tool install
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y docker.io docker-compose
+
+# AnkyloScan install
+git clone https://github.com/DotAdrien/AnkyloScan
 cd AnkyloScan
 docker-compose up --build
