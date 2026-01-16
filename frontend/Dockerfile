@@ -1,13 +1,14 @@
-# Utilise une image Nginx légère
+# Image Nginx légère
 FROM nginx:alpine
 
-# Copie le contenu du dossier src dans le dossier que Nginx utilise pour servir les sites
+# Mise à jour des paquets 🛠️
+RUN apk update && apk upgrade
+
+# Copie du contenu src 📂
 COPY ./src /usr/share/nginx/html
 
-# Expose le port 80 pour y accéder
+# Port 80 🌐
 EXPOSE 80
 
-# Démarre Nginx
+# Start 🚀
 CMD ["nginx", "-g", "daemon off;"]
-
-
