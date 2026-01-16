@@ -20,4 +20,5 @@ sudo apt install -y docker.io docker-compose
 # AnkyloScan install
 git clone https://github.com/DotAdrien/AnkyloScan
 cd AnkyloScan
-sudo docker-compose up --build
+export ADMIN_PASSWORD=$(openssl rand -base64 12)
+sudo -E docker-compose up --build
