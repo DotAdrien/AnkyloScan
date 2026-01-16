@@ -20,4 +20,4 @@ sudo apt install -y docker.io docker-compose
 # AnkyloScan install
 git clone https://github.com/DotAdrien/AnkyloScan
 cd AnkyloScan
-docker-compose up --build
+sudo docker-compose up --build
