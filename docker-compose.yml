@@ -17,21 +17,25 @@ services:
       - "8002:3306"
     environment:
       MYSQL_DATABASE: ankyloscan
+      MYSQL_USER: admin # Ton nouvel utilisateur 👤
+      MYSQL_PASSWORD: ${ADMIN_PASSWORD:-password_aleatoire} # Mot de passe variable 🔑
       MYSQL_ROOT_PASSWORD: root_password
     volumes:
       - db_data:/var/lib/mysql
 
-  # ✨ Ce bloc affiche tes messages dans le terminal
   welcome:
     image: alpine
     depends_on:
       - frontend
     command: >
-      sh -c "echo '--------------------------------------------' &&
-             echo '🦖 AnkyloScan est prêt ! 🛡️' &&
-             echo 'Lien : http://localhost:8000' &&
-             echo 'Tigrounet veille sur tes données ! 🐱😶' &&
-             echo '--------------------------------------------'"
+      sh -c "
+      echo '--------------------------------------------' &&
+      echo '🦖 AnkyloScan est prêt ! 🛡️' &&
+      echo 'Lien : http://localhost:8000' &&
+      echo 'User Admin : admin' &&
+      echo 'MDP Admin : ${ADMIN_PASSWORD:-password_aleatoire}' &&
+      echo 'Tigrounet veille sur tes données ! 🐱😶' &&
+      echo '--------------------------------------------'"
 
 volumes:
   db_data:
