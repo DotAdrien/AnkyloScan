@@ -13,6 +13,11 @@ not working / finish
 
 ## 🛠️ Quick Start
 ```bash
+# Installation des outils
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y docker.io docker-compose
+
+# Récupération et lancement
 git clone https://github.com/DotAdrien/AnkyloScan
 cd AnkyloScan
 docker-compose up --build
