@@ -1,5 +1,4 @@
 const contentArea = document.getElementById('content-area');
-const API_BASE_URL = "http://localhost:8001"; //
 
 async function loadPage(pageName) {
     try {
@@ -13,21 +12,16 @@ async function loadPage(pageName) {
         
         contentArea.innerHTML = newContent ? newContent.outerHTML : doc.body.innerHTML;
 
-        // Configuration spécifique selon la page
-        setupLinks();
-        if (pageName === 'account') {
-            handleLogin(); // Active la surveillance du formulaire 👤
-        }
-
+        setupLinks(); 
+        // Le router ne fait plus rien d'autre ! 😌
     } catch (err) {
         console.error(err);
-        contentArea.innerHTML = `<h2>Erreur de chargement 😱</h2><p>${err.message}</p>`;
+        contentArea.innerHTML = `<h2>Erreur 😱</h2>`;
     }
 }
 
 function setupLinks() {
-    const links = document.querySelectorAll('.nav-link');
-    links.forEach(link => {
+    document.querySelectorAll('.nav-link').forEach(link => {
         link.onclick = (e) => {
             e.preventDefault();
             const page = link.getAttribute('data-page');
