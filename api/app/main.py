@@ -36,12 +36,3 @@ def test_db_connection():
             return {"status": "success", "message": "Connexion auto réussie ! 🛡️"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur : {str(e)} 😱")
-
-@app.post("/results")
-def receive_results(result: ScanResult):
-    db_mock.append(result.dict())
-    return {"status": "success", "data": result}
-
-@app.get("/results")
-def get_results():
-    return db_mock
