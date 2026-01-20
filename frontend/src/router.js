@@ -25,38 +25,6 @@ async function loadPage(pageName) {
     }
 }
 
-// Logique de connexion pour account.html 🥵
-function handleLogin() {
-    const form = document.querySelector('#login-form form');
-    if (!form) return;
-
-    form.onsubmit = async (e) => {
-        e.preventDefault();
-        const email = form.querySelectorAll('input')[0].value;
-        const password = form.querySelectorAll('input')[1].value;
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                alert("Content de te revoir ! 🥰"); //
-                document.getElementById('login-form').style.display = 'none';
-                document.getElementById('profile-view').style.display = 'block';
-            } else {
-                alert(result.detail || "Accès refusé ❌");
-            }
-        } catch (error) {
-            console.error("Erreur API :", error);
-        }
-    };
-}
-
 function setupLinks() {
     const links = document.querySelectorAll('.nav-link');
     links.forEach(link => {
