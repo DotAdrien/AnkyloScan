@@ -1,189 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Turret+Road:wght@700&display=swap');
-
-:root {
-    --hue-color: 242;
-    --skin-color: hsl(342, 92%, 46%);
-    --title-color: hsl(var(--hue-color), 8%, 95%);
-    --text-color: hsl(var(--hue-color), 8%, 85%);
-    --body-color: hsl(var(--hue-color), 19%, 5%);
-    --box-color: hsl(var(--hue-color), 14%, 10%);
-    --body-font: 'Poppins', sans-serif;
+/* Cache la scrollbar sur Chrome, Safari et Opera */
+body::-webkit-scrollbar {
+    display: none;
 }
 
-/* --- RESET --- */
-* { 
-    margin: 0; 
-    padding: 0; 
-    box-sizing: border-box; 
-    text-decoration: none; 
-    list-style: none; 
-}
-
-body { 
-    font-family: var(--body-font);
-    color: var(--text-color);
+/* Cache la scrollbar sur IE, Edge et Firefox */
+body {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    overflow-x: hidden;
     min-height: 100vh;
     background: linear-gradient(-45deg, #050510, #1a0a2e, #0a0a1a, #4a0e26);
     background-size: 400% 400%;
     animation: gradientBG 8s ease infinite;
-    overflow-x: hidden;
+}
+
+.vertical-text {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
 }
 
 @keyframes gradientBG {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
-}
-
-/* --- SIDEBAR --- */
-.sidebar { 
-    position: fixed; 
-    width: 100px; 
-    height: 100vh; 
-    background: var(--body-color); 
-    border-right: 1px solid var(--box-color);
-    z-index: 100; 
-}
-
-.nav-logo { 
-    position: absolute; 
-    top: 1.8rem; 
-    left: 50%; 
-    transform: translateX(-50%); /* Centrage parfait dans la sidebar */
-    width: 40px; 
-    height: 40px; 
-    border-radius: 50%; 
-    background-color: var(--skin-color); 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0; /* Important */
-}
-
-.nav-logo .logo-link {
-    color: white !important;
-    font-weight: 600;
-    text-decoration: none;
-    
-    /* On reset TOUT ce qui pourrait faire pivoter ou décaler */
-    writing-mode: horizontal-tb !important;
-    transform: none !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    
-    width: 100%;
-    height: 100%;
-    margin: 0 !important;
-    line-height: 1 !important; /* Centre la lettre verticalement */
-    text-align: center;
-}
-
-/* On empêche le changement de couleur au survol pour le logo uniquement */
-.nav-logo .logo-link:hover {
-    color: white !important;
-    opacity: 0.9;
-}
-
-.nav-list { 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    margin-top: 150px; 
-    row-gap: 2rem; 
-}
-
-/* On ne fait pivoter QUE les liens qui sont dans la sidebar */
-.sidebar .nav-link { 
-    writing-mode: vertical-rl; 
-    transform: rotate(180deg); 
-    display: block;
-    transition: .3s; 
-    font-weight: 500; 
-    color: var(--title-color);
-    cursor: pointer;
-}
-
-.nav-link:hover, .active-link { 
-    color: var(--skin-color) !important; 
-}
-
-/* --- MAIN CONTENT --- */
-.main { 
-    margin-left: 100px; 
-    padding: 2rem; 
-    min-height: 100vh;
-}
-
-.container { 
-    max-width: 1000px; 
-    margin: auto; 
-    padding-top: 4rem;
-    animation: fadeIn 0.5s ease-in; /* Petite animation fluide 🥵 */
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.section-title { 
-    font-size: 2.25rem; 
-    margin-bottom: 2rem; 
-    text-align: center; 
-}
-
-/* --- BUTTONS --- */
-.button { 
-    display: inline-flex; 
-    align-items: center;
-    justify-content: center;
-    background-color: var(--skin-color); 
-    padding: .75rem 1.5rem; 
-    border-radius: .25rem; 
-    font-weight: 500; 
-    color: white;
-    transition: .3s;
-    border: none;
-    cursor: pointer;
-    /* On force l'horizontal pour les boutons */
-    writing-mode: horizontal-tb !important;
-    transform: none !important;
-}
-
-.button:hover { 
-    opacity: 0.8; 
-    transform: scale(1.05) !important; 
-}
-
-/* --- RESPONSIVE --- */
-@media screen and (max-width: 1024px) {
-    .sidebar { 
-        width: 100%; 
-        height: 60px; 
-        bottom: 0; 
-        top: auto;
-        border-right: none; 
-        border-top: 1px solid var(--box-color); 
-    }
-    
-    .nav-logo { display: none; } /* On cache le logo en bas pour gagner de la place */
-
-    .nav-list { 
-        flex-direction: row; 
-        margin-top: 0; 
-        height: 100%; 
-        justify-content: space-around; 
-    }
-
-    .sidebar .nav-link { 
-        writing-mode: horizontal-tb;
-        transform: rotate(0); 
-    }
-    
-
-    .main { 
-        margin-left: 0; 
-        padding-bottom: 80px; 
-    }
 }

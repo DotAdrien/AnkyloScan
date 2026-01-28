@@ -1,8 +1,26 @@
-<section class="container">
-    <h2 class="section-title">Get in Touch</h2>
-    <form style="display: flex; flex-direction: column; gap: 1rem; max-width: 500px; margin: auto;">
-        <input type="text" placeholder="Nom" style="padding: 1rem; background: var(--box-color); border: 1px solid var(--text-color); color: white;">
-        <textarea placeholder="Message" style="padding: 1rem; background: var(--box-color); border: 1px solid var(--text-color); color: white; height: 150px;"></textarea>
-        <button type="submit" class="button">Envoyer 💖</button>
-    </form>
-</section>
+<div class="max-w-2xl mx-auto py-10 animate-fade-in">
+    <h2 class="text-4xl font-bold mb-8 border-l-4 border-[#ec4899] pl-4">Get in Touch</h2>
+    
+    <div class="bg-[#14142b] p-8 rounded-2xl border border-white/5 shadow-xl">
+        <form class="space-y-6" @submit.prevent="alert('Message envoyé ! 💖')">
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">Nom</label>
+                <input type="text" placeholder="Ton nom" class="w-full bg-black/20 border border-white/10 p-4 rounded-lg focus:outline-none focus:border-[#ec4899] transition">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">Email</label>
+                <input type="email" placeholder="ton@email.com" class="w-full bg-black/20 border border-white/10 p-4 rounded-lg focus:outline-none focus:border-[#ec4899] transition">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">Message</label>
+                <textarea rows="5" placeholder="Dis-nous tout..." class="w-full bg-black/20 border border-white/10 p-4 rounded-lg focus:outline-none focus:border-[#ec4899] transition"></textarea>
+            </div>
+            
+            <button type="submit" class="w-full bg-[#ec4899] py-4 rounded-lg font-bold hover:bg-[#d946ef] transition-shadow shadow-lg shadow-[#ec4899]/20">
+                Envoyer le message 💖
+            </button>
+        </form>
+    </div>
+</div>
