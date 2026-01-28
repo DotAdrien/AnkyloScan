@@ -18,7 +18,7 @@ api:
     environment:
       MYSQL_DATABASE: ankyloscan
       MYSQL_USER: admin # Ton nouvel utilisateur 👤
-      MYSQL_PASSWORD: ${ADMIN_PASSWORD:-password_aleatoire} # Mot de passe variable 🔑
+      MYSQL_PASSWORD: ${ADMIN_PASSWORD} # Mot de passe variable 🔑
     volumes:
       - db_data:/var/lib/mysql
 
