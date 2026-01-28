@@ -34,3 +34,6 @@ CREATE TABLE IF NOT EXISTS Port (
     id_relation INT,
     FOREIGN KEY (id_relation) REFERENCES Device(id_relation) ON DELETE CASCADE
 );
+
+INSERT INTO Users (Name, Email, Password, Role) 
+VALUES ('adrien', 'exemple@gmail.com', '$2y$10$9tmVjLy/zn4Hu3jm4aws/O8AGgN/TwmVFjhnP7XqusogJZbYyXlyy', 'admin');
