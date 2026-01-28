@@ -10,7 +10,8 @@
 <body class="bg-[#050510] text-gray-200" x-data="app()" x-init="init()">
 
     <aside class="fixed w-[100px] h-screen bg-[#0a0a1a] border-r border-gray-800 z-50 flex flex-col items-center py-8">
-        <div @click="changePage('landing')" class="w-10 h-10 rounded-full bg-[#ec4899] flex items-center justify-center cursor-pointer mb-12 hover:scale-110 transition shadow-[0_0_15px_rgba(236,72,153,0.5)]">
+        <div @click="handleProfileClick()" 
+             class="w-10 h-10 rounded-full bg-[#ec4899] flex items-center justify-center cursor-pointer mb-12 hover:scale-110 transition shadow-[0_0_15px_rgba(236,72,153,0.5)]">
             <span class="font-bold text-white text-xl">A</span>
         </div>
         
@@ -38,9 +39,25 @@
                 currentPage: 'landing',
                 pageContent: '',
                 loading: false,
+                user: 0, // Personne n'est connecté par défaut 😶
 
                 async init() {
                     await this.changePage('landing');
+                },
+
+                // Décide d'envoyer vers le profil ou le login 🧠
+                handleProfileClick() {
+                    if (this.user === 1) {
+                        this.changePage('profile');
+                    } else {
+                        this.changePage('login');
+                    }
+                },
+
+                // Simulation de connexion pour tes tests 🔑
+                login() {
+                    this.user = 1;
+                    this.changePage('profile');
                 },
 
                 async changePage(pageName) {
@@ -52,9 +69,8 @@
                         if (!response.ok) throw new Error("Page non trouvée");
                         this.pageContent = await response.text();
                     } catch (err) {
-                        this.pageContent = `<div class="text-center py-20 text-red-500">Erreur de chargement 😱</div>`;
+                        this.pageContent = `<div class="text-center py-20 text-red-500">Erreur : ${pageName}.html est introuvable 😱</div>`;
                     } finally {
-                        // On passe à false immédiatement ⚡
                         this.loading = false;
                     }
                 }
