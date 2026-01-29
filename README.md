@@ -11,6 +11,8 @@ not working / finish
 - 🛡️ **Hardened**: Identification of vulnerable services and CVEs.
 - 📧 **Email Notifications**: Send alerts and notifications via email. 
 
+sudo docker-compose down -v
+
 ## 🛠️ Quick Start
 ```bash
 # Installation of tool
@@ -24,4 +26,7 @@ cd AnkyloScan
 echo "ADMIN_PASSWORD=$(openssl rand -base64 32)" > .env
 
 # Start 🚀
-sudo docker-compose up --build
+sudo docker-compose up --build bash
+
+
+
