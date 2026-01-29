@@ -1,44 +1,35 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
-    <title>AnkyloScan 🛡️</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.css" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.tailwindcss.com"></script>
-
+    <title>AnkyloScan | Dashboard 🛡️</title>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 
+<body class="bg-custom" x-data="app()" x-init="init()">
 
-
-
-
-
-<body class="bg-[#050510] text-gray-200" x-data="app()" x-init="init()">
-
-    <aside class="fixed w-[100px] h-screen bg-[#0a0a1a] border-r border-gray-800 z-50 flex flex-col items-center py-8">
-        <div @click="handleProfileClick()" 
-             class="w-10 h-10 rounded-full bg-[#ec4899] flex items-center justify-center cursor-pointer mb-12 hover:scale-110 transition shadow-[0_0_15px_rgba(236,72,153,0.5)]">
-            <span class="font-bold text-white text-xl">A</span>
+    <aside class="sidebar">
+        <div @click="handleProfileClick()" class="nav-avatar">
+            <span>A</span>
         </div>
         
-        <nav class="flex flex-col gap-12 mt-10">
+        <nav class="nav-links">
             <template x-for="item in ['landing', 'about', 'work', 'contact']">
                 <button @click="changePage(item)" 
-                        :class="currentPage === item ? 'text-[#ec4899]' : 'text-gray-400'" 
-                        class="vertical-text hover:text-[#ec4899] transition font-medium tracking-widest uppercase"
+                        class="nav-btn"
+                        :class="currentPage === item ? 'active' : ''"
                         x-text="item === 'work' ? 'SCAN' : item">
                 </button>
             </template>
         </nav>
     </aside>
 
-    <main class="ml-[100px] p-8">
+    <main>
         <div x-html="pageContent" 
-             class="transition-opacity duration-300"
-             :class="loading ? 'opacity-0' : 'opacity-100'">
+             class="page-transition"
+             :class="loading ? 'hidden' : 'visible'">
         </div>
     </main>
 

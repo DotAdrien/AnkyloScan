@@ -1,26 +1,479 @@
-/* Cache la scrollbar sur Chrome, Safari et Opera */
-body::-webkit-scrollbar {
-    display: none;
-}
-
-/* Cache la scrollbar sur IE, Edge et Firefox */
+/* Configuration de base */
 body {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-    overflow-x: hidden;
-    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #e5e7eb;
     background: linear-gradient(-45deg, #050510, #1a0a2e, #0a0a1a, #4a0e26);
     background-size: 400% 400%;
     animation: gradientBG 8s ease infinite;
+    min-height: 100vh;
+    overflow-x: hidden;
+    scrollbar-width: none; /* Firefox */
 }
 
-.vertical-text {
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-}
+body::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 
 @keyframes gradientBG {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
+}
+
+/* Sidebar & Navigation 🛡️ */
+.sidebar {
+    position: fixed;
+    width: 100px;
+    height: 100vh;
+    background: #0a0a1a;
+    border-right: 1px solid #1f2937;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 0;
+    z-index: 50;
+}
+
+.nav-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ec4899;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-bottom: 3rem;
+    font-weight: bold;
+    box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
+    transition: transform 0.2s;
+}
+
+.nav-avatar:hover { transform: scale(1.1); }
+
+.nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    margin-top: 2.5rem;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    /* On utilise vertical-rl pour l'écriture verticale */
+    writing-mode: vertical-rl;
+    /* On pivote pour que le texte se lise de bas en haut */
+    transform: rotate(180deg);
+    cursor: pointer;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    /* On enlève les marges par défaut pour bien centrer */
+    padding: 0;
+    margin: 0;
+}
+
+.nav-btn:hover, .nav-btn.active { color: #ec4899; }
+
+/* Main Content & Containers 🦖 */
+main { margin-left: 100px; padding: 2rem; }
+
+.container-center {
+    max-width: 896px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 5rem 0;
+}
+
+.card {
+    background: #14142b;
+    padding: 2rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Typographie & Couleurs */
+.title-giant {
+    font-size: 4.5rem;
+    font-weight: bold;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    color: white; /* L'emoji reste normal ici 🦖 */
+}
+
+.title-gradient {
+    background: linear-gradient(to right, #ffffff, #4b5563);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent; /* Seul le texte devient un dégradé 🎨 */
+}
+
+.text-pink { color: #ec4899; }
+.border-pink { border-left: 4px solid #ec4899; padding-left: 1rem; }
+
+/* Boutons 🥵 */
+.btn-primary {
+    background: #ec4899;
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: 9999px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+}
+
+.btn-primary:hover {
+    background: #d946ef;
+    transform: scale(1.05);
+}
+
+/* Formulaires 👤 */
+.input-group { margin-bottom: 1rem; text-align: left; }
+.input-field {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    color: white;
+    outline: none;
+}
+.input-field:focus { border-color: #ec4899; }
+
+.animate-bounce-slow {
+    display: inline-block;
+    animation: bounce-slow 3s ease-in-out infinite;
+}
+
+@keyframes bounce-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+
+
+/* Gestion de l'affichage du contenu principal */
+.page-transition {
+    transition: opacity 0.3s ease;
+}
+
+.hidden { opacity: 0; }
+.visible { opacity: 1; }
+
+/* Couleur de fond fallback si le dégradé ne charge pas */
+.bg-custom {
+    background-color: #050510;
+}
+
+/* Container de la page Login */
+.login-container {
+    max-width: 28rem;
+    margin: 5rem auto;
+    animation: fadeIn 0.5s ease-in;
+}
+
+/* La carte de connexion 🛡️ */
+.auth-card {
+    background: #14142b;
+    padding: 2rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.auth-title {
+    font-size: 1.875rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: white;
+}
+
+/* Formulaire et Inputs 🔑 */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #9ca3af;
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    color: white;
+    transition: border-color 0.2s;
+    box-sizing: border-box; /* Pour que le padding ne casse pas la largeur */
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #ec4899;
+}
+
+/* Bouton de connexion 🥵 */
+.btn-login {
+    width: 100%;
+    background: #ec4899;
+    color: white;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 10px 15px -3px rgba(236, 72, 153, 0.2);
+    margin-top: 1rem;
+}
+
+.btn-login:hover {
+    background: #d946ef;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* Container de la page About */
+.about-container {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 2.5rem 0;
+    animation: fadeIn 0.5s ease-in;
+}
+
+.about-title {
+    font-size: 2.25rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    border-left: 4px solid #ec4899;
+    padding-left: 1rem;
+    color: white;
+}
+
+.about-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Carte descriptive */
+.info-card {
+    background: #14142b;
+    padding: 2rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.info-card h3 {
+    color: #ec4899;
+    font-weight: bold;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    margin-top: 0;
+}
+
+.info-card p {
+    color: #d1d5db;
+    line-height: 1.625;
+}
+
+/* Carte Mascotte 🐱 */
+.mascot-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: #14142b;
+    padding: 2rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mascot-icon {
+    font-size: 3rem;
+}
+
+.mascot-text h3 {
+    color: white;
+    font-weight: bold;
+    font-size: 1.125rem;
+    margin: 0;
+}
+
+.mascot-text p {
+    color: #9ca3af;
+    font-style: italic;
+    margin-top: 0.25rem;
+}
+
+
+/* Container de la page de Scan */
+.scan-container {
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: 2.5rem 0;
+    animation: fadeIn 0.5s ease-in;
+}
+
+.scan-title {
+    font-size: 2.25rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    border-left: 4px solid #ec4899;
+    padding-left: 1rem;
+    color: white;
+}
+
+/* Grille des fonctionnalités */
+.scan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Carte de scan 🔍 */
+.scan-card {
+    background: #14142b;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.scan-card:hover {
+    border-color: rgba(236, 72, 153, 0.5);
+    transform: translateY(-2px);
+}
+
+.scan-card h3 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.scan-card p {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Bouton d'action secondaire */
+.btn-action {
+    width: 100%;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-radius: 0.25rem;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-action:hover {
+    background: #ec4899;
+}
+
+
+/* Container de la page Contact */
+.contact-container {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 2.5rem 0;
+    animation: fadeIn 0.5s ease-in;
+}
+
+.contact-title {
+    font-size: 2.25rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    border-left: 4px solid #ec4899;
+    padding-left: 1rem;
+    color: white;
+}
+
+/* La carte du formulaire */
+.contact-card {
+    background: #14142b;
+    padding: 2rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Éléments du formulaire */
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-field label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #9ca3af;
+}
+
+.form-field input, 
+.form-field textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    color: white;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.form-field input:focus, 
+.form-field textarea:focus {
+    border-color: #ec4899;
+}
+
+/* Bouton d'envoi 💖 */
+.btn-submit {
+    width: 100%;
+    background: #ec4899;
+    color: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 10px 15px -3px rgba(236, 72, 153, 0.2);
+}
+
+.btn-submit:hover {
+    background: #d946ef;
 }
