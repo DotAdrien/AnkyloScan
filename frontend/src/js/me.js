@@ -19,11 +19,14 @@ function getCookie(name) {
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
+// Transforme le cookie en tableau de valeurs pour Alpine 🦖
 function fetchMe() {
     const token = getCookie('session_token');
+    
     if (token) {
         const data = parseJwt(token);
         if (data) {
+            // On retourne l'objet avec les 4 valeurs demandées ✨
             return {
                 loggedIn: true,
                 id: data.user_id,
@@ -33,5 +36,6 @@ function fetchMe() {
             };
         }
     }
+    // Si pas de token ou erreur, l'utilisateur n'est pas connecté 😶
     return { loggedIn: false, id: null, name: '', email: '', rank: '' };
 }
