@@ -1,3 +1,14 @@
+// On ajoute cette fonction pour lire le token sans requête API 🧠
+function parseJwt(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        return JSON.parse(window.atob(base64));
+    } catch (e) {
+        return null;
+    }
+}
+
 async function login() {
     const email = document.querySelector('input[type="email"]').value;
     const password = document.querySelector('input[type="password"]').value;
@@ -5,28 +16,28 @@ async function login() {
     try {
         const response = await fetch('http://localhost:8001/auth/login', {
             method: 'POST',
-            credentials: 'include', // <--- AJOUTE CETTE LIGNE
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
         });
 
         const data = await response.json();
 
         if (response.ok) {
-            // On met à jour l'état dans Alpine.js 🔓
-            // 'this' fonctionnera si la fonction est appelée depuis le contexte Alpine
-            this.user = 1; 
+            // On décode le token reçu ✨
+            const userData = parseJwt(data.token);
+            this.user = {
+                loggedIn: true,
+                id: userData.user_id,
+                name: userData.name,
+                email: userData.email,
+                rank: userData.rank
+            };
             await this.changePage('profile');
         } else {
-            alert(data.detail || "Email ou mot de passe incorrect ❌");
+            alert(data.detail || "Erreur ❌");
         }
     } catch (error) {
-        console.error("Erreur API :", error);
-        alert("Le serveur AnkyloScan ne répond pas... 😱");
+        alert("Serveur HS... 😱");
     }
 }

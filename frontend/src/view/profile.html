@@ -4,14 +4,42 @@
      x-init="setTimeout(() => loaded = true, 50)"
      :class="{ 'loaded': loaded }">
 
-<div class="profile-container">
-    <h2>Mon Profil ✨</h2>
-    <div class="info-card">
-        <p><strong>ID Utilisateur :</strong> <span x-text="user.id"></span></p>
-        <p><strong>Message :</strong> <span x-text="user.message"></span></p>
+<div class="profile-container main-content" 
+     x-data="{ loaded: false }" 
+     x-init="setTimeout(() => loaded = true, 50)"
+     :class="{ 'loaded': loaded }">
+
+    <div class="profile-header">
+        <div class="profile-avatar" x-text="user.name ? user.name.charAt(0).toUpperCase() : '?'"></div>
+        <div>
+            <h2 style="margin:0">Mon Profil ✨</h2>
+            <p style="color: #ec4899; margin:0" x-text="user.rank"></p>
+        </div>
+    </div>
+
+    <div class="profile-info-grid">
+        <div class="info-item">
+            <span class="info-label">IDENTIFIANT UNIQUE</span>
+            <span x-text="'#' + user.id"></span>
+        </div>
+        
+        <div class="info-item">
+            <span class="info-label">NOM D'UTILISATEUR</span>
+            <span x-text="user.name"></span>
+        </div>
+
+        <div class="info-item">
+            <span class="info-label">ADRESSE EMAIL</span>
+            <span x-text="user.email"></span>
+        </div>
+
+        <div class="info-item">
+            <span class="info-label">RANG SYSTÈME</span>
+            <span x-text="user.rank"></span>
+        </div>
     </div>
     
-    <button @click="logout()" class="btn-logout" style="margin-top: 20px; background: #ff4757; color: white; padding: 10px 20px; border-radius: 8px;">
-        Se déconnecter 😌👋
+    <button @click="logout()" class="btn-logout">
+        <span>Se déconnecter 😌👋</span>
     </button>
 </div>
