@@ -21,7 +21,7 @@ git clone https://github.com/DotAdrien/AnkyloScan
 cd AnkyloScan
 
 # Generate unique password (une seule fois) 🔑
-echo "ADMIN_PASSWORD=$(openssl rand -base64 12)" > .env
+echo "ADMIN_PASSWORD=$(openssl rand -base64 32)" > .env
 
 # Start 🚀
 sudo docker-compose up --build
