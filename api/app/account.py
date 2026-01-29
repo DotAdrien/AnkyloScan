@@ -55,8 +55,3 @@ def get_me(session_token: str = Cookie(None)):
         raise HTTPException(status_code=401, detail="Session expirée 😪")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Token invalide 🤨")
-
-@router.post("/logout")
-def logout(response: Response):
-    response.delete_cookie("session_token")
-    return {"message": "Déconnecté, à plus ! 👋"}

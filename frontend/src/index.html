@@ -39,23 +39,30 @@
     <script>
         function app() {
             return {
-                currentPage: 'landing',
+                currentPage: '', // Vide au début
                 pageContent: '',
                 loading: false,
-                user: { loggedIn: false },
+                user: { loggedIn: false, id: null, message: '' },
 
                 async init() {
-                    // Au démarrage, on vérifie si l'utilisateur a déjà un cookie valide
+                    // 1. Vérifie si l'utilisateur est déjà connecté via le cookie
                     await this.checkAuth();
+                    // 2. Charge la landing par défaut au démarrage
                     await this.changePage('landing');
                 },
 
-                // Utilise la logique de me.js pour vérifier le token
                 async checkAuth() {
-                    await fetchMe.call(this);
+                    // Appelle fetchMe (de me.js) qui utilise credentials: 'include'
+                    // Si le cookie est bon, fetchMe mettra à jour this.user.loggedIn
+                    try {
+                        await fetchMe.call(this);
+                    } catch (e) {
+                        this.user.loggedIn = false;
+                    }
                 },
 
                 handleProfileClick() {
+                    // Si le cookie a été validé par checkAuth
                     if (this.user.loggedIn) {
                         this.changePage('profile');
                     } else {
@@ -63,9 +70,15 @@
                     }
                 },
 
-                // Cette fonction appelle la logique de login.js
                 async submitLogin() {
                     await login.call(this);
+                },
+
+                // Bouton Déconnexion (supprime le cookie côté client)
+                logout() {
+                    document.cookie = "session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    this.user.loggedIn = false;
+                    this.changePage('login');
                 },
 
                 async changePage(pageName) {
@@ -73,10 +86,9 @@
                     this.currentPage = pageName;
                     try {
                         const response = await fetch(`view/${pageName}.html`);
-                        if (!response.ok) throw new Error("Page non trouvée");
                         this.pageContent = await response.text();
                     } catch (err) {
-                        this.pageContent = `<div class="text-center py-20 text-red-500">Erreur : ${pageName}.html est introuvable 😱</div>`;
+                        this.pageContent = "Erreur de chargement 😱";
                     } finally {
                         this.loading = false;
                     }

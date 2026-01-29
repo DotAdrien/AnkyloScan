@@ -1,8 +1,17 @@
-<div class="info-item">
-    <span class="info-label">Message de bienvenue</span>
-    <p x-text="user.message"></p>
-</div>
-<div class="info-item">
-    <span class="info-label">ID Session</span>
-    <p x-text="user.id"></p>
+<link rel="stylesheet" href="style/profile.css">
+<div class="container-center main-content" 
+     x-data="{ loaded: false }" 
+     x-init="setTimeout(() => loaded = true, 50)"
+     :class="{ 'loaded': loaded }">
+
+<div class="profile-container">
+    <h2>Mon Profil ✨</h2>
+    <div class="info-card">
+        <p><strong>ID Utilisateur :</strong> <span x-text="user.id"></span></p>
+        <p><strong>Message :</strong> <span x-text="user.message"></span></p>
+    </div>
+    
+    <button @click="logout()" class="btn-logout" style="margin-top: 20px; background: #ff4757; color: white; padding: 10px 20px; border-radius: 8px;">
+        Se déconnecter 😌👋
+    </button>
 </div>
