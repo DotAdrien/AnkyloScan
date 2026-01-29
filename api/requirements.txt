@@ -2,4 +2,5 @@ mysql-connector-python
 fastapi
 uvicorn
 pydantic
-
+PyJWT
+email-validator
