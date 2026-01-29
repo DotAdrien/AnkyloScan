@@ -21,7 +21,7 @@ def test_db_connection():
         # Connexion au service 'db' défini dans docker-compose
         connection = mysql.connector.connect(
             host="db",
-            user="admin",
+            user="root",
             password=DB_PASSWORD,
             database="ankyloscan"
         )
