@@ -7,18 +7,18 @@
 <div class="login-container">
     <div class="auth-card">
         <h2 class="auth-title">Connexion 👤</h2>
-        <form class="space-y-4" @submit.prevent="login()">
-            <div class="form-group">
-                <label class="form-label">Email</label>
-                <input type="email" placeholder="admin@ankyloscan.com" class="form-input">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Mot de passe</label>
-                <input type="password" placeholder="••••••••" class="form-input">
-            </div>
-            <button type="submit" class="btn-login">
-                Se connecter 🥵
-            </button>
-        </form>
+            <form @submit.prevent="submitLogin()">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" placeholder="admin@ankyloscan.com" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mot de passe</label>
+                    <input type="password" placeholder="••••••••" class="form-input" required>
+                </div>
+                <button type="submit" class="btn-login">
+                    Se connecter 🥵
+                </button>
+            </form>
     </div>
 </div>

@@ -42,31 +42,35 @@
                 currentPage: 'landing',
                 pageContent: '',
                 loading: false,
-                user: 0, // Personne n'est connecté par défaut 😶
+                user: { loggedIn: false },
 
                 async init() {
+                    // Au démarrage, on vérifie si l'utilisateur a déjà un cookie valide
+                    await this.checkAuth();
                     await this.changePage('landing');
                 },
 
-                // Décide d'envoyer vers le profil ou le login 🧠
+                // Utilise la logique de me.js pour vérifier le token
+                async checkAuth() {
+                    await fetchMe.call(this);
+                },
+
                 handleProfileClick() {
-                    if (this.user === 1) {
+                    if (this.user.loggedIn) {
                         this.changePage('profile');
                     } else {
                         this.changePage('login');
                     }
                 },
 
-                // Simulation de connexion pour tes tests 🔑
-                login() {
-                    this.user = 1;
-                    this.changePage('profile');
+                // Cette fonction appelle la logique de login.js
+                async submitLogin() {
+                    await login.call(this);
                 },
 
                 async changePage(pageName) {
                     this.loading = true;
                     this.currentPage = pageName;
-                    
                     try {
                         const response = await fetch(`view/${pageName}.html`);
                         if (!response.ok) throw new Error("Page non trouvée");
