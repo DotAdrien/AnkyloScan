@@ -1,69 +1,84 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnkyloScan</title>
-    <link rel="stylesheet" href="style.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="js/me.js"></script>
-    <script src="js/login.js"></script>
+    <title>AnkyloScan | Dashboard 🛡️</title>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="style/index.css">
+    
+    <script src="js/login.js" defer></script>
+    <script src="js/me.js" defer></script>
 </head>
-<body x-data="{ 
-    currentPage: 'landing', 
-    user: { loggedIn: false }, 
-    loading: false,
-    pageContent: '',
 
-    async init() { 
-        // 1. On vérifie si l'utilisateur a un cookie valide au démarrage 🍪
-        await fetchMe.call(this); 
-        
-        // 2. On charge la page d'accueil par défaut
-        await this.changePage('landing'); 
-    },
+<body class="bg-custom" x-data="app()" x-init="init()">
 
-    async changePage(pageName) {
-        this.loading = true;
-        try {
-            const response = await fetch(`view/${pageName}.html`);
-            if (!response.ok) throw new Error('Page introuvable');
-            this.pageContent = await response.text();
-            this.currentPage = pageName;
-        } catch (err) {
-            this.pageContent = '<h1>Erreur 404</h1><p>La page est introuvable 😱</p>';
-        } finally {
-            this.loading = false;
-        }
-    }
-}">
-
-    <nav>
-        <div class="nav-container">
-            <span @click="changePage('landing')" style="cursor:pointer">🦖 AnkyloScan</span>
-            <div>
-                <template x-if="!user.loggedIn">
-                    <button @click="changePage('login')">Connexion</button>
-                </template>
-                <template x-if="user.loggedIn">
-                    <button @click="changePage('profile')">Mon Profil (ID: <span x-text="user.id"></span>)</button>
-                </template>
-            </div>
+    <aside class="sidebar">
+        <div @click="handleProfileClick()" class="nav-avatar">
+            <span>A</span>
         </div>
-    </nav>
+        
+        <nav class="nav-links">
+            <template x-for="item in ['landing', 'about', 'work', 'contact']">
+                <button @click="changePage(item)" 
+                        class="nav-btn"
+                        :class="currentPage === item ? 'active' : ''"
+                        x-text="item === 'work' ? 'SCAN' : item">
+                </button>
+            </template>
+        </nav>
+    </aside>
 
     <main>
-        <template x-if="loading">
-            <div class="loader">Chargement... ⏳</div>
-        </template>
-
-        <div x-show="!loading" x-html="pageContent">
-            </div>
+        <div x-html="pageContent" 
+             class="page-transition"
+             :class="loading ? 'hidden' : 'visible'">
+        </div>
     </main>
 
-    <footer>
-        <p>AnkyloScan - Sécurisé par Tigrounet 🐱😶</p>
-    </footer>
+    <script>
+        function app() {
+            return {
+                currentPage: 'landing',
+                pageContent: '',
+                loading: false,
+                user: 0, // Personne n'est connecté par défaut 😶
 
+                async init() {
+                    await this.changePage('landing');
+                },
+
+                // Décide d'envoyer vers le profil ou le login 🧠
+                handleProfileClick() {
+                    if (this.user === 1) {
+                        this.changePage('profile');
+                    } else {
+                        this.changePage('login');
+                    }
+                },
+
+                // Simulation de connexion pour tes tests 🔑
+                login() {
+                    this.user = 1;
+                    this.changePage('profile');
+                },
+
+                async changePage(pageName) {
+                    this.loading = true;
+                    this.currentPage = pageName;
+                    
+                    try {
+                        const response = await fetch(`view/${pageName}.html`);
+                        if (!response.ok) throw new Error("Page non trouvée");
+                        this.pageContent = await response.text();
+                    } catch (err) {
+                        this.pageContent = `<div class="text-center py-20 text-red-500">Erreur : ${pageName}.html est introuvable 😱</div>`;
+                    } finally {
+                        this.loading = false;
+                    }
+                }
+            }
+        }
+    </script>
 </body>
 </html>
