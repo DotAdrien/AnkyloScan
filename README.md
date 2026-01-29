@@ -27,6 +27,3 @@ echo "ADMIN_PASSWORD=$(openssl rand -base64 32)" > .env
 
 # Start 🚀
 sudo docker-compose up --build bash
-
-
-
