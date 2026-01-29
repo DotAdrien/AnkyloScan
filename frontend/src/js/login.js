@@ -19,7 +19,7 @@ async function submitLogin(context) {
         const data = await response.json();
 
         if (response.ok) {
-            // Utilise context au lieu de this ✨
+
             context.user = fetchMe(); 
             await context.changePage('profile'); 
         } else {
