@@ -3,7 +3,7 @@
 <div class="login-container">
     <div class="auth-card">
         <h2 class="auth-title">Connexion 👤</h2>
-            <form @submit.prevent="submitLogin()">
+            <form @submit.prevent="submitLogin($data)">
                 <div class="form-group">
                     <label class="form-label">Email</label>
                     <input type="email" placeholder="admin@ankyloscan.com" class="form-input" required>
