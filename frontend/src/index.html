@@ -50,13 +50,14 @@
                 user: { loggedIn: false, id: null, name: '', email: '', rank: '' },
 
                 async init() {
-                    try {
-                        const profile = fetchMe();
-                        if (profile) this.user = profile;
-                    } catch (e) {
-                        console.error("Erreur profil:", e);
+                    // 1. On récupère les infos du cookie dès le départ 🍪
+                    const profile = fetchMe();
+                    if (profile && profile.loggedIn) {
+                        this.user = profile;
+                        await this.changePage('work'); 
+                    } else {
+                        await this.changePage('landing');
                     }
-                    await this.changePage('landing');
                 },
 
                 // AJOUTE CETTE FONCTION ICI ⬇️
