@@ -4,12 +4,12 @@ services:
     ports:
       - "8000:80"
 
-api:
+  api: # Alignement corrigé ici 👍
     build: ./api
     ports:
       - "8001:8001"
     env_file:
-      - .env  # Ajoute cette ligne pour que l'API voit le MDP 🔑
+      - .env
     volumes:
       - ./api:/app
 
@@ -17,8 +17,8 @@ api:
     build: ./mysql
     environment:
       MYSQL_DATABASE: ankyloscan
-      MYSQL_USER: admin # Ton nouvel utilisateur 👤
-      MYSQL_PASSWORD: ${ADMIN_PASSWORD} # Mot de passe variable 🔑
+      MYSQL_USER: admin 
+      MYSQL_PASSWORD: ${ADMIN_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
 
