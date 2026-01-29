@@ -6,6 +6,7 @@ async function login() {
     try {
         const response = await fetch('http://localhost:8001/auth/login', {
             method: 'POST',
+            credentials: 'include', // <--- AJOUTE CETTE LIGNE
             headers: {
                 'Content-Type': 'application/json'
             },

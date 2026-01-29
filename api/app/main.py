@@ -5,6 +5,16 @@ from app.account import router as auth_router
 
 app = FastAPI(title="AnkyloScan API 🦖")
 
+
+# Configuration CORS pour autoriser le frontend (port 8000)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8000"], # L'URL exacte de ton frontend
+    allow_credentials=True, # Indispensable pour les cookies !
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Récupère le MDP généré ou celui par défaut 🔑
 DB_PASSWORD = os.getenv("ADMIN_PASSWORD", "password_aleatoire")
 
