@@ -10,7 +10,7 @@ DB_PASSWORD = os.getenv("ADMIN_PASSWORD", "password_aleatoire")
 
 @app.get("/")
 def home():
-    return {"message": "AnkyloScan API tournant sur le port 8001 ! 🦖🔥"}
+    return {"message": "AnkyloScan API tournant sur le port 8001 ! 🦖🔥", DB_PASSWORD}
 
 @app.get("/test-db")
 def test_db_connection():
