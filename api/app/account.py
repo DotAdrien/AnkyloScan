@@ -1,7 +1,7 @@
 import os
 import jwt
 import datetime
-import mysql.connector
+import mysql.connector # type: ignore
 from fastapi import APIRouter, HTTPException, Response, Cookie
 from pydantic import BaseModel, EmailStr
 
