@@ -19,7 +19,7 @@ services:
     build: ./mysql
     environment:
       MYSQL_DATABASE: ankyloscan
-      MYSQL_USER: admin 
+      MYSQL_USER: admin
       MYSQL_PASSWORD: ${ADMIN_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${ADMIN_PASSWORD}
     volumes:
