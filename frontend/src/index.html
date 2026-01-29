@@ -42,15 +42,38 @@
                 currentPage: '', 
                 pageContent: '',
                 loading: false,
-                // Initialisation vide
                 user: { loggedIn: false, id: null, name: '', email: '', rank: '' },
 
                 async init() {
-                    // 1. On récupère les infos depuis le cookie direct ! 🍪
+                    // 1. On récupère les infos du cookie tout de suite 🍪
                     this.user = fetchMe();
 
-                    // 2. Charge la landing par défaut
+                    // 2. Détermine la page par défaut au chargement
+                    // Si tu veux que l'actu charge toujours la landing :
                     await this.changePage('landing');
+                    
+                    // OU si tu veux qu'il reste sur le profil s'il était dessus :
+                    // const target = this.user.loggedIn ? 'profile' : 'landing';
+                    // await this.changePage(target);
+                },
+
+                async changePage(pageName) {
+                    this.loading = true;
+                    this.currentPage = pageName;
+                    try {
+                        // Si on tente d'aller sur 'profile' sans être connecté -> redirection login 🛡️
+                        if (pageName === 'profile' && !this.user.loggedIn) {
+                            return await this.changePage('login');
+                        }
+
+                        const response = await fetch(`view/${pageName}.html`);
+                        if (!response.ok) throw new Error();
+                        this.pageContent = await response.text();
+                    } catch (err) {
+                        this.pageContent = "<div class='main-content'>Erreur de chargement 😱</div>";
+                    } finally {
+                        this.loading = false;
+                    }
                 },
 
                 handleProfileClick() {
@@ -62,30 +85,13 @@
                 },
 
                 async submitLogin() {
-                    // On appelle la fonction login de login.js
-                    // Note : pense à mettre à jour login.js pour qu'il remplisse 
-                    // aussi this.user après le fetch réussi !
                     await login.call(this);
                 },
 
                 logout() {
-                    // On vide le cookie et l'état 😌👋
                     document.cookie = "session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                     this.user = { loggedIn: false, id: null, name: '', email: '', rank: '' };
                     this.changePage('login');
-                },
-
-                async changePage(pageName) {
-                    this.loading = true;
-                    this.currentPage = pageName;
-                    try {
-                        const response = await fetch(`view/${pageName}.html`);
-                        this.pageContent = await response.text();
-                    } catch (err) {
-                        this.pageContent = "Erreur de chargement 😱";
-                    } finally {
-                        this.loading = false;
-                    }
                 }
             }
         }

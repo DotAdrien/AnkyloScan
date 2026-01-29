@@ -4,11 +4,7 @@
      x-init="setTimeout(() => loaded = true, 50)"
      :class="{ 'loaded': loaded }">
 
-<div class="profile-container main-content" 
-     x-data="{ loaded: false }" 
-     x-init="setTimeout(() => loaded = true, 50)"
-     :class="{ 'loaded': loaded }">
-
+<div class="profile-container main-content">
     <div class="profile-header">
         <div class="profile-avatar" x-text="user.name ? user.name.charAt(0).toUpperCase() : '?'"></div>
         <div>
@@ -39,7 +35,7 @@
         </div>
     </div>
     
-    <button @click="logout()" class="btn-logout">
-        <span>Se déconnecter 😌👋</span>
+    <button @click="logout()" class="btn-logout" style="margin-top: 2rem;">
+        Se déconnecter 😌👋
     </button>
 </div>
