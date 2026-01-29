@@ -1,21 +1,12 @@
 import os
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import List
 import mysql.connector
+from app.account import router as auth_router
 
 app = FastAPI(title="AnkyloScan API 🦖")
 
-# Récupère le MDP généré dans le .env ou utilise celui par défaut 🔑
+# Récupère le MDP généré ou celui par défaut 🔑
 DB_PASSWORD = os.getenv("ADMIN_PASSWORD", "password_aleatoire")
-
-class ScanResult(BaseModel):
-    ip: str
-    hostname: str = "Inconnu"
-    status: str
-    open_ports: List[int]
-
-db_mock = []
 
 @app.get("/")
 def home():
@@ -24,7 +15,7 @@ def home():
 @app.get("/test-db")
 def test_db_connection():
     try:
-        # Utilise les variables de ton docker-compose
+        # Connexion au service 'db' défini dans docker-compose
         connection = mysql.connector.connect(
             host="db",
             user="admin",
@@ -33,6 +24,10 @@ def test_db_connection():
         )
         if connection.is_connected():
             connection.close()
-            return {"status": "success", "message": "Connexion auto réussie ! 🛡️"}
+            return {"status": "success", "message": "Connexion réussie ! 🛡️"}
     except Exception as e:
+        # Tigrounet signale une erreur si la base boude 😱
         raise HTTPException(status_code=500, detail=f"Erreur : {str(e)} 😱")
+
+# Inclusion des routes du fichier account.py 🔌
+app.include_router(auth_router)
