@@ -36,4 +36,4 @@ CREATE TABLE IF NOT EXISTS Port (
 );
 
 INSERT INTO Users (Name, Email, Password, Role) 
-VALUES ('adrien', 'exemple@gmail.com', '$2y$10$9tmVjLy/zn4Hu3jm4aws/O8AGgN/TwmVFjhnP7XqusogJZbYyXlyy', 'admin');
+VALUES ('admin', 'admin@gmail.com', 'admin', 'admin');

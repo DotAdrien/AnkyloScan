@@ -56,26 +56,6 @@ def get_me(session_token: str = Cookie(None)):
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Token invalide 🤨")
 
-@router.post("/setup-admin")
-def create_admin():
-    try:
-        connection = mysql.connector.connect(host="db", user="admin", password=DB_PASSWORD, database="ankyloscan")
-        cursor = connection.cursor()
-
-        # Requête préparée pour éviter les injections 🛡️
-        sql = "INSERT INTO Users (Name, Email, Password, Role) VALUES (%s, %s, %s, %s)"
-        val = ("admin", "admin@gmail.com", "admin", "admin")
-        
-        cursor.execute(sql, val)
-        connection.commit()
-        
-        cursor.close()
-        connection.close()
-        
-        return {"status": "success", "message": "Admin ajouté à la base ! 🥵✨"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur SQL : {str(e)}")
-
 @router.post("/logout")
 def logout(response: Response):
     response.delete_cookie("session_token")
