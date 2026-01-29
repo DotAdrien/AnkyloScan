@@ -1,5 +1,4 @@
 async function login() {
-    // On récupère les champs du formulaire 🔍
     const email = document.querySelector('input[type="email"]').value;
     const password = document.querySelector('input[type="password"]').value;
 
