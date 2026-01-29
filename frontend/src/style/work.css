@@ -1,0 +1,7 @@
+.scan-container { max-width: 64rem; margin: 0 auto; padding: 2.5rem 0; animation: fadeIn 0.5s ease-in; }
+.scan-title { font-size: 2.25rem; font-weight: bold; margin-bottom: 2rem; border-left: 4px solid #ec4899; padding-left: 1rem; color: white; }
+.scan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+.scan-card { background: #14142b; padding: 1.5rem; border-radius: 0.75rem; border: 1px solid rgba(255, 255, 255, 0.05); transition: 0.3s; }
+.scan-card:hover { border-color: #ec4899; transform: translateY(-2px); }
+.btn-action { width: 100%; padding: 0.5rem; background: rgba(255, 255, 255, 0.05); border: none; border-radius: 0.25rem; color: white; cursor: pointer; }
+.btn-action:hover { background: #ec4899; }

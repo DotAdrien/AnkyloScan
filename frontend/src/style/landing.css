@@ -1,0 +1,43 @@
+/* style/landing.css */
+.container-center {
+    max-width: 896px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 5rem 0;
+    animation: fadeIn 0.5s ease-in;
+}
+
+.title-giant {
+    font-size: 4.5rem; font-weight: bold; font-style: italic;
+    margin-bottom: 1.5rem; display: flex; align-items: center;
+    justify-content: center; gap: 1.5rem; color: white;
+}
+
+.title-gradient {
+    background: linear-gradient(to right, #ffffff, #4b5563);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+.btn-primary {
+    background: #ec4899; color: white; padding: 1rem 2.5rem;
+    border-radius: 9999px; font-weight: bold; border: none;
+    cursor: pointer; transition: all 0.3s;
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+}
+
+.btn-primary:hover { background: #d946ef; transform: scale(1.05); }
+
+.animate-bounce-slow {
+    display: inline-block;
+    animation: bounce-slow 3s ease-in-out infinite;
+}
+
+@keyframes bounce-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

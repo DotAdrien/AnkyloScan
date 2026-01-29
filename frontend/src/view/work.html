@@ -1,3 +1,9 @@
+<link rel="stylesheet" href="style/work.css">
+<div class="container-center main-content" 
+     x-data="{ loaded: false }" 
+     x-init="setTimeout(() => loaded = true, 50)"
+     :class="{ 'loaded': loaded }">
+
 <div class="scan-container">
     <h2 class="scan-title">Scans Réseau</h2>
     

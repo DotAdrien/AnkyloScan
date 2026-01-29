@@ -1,0 +1,7 @@
+.about-container { max-width: 48rem; margin: 0 auto; padding: 2.5rem 0; animation: fadeIn 0.5s ease-in; }
+.about-title { font-size: 2.25rem; font-weight: bold; margin-bottom: 2rem; border-left: 4px solid #ec4899; padding-left: 1rem; color: white; }
+.info-card { background: #14142b; padding: 2rem; border-radius: 1rem; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 1.5rem; }
+.info-card h3 { color: #ec4899; margin-top: 0; }
+.mascot-card { display: flex; align-items: center; gap: 1.5rem; background: #14142b; padding: 2rem; border-radius: 1rem; border: 1px solid rgba(255, 255, 255, 0.05); }
+.mascot-icon { font-size: 3rem; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

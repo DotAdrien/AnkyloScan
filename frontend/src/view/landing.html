@@ -1,3 +1,9 @@
+<link rel="stylesheet" href="style/landing.css">
+<div class="container-center main-content" 
+     x-data="{ loaded: false }" 
+     x-init="setTimeout(() => loaded = true, 50)"
+     :class="{ 'loaded': loaded }">
+
 <div class="container-center">
     <h1 class="title-giant">
         <span class="animate-bounce-slow">🦖</span>

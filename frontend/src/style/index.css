@@ -1,0 +1,74 @@
+/* style.css */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #e5e7eb;
+    background: linear-gradient(-45deg, #050510, #1a0a2e, #0a0a1a, #4a0e26);
+    background-size: 400% 400%;
+    animation: gradientBG 8s ease infinite;
+    min-height: 100vh;
+    overflow-x: hidden;
+    scrollbar-width: none;
+}
+
+body::-webkit-scrollbar { display: none; }
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.sidebar {
+    position: fixed;
+    width: 100px;
+    height: 100vh;
+    background: #0a0a1a;
+    border-right: 1px solid #1f2937;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 0;
+    z-index: 50;
+}
+
+.nav-avatar {
+    width: 40px; height: 40px; border-radius: 50%; background: #ec4899;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; margin-bottom: 3rem; font-weight: bold;
+    box-shadow: 0 0 15px rgba(236, 72, 153, 0.5); transition: transform 0.2s;
+}
+
+.nav-avatar:hover { transform: scale(1.1); }
+
+.nav-links { display: flex; flex-direction: column; gap: 3rem; margin-top: 2.5rem; }
+
+.nav-btn {
+    background: none; border: none; color: #9ca3af;
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    cursor: pointer; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; transition: color 0.2s;
+}
+
+.nav-btn:hover, .nav-btn.active { color: #ec4899; }
+
+main { margin-left: 100px; padding: 2rem; }
+
+.page-transition { transition: opacity 0.3s ease; }
+.hidden { opacity: 0; }
+.visible { opacity: 1; }
+
+
+
+/* On cache le contenu tant qu'Alpine n'a pas fini de charger la page */
+[x-cloak] { display: none !important; }
+
+.main-content {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.main-content.loaded {
+    opacity: 1;
+}
