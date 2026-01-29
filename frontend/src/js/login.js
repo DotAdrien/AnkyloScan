@@ -1,4 +1,4 @@
-async function login() {
+async function submitLogin() {
     const emailInput = document.querySelector('input[type="email"]');
     const passwordInput = document.querySelector('input[type="password"]');
 
@@ -32,4 +32,10 @@ async function login() {
         console.error("Erreur API :", error);
         alert("Le serveur AnkyloScan ne répond pas... 😱");
     }
+}
+
+
+function logout() {
+    document.cookie = "session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    location.reload(); // Redémarre pour vider l'état AlpineJS ✨
 }
