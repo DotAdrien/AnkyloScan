@@ -33,7 +33,7 @@ def login(user_data: UserLogin, response: Response):
         # Connexion au service 'db' défini dans docker-compose
         conn = mysql.connector.connect(
             host="db", 
-            user="admin", 
+            user="root", 
             password=DB_PASSWORD, 
             database="ankyloscan"
         )
