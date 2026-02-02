@@ -1,8 +1,9 @@
 import os
 from fastapi import FastAPI, HTTPException
-import mysql.connector # type: ignore
+import mysql.connector
 from app.account import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
+from app.scan import router as scan_router
 
 app = FastAPI(title="AnkyloScan API 🦖")
 
