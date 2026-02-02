@@ -4,5 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-tokio = { version = "1", features = ["full"] }
-mysql = "24.0.0" # Pour que Tigrounet puisse enregistrer les résultats 🐱
+tokio = { version = "1.36", features = ["full"] }
+# On utilise une version de mysql qui ne force pas les dernières libs de temps
+mysql = "24.0.0" 
+# On force une version de 'time' qui ne demande pas Rust 1.88
+time = "=0.3.36"
