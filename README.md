@@ -11,8 +11,6 @@ not working / finish
 - 🛡️ **Hardened**: Identification of vulnerable services and CVEs.
 - 📧 **Email Notifications**: Send alerts and notifications via email. 
 
-sudo docker-compose down -v
-
 ## 🛠️ Quick Start
 ```bash
 # Installation of tool
