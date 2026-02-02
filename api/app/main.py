@@ -46,3 +46,4 @@ def test_db_connection():
 
 # Inclusion des routes du fichier account.py 🔌
 app.include_router(auth_router)
+app.include_router(scan_router)
