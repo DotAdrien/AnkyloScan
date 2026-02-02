@@ -30,8 +30,8 @@ async def start_scan(request: ScanRequest, admin=Depends(get_admin_user)):
     network = request.network
     
     try:
-        # Chemin vers le binaire Rust compilé
-        binary_path = "/usr/local/bin/scanner" 
+
+        binary_path = "/usr/local/bin/shared/scanner" 
         
         # Exécution du binaire avec l'IP/Réseau en argument 🚀
         process = subprocess.run(

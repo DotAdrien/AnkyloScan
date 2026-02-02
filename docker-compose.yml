@@ -4,7 +4,7 @@ services:
     ports:
       - "8000:80"
 
-  api: # Alignement corrigé ici 👍
+  api:
     build: ./api
     ports:
       - "8001:8001"
@@ -12,6 +12,7 @@ services:
       - .env
     volumes:
       - ./api:/app
+      - scanner_bin:/usr/local/bin/shared
     depends_on:
       - db
 
@@ -29,6 +30,8 @@ services:
       - db
     environment:
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    volumes:
+      - scanner_bin:/usr/local/bin/
 
   welcome:
     image: alpine
@@ -46,3 +49,4 @@ services:
 
 volumes:
   db_data:
+  scanner_bin:
