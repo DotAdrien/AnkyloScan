@@ -23,6 +23,13 @@ services:
     volumes:
       - db_data:/var/lib/mysql
 
+  scanner:
+    build: ./scanner
+    depends_on:
+      - db
+    environment:
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+
   welcome:
     image: alpine
     depends_on:
