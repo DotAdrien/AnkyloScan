@@ -35,35 +35,16 @@ services:
 
   welcome:
     image: alpine
-    container_name: ankyloscan_setup
-    tty: true
-    stdin_open: true
-    volumes:
-      - .:/app
-    working_dir: /app
+    depends_on:
+      - frontend
     command: >
       sh -c "
       echo '--------------------------------------------' &&
-      echo '🦖 Configuration AnkyloScan 🛡️' &&
-      echo '--------------------------------------------' &&
-      
-      # Question 1 : Gmail 📧
-      printf 'Activer Gmail ? (0/1) : ' && read GMAIL_ENABLED < /dev/tty;
-      echo \"GMAIL_ENABLED=\$$GMAIL_ENABLED\" >> .env;
-
-      if [ \"\$$GMAIL_ENABLED\" = \"1\" ]; then
-          # Question 2 : Email
-          printf 'Email Gmail : ' && read GMAIL_USER < /dev/tty;
-          echo \"GMAIL_USER=\$$GMAIL_USER\" >> .env;
-          
-          # Question 3 : AppKey
-          printf 'AppKey (16 caractères) : ' && read GMAIL_KEY < /dev/tty;
-          echo \"GMAIL_APP_KEY=\$$GMAIL_KEY\" >> .env;
-      fi &&
-
-      echo '--------------------------------------------' &&
-      echo 'Configuration terminée ! ✨' &&
-      echo 'Tigrounet enregistre tout dans le .env 🐱' &&
+      echo '🦖 AnkyloScan est prêt ! 🛡️' &&
+      echo 'Lien : http://localhost:8000' &&
+      echo 'User Admin : admin' &&
+      echo 'MDP Admin : ${ADMIN_PASSWORD:-password_aleatoire}' &&
+      echo 'Tigrounet veille sur tes données ! 🐱😶' &&
       echo '--------------------------------------------'"
 
 volumes:
