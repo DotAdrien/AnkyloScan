@@ -1,12 +1,18 @@
 import os
 from fastapi import FastAPI, HTTPException
 import mysql.connector # type: ignore
-from app.account import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
+from app.account import router as auth_router
 from app.scan import router as scan_router
+from app.database import router as db_router
+
 
 app = FastAPI(title="AnkyloScan API 🦖")
 
+
+app.include_router(auth_router)
+app.include_router(scan_router)
+app.include_router(db_router)
 
 # Configuration CORS pour autoriser le frontend (port 8000)
 app.add_middleware(
@@ -44,6 +50,4 @@ def test_db_connection():
         # Tigrounet signale une erreur si la base boude 😱
         raise HTTPException(status_code=500, detail=f"Erreur : {str(e)} 😱")
 
-# Inclusion des routes du fichier account.py 🔌
-app.include_router(auth_router)
-app.include_router(scan_router)
+

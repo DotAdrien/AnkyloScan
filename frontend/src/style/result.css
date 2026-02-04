@@ -1,0 +1,16 @@
+.result-container { max-width: 64rem; margin: 0 auto; padding: 2.5rem 0; animation: fadeIn 0.5s ease-in; }
+.result-title { font-size: 2.25rem; font-weight: bold; margin-bottom: 2rem; border-left: 4px solid #ec4899; padding-left: 1rem; color: white; }
+.result-list { display: flex; flex-direction: column; gap: 1.5rem; }
+.result-card { background: #14142b; padding: 1.5rem; border-radius: 1rem; border: 1px solid rgba(255, 255, 255, 0.05); transition: 0.3s; }
+.result-card:hover { border-color: #ec4899; transform: translateX(5px); }
+.result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.scan-badge { padding: 0.4rem 1rem; border-radius: 9999px; font-size: 0.85rem; font-weight: bold; text-transform: uppercase; }
+.scan-badge.full { background: rgba(236, 72, 153, 0.2); color: #ec4899; }
+.scan-badge.security { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+.scan-badge.quick { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+.scan-time { color: #6b7280; font-size: 0.9rem; }
+.result-body p { color: #e5e7eb; margin: 0.5rem 0; }
+.result-footer { display: flex; justify-content: flex-end; margin-top: 1rem; }
+.btn-detail { background: rgba(255, 255, 255, 0.05); color: white; padding: 0.5rem 1.5rem; border-radius: 0.5rem; border: 1px solid rgba(255, 255, 255, 0.1); cursor: pointer; transition: 0.2s; }
+.btn-detail:hover { background: #ec4899; border-color: #ec4899; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
