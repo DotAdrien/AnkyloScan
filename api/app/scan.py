@@ -6,15 +6,10 @@ import subprocess
 
 router = APIRouter(prefix="/scan")
 
-# Configuration identique à account.py 🔑
 DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 ALGORITHM = "HS256"
 
-class ScanRequest(BaseModel):
-    network: str  # Exemple: "192.168.1.0/24"
-
 def get_admin_user(session_token: str = Cookie(None)):
-    """Vérifie si l'utilisateur est connecté et admin 🛡️"""
     if not session_token:
         raise HTTPException(status_code=401, detail="Non connecté 😶")
     try:
@@ -25,18 +20,25 @@ def get_admin_user(session_token: str = Cookie(None)):
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Session invalide 😱")
 
-@router.post("/start")
-async def start_scan(request: ScanRequest, admin=Depends(get_admin_user)):
-    """Démarre une analyse réseau avec nmap 🚀"""
-    network = request.network
+async def run_nmap(args: list):
+    """Exécute nmap avec les arguments fournis 🚀"""
     try:
-        # Exécute la commande nmap
-        result = subprocess.run(
-            ["nmap", "-sn", network],
-            capture_output=True,
-            text=True,
-            check=True
-        )
+        result = subprocess.run(["nmap"] + args, capture_output=True, text=True, check=True)
         return {"output": result.stdout}
     except subprocess.CalledProcessError as e:
-        raise HTTPException(status_code=500, detail=f"Erreur lors de l'analyse : {e.stderr}")
+        raise HTTPException(status_code=500, detail=f"Erreur nmap : {e.stderr}")
+
+@router.post("/quick")
+async def scan_quick(admin=Depends(get_admin_user)):
+    # Scan rapide : Détection d'OS (-O) sur le réseau local
+    return await run_nmap(["-F", "-O", "192.168.1.0/24"])
+
+@router.post("/security")
+async def scan_security(admin=Depends(get_admin_user)):
+    # Scan sécurité : Ports et adresses MAC
+    return await run_nmap(["-sP", "192.168.1.0/24"])
+
+@router.post("/full")
+async def scan_full(admin=Depends(get_admin_user)):
+    # Scan complet : Versions (-sV) et scripts de vulnérabilités (--script vuln)
+    return await run_nmap(["-sV", "--script", "vuln", "192.168.1.0/24"])

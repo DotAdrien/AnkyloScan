@@ -21,19 +21,19 @@
         <div class="scan-card">
             <h3>Scan Rapide 🔍</h3>
             <p>Détection des machines et de leur OS.</p>
-            <button class="btn-action" @click="runNetworkScan('os')">Lancer ✨</button>
+            <button class="btn-action" @click="runQuickScan()">Lancer ✨</button>
         </div>
 
         <div class="scan-card">
             <h3>Scan Sécurité 🛡️</h3>
             <p>Ports ouverts et adresses MAC.</p>
-            <button class="btn-action" @click="runNetworkScan('security')">Lancer ✨</button>
+            <button class="btn-action" @click="runSecurityScan()">Lancer ✨</button>
         </div>
 
         <div class="scan-card">
             <h3>Scan Complet 🦖</h3>
             <p>Analyse versions et vulnérabilités.</p>
-            <button class="btn-action" @click="runNetworkScan('full')">Lancer ✨</button>
+            <button class="btn-action" @click="runFullScan()">Lancer ✨</button>
         </div>
     </div>
 </div>
