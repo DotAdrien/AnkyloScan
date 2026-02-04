@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-router = APIRouter(prefix="/scans", tags=["Database 🐬"])
+router = APIRouter(prefix="/db", tags=["Database 🐬"])
 
 @router.get("/history")
 def get_scan_history():
