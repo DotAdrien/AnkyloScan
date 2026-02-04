@@ -1,5 +1,5 @@
 async function runNetworkScan() {
-    const targetNetwork = "192.168.1.0/24"; // Tu pourras rendre ça dynamique plus tard 🦖
+    const targetNetwork = "192.168.1.0/24";
     
     try {
         const response = await fetch('http://localhost:8001/scan/start', {

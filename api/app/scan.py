@@ -27,26 +27,16 @@ def get_admin_user(session_token: str = Cookie(None)):
 
 @router.post("/start")
 async def start_scan(request: ScanRequest, admin=Depends(get_admin_user)):
+    """Démarre une analyse réseau avec nmap 🚀"""
     network = request.network
     try:
-        # Commande RustScan ultra-rapide 🚀
-        # -a : adresse cible
-        # -t 2000 : nombre de threads (ajustable selon ta puissance)
-        # -b 1000 : batch size
-        # -- -sV : passe l'argument -sV à nmap pour identifier les versions après le scan rapide
-        command = ["/usr/local/bin/shared/rustscan", "-a", network, "-t", "2000", "-b", "1000", "--", "-sV"]
-        
-        process = subprocess.run(
-            command, 
-            capture_output=True, 
+        # Exécute la commande nmap
+        result = subprocess.run(
+            ["nmap", "-sn", network],
+            capture_output=True,
             text=True,
             check=True
         )
-        
-        return {
-            "status": "success",
-            "output": process.stdout,
-            "message": "Scan RustScan terminé ! 🦖🔥"
-        }
+        return {"output": result.stdout}
     except subprocess.CalledProcessError as e:
-        raise HTTPException(status_code=500, detail=f"Erreur RustScan : {e.stderr}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de l'analyse : {e.stderr}")
