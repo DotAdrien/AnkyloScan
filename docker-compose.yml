@@ -27,13 +27,14 @@ services:
       - db_data:/var/lib/mysql
 
   scanner:
-    build: ./scanner
-    depends_on:
-      - db
-    environment:
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-    volumes:
-      - scanner_bin:/usr/local/bin/
+      build: ./scanner
+      depends_on:
+        - db
+      environment:
+        - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      volumes:
+        # On lie le volume au dossier /share préparé dans le Dockerfile
+        - scanner_bin:/share
 
   welcome:
     image: alpine
