@@ -25,7 +25,7 @@
         </div>
         
         <nav class="nav-links">
-            <template x-for="item in ['landing', 'about', 'work', 'contact', 'email']">
+            <template x-for="item in ['landing', 'about', 'work', 'email','result', 'contact']">
                 <button @click="changePage(item)" 
                         class="nav-btn"
                         :class="currentPage === item ? 'active' : ''"

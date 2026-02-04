@@ -1,15 +1,39 @@
 <link rel="stylesheet" href="style/work.css">
 
 <div class="scan-container">
-    <h2 class="scan-title">Scans Réseau</h2>
+    <h2 class="scan-title">Scans Réseau 🛡️</h2>
     
+    <div class="scan-card" style="grid-column: 1 / -1; margin-bottom: 2rem;">
+        <h3>Planification de Vulnérabilité ⏰</h3>
+        <p>Configure l'heure du scan automatique quotidien.</p>
+        
+        <div class="form-field-work">
+            <input type="time" id="scan-time" value="00:00">
+            <button class="btn-action" @click="alert('Scan programmé à ' + document.getElementById('scan-time').value + ' ! 🌷')">
+                Enregistrer 💾
+            </button>
+        </div>
+    </div>
+
+
+
     <div class="scan-grid">
         <div class="scan-card">
-            <h3>Scan Rapide</h3>
-            <p>Analyse les ports communs sur ton réseau local. 🔍</p>
-            <button class="btn-action" @click="runNetworkScan()">
-                Démarrer 👍
-            </button>
+            <h3>Scan Rapide 🔍</h3>
+            <p>Détection des machines et de leur OS.</p>
+            <button class="btn-action" @click="runNetworkScan('os')">Lancer ✨</button>
+        </div>
+
+        <div class="scan-card">
+            <h3>Scan Sécurité 🛡️</h3>
+            <p>Ports ouverts et adresses MAC.</p>
+            <button class="btn-action" @click="runNetworkScan('security')">Lancer ✨</button>
+        </div>
+
+        <div class="scan-card">
+            <h3>Scan Complet 🦖</h3>
+            <p>Analyse versions et vulnérabilités.</p>
+            <button class="btn-action" @click="runNetworkScan('full')">Lancer ✨</button>
         </div>
     </div>
 </div>

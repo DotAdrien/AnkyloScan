@@ -6,3 +6,20 @@
 .btn-action { width: 100%; padding: 0.5rem; background: rgba(255, 255, 255, 0.05); border: none; border-radius: 0.25rem; color: white; cursor: pointer; }
 .btn-action:hover { background: #ec4899; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Style pour le conteneur du champ heure */
+.form-field-work {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 1.5rem;
+    background: rgba(255, 255, 255, 0.02); /* Repris de email.css */
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+.form-field-work input[type="time"] {background: rgba(0, 0, 0, 0.2); /* Repris de contact.css */border: 1px solid rgba(255, 255, 255, 0.1);padding: 0.75rem 1rem;border-radius: 0.5rem;color: white;font-family: inherit;font-size: 1rem;outline: none;transition: border-color 0.2s;}
+.form-field-work input[type="time"]:focus {border-color: #ec4899; /* Ton rose signature */}
+
+
+::-webkit-calendar-picker-indicator {filter: invert(1);cursor: pointer;}
