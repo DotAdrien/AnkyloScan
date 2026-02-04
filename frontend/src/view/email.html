@@ -1,28 +1,42 @@
-<link rel="stylesheet" href="style/contact.css">
+<link rel="stylesheet" href="style/email.css">
 
-     
-<div class="contact-container">
-    <h2 class="contact-title">Get in Touch</h2>
+<div class="email-container">
+    <h2 class="email-title">Configuration Alertes 📧</h2>
     
-    <div class="contact-card">
-        <form class="contact-form" @submit.prevent="alert('Message envoyé ! 💖')">
+    <div class="email-card">
+        <form class="email-form" @submit.prevent="alert('Configuration enregistrée ! 💖')">
             <div class="form-field">
-                <label>Nom</label>
-                <input type="text" placeholder="Ton nom">
+                <label>Email Expéditeur</label>
+                <input type="email" placeholder="alerte@ankyloscan.com" required>
             </div>
             
             <div class="form-field">
-                <label>Email</label>
-                <input type="email" placeholder="ton@email.com">
+                <label>Clé API (16 caractères)</label>
+                <input type="text" maxlength="16" placeholder="A1B2C3D4E5F6G7H8" required>
             </div>
             
             <div class="form-field">
-                <label>Message</label>
-                <textarea rows="5" placeholder="Dis-nous tout..."></textarea>
+                <label>Destinataires (séparés par ;)</label>
+                <input type="text" placeholder="admin@test.com;user@test.com">
+            </div>
+
+            <div class="options-group">
+                <label class="checkbox-item">
+                    <input type="checkbox">
+                    <span>Option 1 : Alertes Critiques 🚨</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox">
+                    <span>Option 2 : Rapport Hebdomadaire 📊</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox">
+                    <span>Option 3 : Logs de Connexion 👤</span>
+                </label>
             </div>
             
             <button type="submit" class="btn-submit">
-                Envoyer le message 💖
+                Sauvegarder la config 🥵
             </button>
         </form>
     </div>

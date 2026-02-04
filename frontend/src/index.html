@@ -41,10 +41,6 @@
              x-show="!loading"
              x-transition:enter="fade-in">
         </div>
-        
-        <div x-show="loading" style="color: white; text-align: center; margin-top: 5rem;">
-            Chargement... 🦖
-        </div>
     </main>
 
     <script>
@@ -74,24 +70,17 @@
                 },
 
                 async changePage(pageName) {
-                    this.loading = true;
                     this.currentPage = pageName;
-                    const startTime = Date.now();
+                    this.loading = false; // On s'assure que le chargement est caché 🌷
 
                     try {
                         const response = await fetch(`view/${pageName}.html`);
                         if (!response.ok) throw new Error('Page non trouvée');
-                        const html = await response.text();
-
-                        const delay = Math.max(0, 500 - (Date.now() - startTime));
-
-                        setTimeout(() => {
-                            this.pageContent = html;
-                            this.loading = false;
-                        }, delay);
+                        
+                        // Mise à jour directe sans délai ni calcul de temps 🚀
+                        this.pageContent = await response.text();
                     } catch (err) {
                         this.pageContent = "<div>Erreur 😱</div>";
-                        this.loading = false;
                     }
                 }
             }

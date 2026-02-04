@@ -1,0 +1,14 @@
+.email-container { max-width: 64rem; margin: 0 auto; padding: 2.5rem 0; animation: fadeIn 0.5s ease-in; }
+.email-title { font-size: 2.25rem; font-weight: bold; margin-bottom: 2rem; border-left: 4px solid #ec4899; padding-left: 1rem; color: white; }
+.email-card { background: #14142b; padding: 2rem; border-radius: 1rem; border: 1px solid rgba(255, 255, 255, 0.05); }
+.email-form { display: flex; flex-direction: column; gap: 1.5rem; }
+.form-field { display: flex; flex-direction: column; gap: 0.5rem; }
+.form-field label { color: #6b7280; font-size: 0.875rem; text-transform: uppercase; }
+.form-field input { width: 100%; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 0.5rem; color: white; outline: none; box-sizing: border-box; }
+.form-field input:focus { border-color: #ec4899; }
+.options-group { display: flex; flex-direction: column; gap: 1rem; padding: 1rem; background: rgba(255, 255, 255, 0.02); border-radius: 0.5rem; }
+.checkbox-item { display: flex; align-items: center; gap: 10px; cursor: pointer; color: #e5e7eb; }
+.checkbox-item input[type="checkbox"] { accent-color: #ec4899; width: 1.2rem; height: 1.2rem; }
+.btn-submit { background: #ec4899; color: white; padding: 1rem; border-radius: 0.5rem; font-weight: bold; border: none; cursor: pointer; transition: transform 0.2s; }
+.btn-submit:hover { transform: scale(1.02); background: #d946ef; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
