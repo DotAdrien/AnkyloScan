@@ -1,0 +1,29 @@
+<link rel="stylesheet" href="style/contact.css">
+
+     
+<div class="contact-container">
+    <h2 class="contact-title">Get in Touch</h2>
+    
+    <div class="contact-card">
+        <form class="contact-form" @submit.prevent="alert('Message envoyé ! 💖')">
+            <div class="form-field">
+                <label>Nom</label>
+                <input type="text" placeholder="Ton nom">
+            </div>
+            
+            <div class="form-field">
+                <label>Email</label>
+                <input type="email" placeholder="ton@email.com">
+            </div>
+            
+            <div class="form-field">
+                <label>Message</label>
+                <textarea rows="5" placeholder="Dis-nous tout..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn-submit">
+                Envoyer le message 💖
+            </button>
+        </form>
+    </div>
+</div>
