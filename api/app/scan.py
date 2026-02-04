@@ -34,7 +34,7 @@ async def start_scan(request: ScanRequest, admin=Depends(get_admin_user)):
         # -t 2000 : nombre de threads (ajustable selon ta puissance)
         # -b 1000 : batch size
         # -- -sV : passe l'argument -sV à nmap pour identifier les versions après le scan rapide
-        command = ["rustscan", "-a", network, "-t", "2000", "-b", "1000", "--", "-sV"]
+        command = ["/usr/local/bin/shared/rustscan", "-a", network, "-t", "2000", "-b", "1000", "--", "-sV"]
         
         process = subprocess.run(
             command, 
