@@ -33,7 +33,7 @@ services:
     volumes:
       - scanner_bin:/usr/local/bin/
 
-welcome:
+  welcome:
     image: alpine
     container_name: ankyloscan_setup
     tty: true
