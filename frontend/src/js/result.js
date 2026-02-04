@@ -3,7 +3,7 @@ async function loadScanHistory() {
     if (!listContainer) return;
 
     try {
-        const response = await fetch('http://localhost:8001/scans/history');
+        const response = await fetch('http://localhost:8001/db/history');
         const scans = await response.json();
 
         const typeMap = {
