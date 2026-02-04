@@ -28,14 +28,16 @@ def get_admin_user(session_token: str = Cookie(None)):
 @router.post("/start")
 async def start_scan(request: ScanRequest, admin=Depends(get_admin_user)):
     network = request.network
-    
     try:
-
-        binary_path = "/usr/local/bin/shared/scanner" 
+        # Commande RustScan ultra-rapide 🚀
+        # -a : adresse cible
+        # -t 2000 : nombre de threads (ajustable selon ta puissance)
+        # -b 1000 : batch size
+        # -- -sV : passe l'argument -sV à nmap pour identifier les versions après le scan rapide
+        command = ["rustscan", "-a", network, "-t", "2000", "-b", "1000", "--", "-sV"]
         
-        # Exécution du binaire avec l'IP/Réseau en argument 🚀
         process = subprocess.run(
-            [binary_path, network], 
+            command, 
             capture_output=True, 
             text=True,
             check=True
@@ -43,9 +45,8 @@ async def start_scan(request: ScanRequest, admin=Depends(get_admin_user)):
         
         return {
             "status": "success",
-            "output": process.stdout, # Le résultat du scan Rust
-            "message": "Scan terminé par Tigrounet ! 🐱"
+            "output": process.stdout,
+            "message": "Scan RustScan terminé ! 🦖🔥"
         }
     except subprocess.CalledProcessError as e:
-        raise HTTPException(status_code=500, detail=f"Erreur du scanner : {e.stderr}")
-    
+        raise HTTPException(status_code=500, detail=f"Erreur RustScan : {e.stderr}")
