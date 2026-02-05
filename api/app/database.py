@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 router = APIRouter(prefix="/db", tags=["Database 🐬"])
 
 # Récupère le mot de passe depuis l'environnement 🔑
-DB_PASSWORD = os.getenv("ADMIN_PASSWORD", "password_aleatoire")
+DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 @router.get("/history")
 def get_scan_history():

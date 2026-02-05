@@ -8,7 +8,7 @@ from pydantic import BaseModel, EmailStr
 router = APIRouter(prefix="/auth", tags=["Account 👤"])
 
 # Récupère le MDP généré ou celui par défaut 🔑
-DB_PASSWORD = os.getenv("ADMIN_PASSWORD", "password_aleatoire")
+DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 ALGORITHM = "HS256"
 
 class UserLogin(BaseModel):

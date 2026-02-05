@@ -24,7 +24,7 @@ app.add_middleware(
 )
 
 # Récupère le MDP généré ou celui par défaut 🔑
-DB_PASSWORD = os.getenv("ADMIN_PASSWORD", "password_aleatoire")
+DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 @app.get("/")
 def home():
