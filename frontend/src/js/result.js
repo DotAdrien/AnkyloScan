@@ -1,21 +1,18 @@
 async function showReportContent(filePath) {
-    // On récupère l'instance Alpine pour changer l'état
-    const root = document.querySelector('[x-data]');
+    const viewer = document.getElementById('report-viewer');
     const content = document.getElementById('report-content');
     
-    content.innerText = "Chargement... ⏳";
-    
-    // Accès à l'état Alpine pour déclencher la transition douce
-    const alpineData = Alpine.$data(root);
-    alpineData.reportVisible = true;
+    content.innerText = "Chargement du rapport... 🦖";
+    viewer.style.display = 'block';
 
     try {
+        // Note: Tu devras peut-être créer un endpoint API pour lire le fichier
+        // car ici on pointe vers le chemin local enregistré en base
         const response = await fetch(`http://localhost:8001/db/report?path=${encodeURIComponent(filePath)}`);
-        if (!response.ok) throw new Error();
         const text = await response.text();
         content.innerText = text;
     } catch (error) {
-        content.innerText = "Le fichier fait sa timide... 😱";
+        content.innerText = "Erreur lors de la lecture du rapport 😱";
     }
 }
 

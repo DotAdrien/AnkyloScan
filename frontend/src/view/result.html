@@ -3,18 +3,13 @@
 <div class="result-container" x-init="loadScanHistory()">
     <h2 class="result-title">Historique des Scans 📊</h2>
     
-        <div id="report-viewer" 
-            x-show="reportVisible" 
-            x-transition:enter="fade-in" 
-            x-transition:leave="fade-out"
-            style="display: none; background: rgba(20, 20, 43, 0.95); padding: 1.5rem; border-radius: 1rem; border: 1px solid #ec4899; margin-bottom: 2rem;"
-            x-cloak>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h3 style="margin: 0; color: #ec4899;">Contenu du Rapport 🦖</h3>
-                <button @click="reportVisible = false" class="btn-detail">Fermer ❌</button>
-            </div>
-            <pre id="report-content" style="white-space: pre-wrap; color: #e5e7eb; font-family: monospace; font-size: 0.9rem; max-height: 400px; overflow-y: auto;"></pre>
+    <div id="report-viewer" style="display: none; background: rgba(20, 20, 43, 0.95); padding: 1.5rem; border-radius: 1rem; border: 1px solid #ec4899; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="margin: 0; color: #ec4899;">Contenu du Rapport 📄</h3>
+            <button @click="document.getElementById('report-viewer').style.display = 'none'" class="btn-detail">Fermer ❌</button>
         </div>
+        <pre id="report-content" style="white-space: pre-wrap; color: #e5e7eb; font-family: monospace; font-size: 0.9rem; max-height: 400px; overflow-y: auto;"></pre>
+    </div>
 
     <div class="result-list"></div>
 </div>
