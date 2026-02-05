@@ -1,6 +1,7 @@
 import os
 import mysql.connector # type: ignore
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse
 
 router = APIRouter(prefix="/db", tags=["Database 🐬"])
 
@@ -53,3 +54,9 @@ def get_scan_history():
         if conn and conn.is_connected():
             cursor.close()
             conn.close()
+
+@router.get("/report")
+def get_report_file(path: str):
+    if os.path.exists(path):
+        return FileResponse(path)
+    raise HTTPException(status_code=404, detail="Rapport introuvable 😱")

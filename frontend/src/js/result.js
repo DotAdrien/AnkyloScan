@@ -1,3 +1,21 @@
+async function showReportContent(filePath) {
+    const viewer = document.getElementById('report-viewer');
+    const content = document.getElementById('report-content');
+    
+    content.innerText = "Chargement du rapport... 🦖";
+    viewer.style.display = 'block';
+
+    try {
+        // Note: Tu devras peut-être créer un endpoint API pour lire le fichier
+        // car ici on pointe vers le chemin local enregistré en base
+        const response = await fetch(`http://localhost:8001/db/report?path=${encodeURIComponent(filePath)}`);
+        const text = await response.text();
+        content.innerText = text;
+    } catch (error) {
+        content.innerText = "Erreur lors de la lecture du rapport 😱";
+    }
+}
+
 async function loadScanHistory() {
     const listContainer = document.querySelector('.result-list');
     if (!listContainer) return;
@@ -22,7 +40,7 @@ async function loadScanHistory() {
                     <p>${scan.description}</p>
                 </div>
                 <div class="result-footer">
-                    <button class="btn-detail" onclick="alert('Scan #${scan.id} : Rapport détaillé bientôt disponible')">Voir le rapport 📄</button>
+                    <button class="btn-detail" onclick="showReportContent('${scan.file_path}')">Voir le rapport 📄</button>
                 </div>
             </div>
         `).join('');
