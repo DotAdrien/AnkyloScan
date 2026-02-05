@@ -14,4 +14,4 @@ COPY . .
 EXPOSE 8001
 
 # Lancement de l'API sur le port 8001 avec reload
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+CMD ["uvicorn", "app.api.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]

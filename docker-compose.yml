@@ -12,7 +12,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./api:/app
+      - ./backend:/app
       - scan_reports:/app/outputs
     depends_on:
       - db
