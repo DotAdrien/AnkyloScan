@@ -14,26 +14,11 @@ CREATE TABLE IF NOT EXISTS Users (
 -- Table Scan 🔍
 CREATE TABLE IF NOT EXISTS Scan (
     id_scan INT AUTO_INCREMENT PRIMARY KEY,
-    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Type VARCHAR(255) NOT NULL,
+    Rep VARCHAR(255) NOT NULL
 );
 
--- Table Device 💻
-CREATE TABLE IF NOT EXISTS Device (
-    id_relation INT AUTO_INCREMENT PRIMARY KEY,
-    Mac VARCHAR(17),
-    Ip VARCHAR(45),
-    Name VARCHAR(255),
-    id_scan INT,
-    FOREIGN KEY (id_scan) REFERENCES Scan(id_scan) ON DELETE CASCADE
-);
-
--- Table Port 🔌
-CREATE TABLE IF NOT EXISTS Port (
-    id_port INT AUTO_INCREMENT PRIMARY KEY,
-    Service VARCHAR(100),
-    id_relation INT,
-    FOREIGN KEY (id_relation) REFERENCES Device(id_relation) ON DELETE CASCADE
-);
 
 INSERT INTO Users (Name, Email, Password, Role) 
 VALUES ('admin', 'admin@gmail.com', 'admin', 'admin');
