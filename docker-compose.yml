@@ -5,7 +5,7 @@ services:
       - "8000:80"
 
 
-  api:
+  backend:
     build: ./api
     ports:
       - "8001:8001"
