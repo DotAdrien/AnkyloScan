@@ -26,7 +26,7 @@ def save_scan_result(scan_type, raw_output):
         cursor = conn.cursor()
         
         # On insère le type et le chemin du fichier
-        query = "INSERT INTO Scan (type, file_path) VALUES (%s, %s)"
+        query = "INSERT INTO Scan (Type, file_path) VALUES (%s, %s)"
         cursor.execute(query, (scan_type, file_path))
         
         conn.commit()
