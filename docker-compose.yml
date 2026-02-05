@@ -4,18 +4,18 @@ services:
     ports:
       - "8000:80"
 
-  services:
-    api:
-      build: ./api
-      ports:
-        - "8001:8001"
-      env_file:
-        - .env
-      volumes:
-        - ./api:/app
-        - scan_reports:/app/outputs
-      depends_on:
-        - db
+
+  api:
+    build: ./api
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    volumes:
+      - ./api:/app
+      - scan_reports:/app/outputs
+    depends_on:
+      - db
 
   db:
     build: ./mysql
