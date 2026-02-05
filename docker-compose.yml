@@ -4,7 +4,8 @@ services:
     ports:
       - "8000:80"
 
-  api:
+  services:
+    api:
       build: ./api
       ports:
         - "8001:8001"
@@ -12,7 +13,6 @@ services:
         - .env
       volumes:
         - ./api:/app
-        - ./scanner:/app/scanner
         - scan_reports:/app/outputs
       depends_on:
         - db
@@ -24,16 +24,6 @@ services:
       MYSQL_ROOT_PASSWORD: ${ADMIN_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
-
-  scanner:
-      build: ./scanner
-      env_file:
-        - .env
-      volumes:
-        - ./scanner:/app
-        - scan_reports:/app/outputs
-      depends_on:
-        - db
 
   welcome:
     image: alpine

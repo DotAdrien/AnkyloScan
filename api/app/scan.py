@@ -1,9 +1,8 @@
 import os
 import jwt
 from fastapi import APIRouter, HTTPException, Depends, Cookie
-from pydantic import BaseModel
-# Import de la fonction du nouveau répertoire scanner 🦾
-from scanner.main import run_scan
+# Import mis à jour pour la nouvelle structure 🧠
+from app.scanner.main import run_scan
 
 router = APIRouter(prefix="/scan")
 
@@ -23,24 +22,21 @@ def get_admin_user(session_token: str = Cookie(None)):
 
 @router.post("/quick")
 async def scan_quick(admin=Depends(get_admin_user)):
-    # Appelle le scanner de type 1 🔍
     success = run_scan(1)
     if success:
-        return {"message": "Scan rapide lancé et enregistré ! ✨"}
+        return {"message": "Scan rapide lancé ! ✨"}
     raise HTTPException(status_code=500, detail="Erreur lors du scan rapide 😱")
 
 @router.post("/security")
 async def scan_security(admin=Depends(get_admin_user)):
-    # Appelle le scanner de type 2 🛡️
     success = run_scan(2)
     if success:
-        return {"message": "Scan sécurité lancé et enregistré ! ✨"}
+        return {"message": "Scan sécurité lancé ! ✨"}
     raise HTTPException(status_code=500, detail="Erreur lors du scan sécurité 😱")
 
 @router.post("/full")
 async def scan_full(admin=Depends(get_admin_user)):
-    # Appelle le scanner de type 3 🦖
     success = run_scan(3)
     if success:
-        return {"message": "Scan complet lancé et enregistré ! ✨"}
+        return {"message": "Scan complet lancé ! ✨"}
     raise HTTPException(status_code=500, detail="Erreur lors du scan complet 😱")
