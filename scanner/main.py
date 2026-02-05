@@ -1,5 +1,6 @@
 import subprocess
-from database_handler import save_scan_result
+# Remplace la ligne 2 par :
+from .database_handler import save_scan_result
 
 def run_scan(scan_type):
     # Définition des arguments selon le type de scan

@@ -8,6 +8,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir mysql-connector-python 
 
 COPY . .
-# Le dossier /scanner sera monté via le docker-compose
-EXPOSE 8001
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+# On retire EXPOSE et le CMD uvicorn
+CMD ["python", "main.py"]
