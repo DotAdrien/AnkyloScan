@@ -2,7 +2,8 @@ import os
 import jwt
 from fastapi import APIRouter, HTTPException, Depends, Cookie
 from pydantic import BaseModel
-import subprocess
+# Import de la fonction du nouveau répertoire scanner 🦾
+from scanner.main import run_scan
 
 router = APIRouter(prefix="/scan")
 
@@ -20,25 +21,26 @@ def get_admin_user(session_token: str = Cookie(None)):
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Session invalide 😱")
 
-async def run_nmap(args: list):
-    """Exécute nmap avec les arguments fournis 🚀"""
-    try:
-        result = subprocess.run(["nmap"] + args, capture_output=True, text=True, check=True)
-        return {"output": result.stdout}
-    except subprocess.CalledProcessError as e:
-        raise HTTPException(status_code=500, detail=f"Erreur nmap : {e.stderr}")
-
 @router.post("/quick")
 async def scan_quick(admin=Depends(get_admin_user)):
-    # Scan rapide : Détection d'OS (-O) sur le réseau local
-    return await run_nmap(["-F", "-O", "192.168.1.0/24"])
+    # Appelle le scanner de type 1 🔍
+    success = run_scan(1)
+    if success:
+        return {"message": "Scan rapide lancé et enregistré ! ✨"}
+    raise HTTPException(status_code=500, detail="Erreur lors du scan rapide 😱")
 
 @router.post("/security")
 async def scan_security(admin=Depends(get_admin_user)):
-    # Scan sécurité : Ports et adresses MAC
-    return await run_nmap(["-sP", "192.168.1.0/24"])
+    # Appelle le scanner de type 2 🛡️
+    success = run_scan(2)
+    if success:
+        return {"message": "Scan sécurité lancé et enregistré ! ✨"}
+    raise HTTPException(status_code=500, detail="Erreur lors du scan sécurité 😱")
 
 @router.post("/full")
 async def scan_full(admin=Depends(get_admin_user)):
-    # Scan complet : Versions (-sV) et scripts de vulnérabilités (--script vuln)
-    return await run_nmap(["-sV", "--script", "vuln", "192.168.1.0/24"])
+    # Appelle le scanner de type 3 🦖
+    success = run_scan(3)
+    if success:
+        return {"message": "Scan complet lancé et enregistré ! ✨"}
+    raise HTTPException(status_code=500, detail="Erreur lors du scan complet 😱")

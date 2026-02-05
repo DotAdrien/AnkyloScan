@@ -12,6 +12,7 @@ services:
       - .env
     volumes:
       - ./api:/app
+      - scan_reports:/app/outputs
     depends_on:
       - db
 
@@ -23,6 +24,15 @@ services:
     volumes:
       - db_data:/var/lib/mysql
 
+  scanner:
+      build: ./scanner
+      env_file:
+        - .env
+      volumes:
+        - ./scanner:/app
+        - scan_reports:/app/outputs
+      depends_on:
+        - db
 
   welcome:
     image: alpine
@@ -40,4 +50,4 @@ services:
 
 volumes:
   db_data:
-  scanner_bin:
+  scan_reports:
