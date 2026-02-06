@@ -4,7 +4,7 @@ async function submitLogin(context) {
 
     if (!emailInput || !passwordInput) return;
 
-    try {
+
         const response = await fetch(`${window.API_BASE}/auth/login`, {
             method: 'POST',
             credentials: 'include', // Très important pour les cookies 🍪
@@ -26,11 +26,7 @@ async function submitLogin(context) {
         } else {
             alert(data.detail || "Email ou mot de passe incorrect ❌");
         }
-    } catch (error) {
-        console.error("Erreur API :", error);
-        alert("Le serveur AnkyloScan ne répond pas... 😱");
     }
-}
 
 function logout() {
     document.cookie = "session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
