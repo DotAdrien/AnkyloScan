@@ -22,8 +22,7 @@
                 </select>
             </div>
 
-            <button class="btn-action" 
-                    @click="alert('Scan type ' + document.getElementById('scan-type-select').value + ' programmé toutes les ' + document.getElementById('scan-frequency').value + ' heures à ' + document.getElementById('scan-time').value + ' ! 🌷')">
+            <button class="btn-action" @click="saveAndScheduleScan()">
                 Enregistrer 💾
             </button>
         </div>

@@ -1,3 +1,26 @@
+async function saveAndScheduleScan() {
+    const frequency = document.getElementById('scan-frequency').value;
+    const type = document.getElementById('scan-type-select').value;
+
+    try {
+        const response = await fetch('http://localhost:8001/plan/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                frequency: parseInt(frequency),
+                scan_type: parseInt(type)
+            })
+        });
+
+        if (response.ok) {
+            alert("C'est bon ! Le serveur a pris le relais. Tu peux fermer la page. 🌷");
+        }
+    } catch (error) {
+        alert("Erreur de connexion avec le serveur... 😩");
+    }
+}
+
+
 async function callScanAPI(endpoint) {
     try {
         const response = await fetch(`http://localhost:8001/scan/${endpoint}`, {
