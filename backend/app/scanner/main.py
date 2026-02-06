@@ -4,9 +4,9 @@ from .email_sender import send_email_report # Nouvel import 🧠
 
 def run_scan(scan_type):
     configs = {
-        1: ["-F", "127.0.0.1"],
-        2: ["-sP", "127.0.0.1"],
-        3: ["-sV", "127.0.0.1"]
+        1: ["-O", "127.0.0.1"],
+        2: ["-p-", "-O", "127.0.0.1"],
+        3: ["-p-", "-A", "--script", "vuln", "127.0.0.1"]
     }
     
     args = configs.get(scan_type, configs[1])
