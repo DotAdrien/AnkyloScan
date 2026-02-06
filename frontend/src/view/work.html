@@ -5,11 +5,26 @@
     
     <div class="scan-card" style="grid-column: 1 / -1; margin-bottom: 2rem;">
         <h3>Planification de Vulnérabilité ⏰</h3>
-        <p>Configure l'heure du scan automatique quotidien.</p>
+        <p>Configure la fréquence et le type de scan automatique.</p>
         
-        <div class="form-field-work">
-            <input type="time" id="scan-time" value="00:00">
-            <button class="btn-action" @click="alert('Scan programmé à ' + document.getElementById('scan-time').value + ' ! 🌷')">
+        <div class="form-field-work" style="display: flex; flex-wrap: wrap; gap: 1.5rem;">
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label style="font-size: 0.8rem; color: #6b7280;">HEURE DU SCAN</label>
+                <input type="time" id="scan-time" value="00:00">
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <label style="font-size: 0.8rem; color: #6b7280;">TYPE DE SCAN (1-3)</label>
+                <select id="scan-type-select" 
+                        style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); padding: 0.75rem; border-radius: 0.5rem; color: white; cursor: pointer;">
+                    <option value="1">1 - Rapide 🔍</option>
+                    <option value="2">2 - Sécurité 🛡️</option>
+                    <option value="3" selected>3 - Complet 🦖</option>
+                </select>
+            </div>
+
+            <button class="btn-action" style="align-self: flex-end; width: auto; padding: 0.75rem 2rem;"
+                    @click="alert('Scan type ' + document.getElementById('scan-type-select').value + ' programmé tous les ' + document.getElementById('scan-frequency').value + ' jours à ' + document.getElementById('scan-time').value + ' ! 🌷')">
                 Enregistrer 💾
             </button>
         </div>
