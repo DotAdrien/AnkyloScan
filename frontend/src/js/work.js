@@ -3,7 +3,7 @@ async function saveAndScheduleScan() {
     const type = document.getElementById('scan-type-select').value;
 
     try {
-        const response = await fetch(`http://${window.location.hostname}:8001/plan/save`, {
+        const response = await fetch(`${window.API_BASE}/plan/save`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -22,7 +22,7 @@ async function saveAndScheduleScan() {
 
 async function callScanAPI(endpoint) {
     try {
-        const response = await fetch(`http://${window.location.hostname}:8001/scan/${endpoint}`, {
+        const response = await fetch(`${window.API_BASE}/scan/${endpoint}`, {
             method: 'POST',
             credentials: 'include'
         });

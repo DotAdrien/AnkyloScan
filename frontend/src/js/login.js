@@ -6,7 +6,7 @@ async function submitLogin(context) {
 
     try {
         // Détection automatique de l'IP pour l'auth 👤
-        const response = await fetch(`http://${window.location.hostname}:8001/auth/login`, {
+        const response = await fetch(`${window.API_BASE}/auth/login`, {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },

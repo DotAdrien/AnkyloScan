@@ -4,7 +4,7 @@ async function saveEmailConfig() {
     const receivers = document.querySelector('input[placeholder="admin@test.com;user@test.com"]').value;
 
     try {
-        const response = await fetch(`http://${window.location.hostname}:8001/email/save`, {
+        const response = await fetch(`${window.API_BASE}/email/save`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
