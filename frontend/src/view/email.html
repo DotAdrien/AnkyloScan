@@ -4,7 +4,7 @@
     <h2 class="email-title">Configuration Alertes 📧</h2>
     
     <div class="email-card">
-        <form class="email-form" @submit.prevent="alert('Configuration enregistrée ! 💖')">
+        <form class="email-form" @submit.prevent="saveEmailConfig()">
             <div class="form-field">
                 <label>Email Expéditeur</label>
                 <input type="email" placeholder="alerte@ankyloscan.com" required>

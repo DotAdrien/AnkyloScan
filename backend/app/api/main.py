@@ -2,17 +2,24 @@ import os
 from fastapi import FastAPI, HTTPException
 import mysql.connector # type: ignore
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.account import router as auth_router
-from app.api.scan import router as scan_router
-from app.api.database import router as db_router
+
+
+
 
 
 app = FastAPI(title="AnkyloScan API 🦖")
 
 
+from app.api.account import router as auth_router
+from app.api.scan import router as scan_router
+from app.api.database import router as db_router
+from app.api.email import router as email_router
+
+
 app.include_router(auth_router)
 app.include_router(scan_router)
 app.include_router(db_router)
+app.include_router(email_router)
 
 # Configuration CORS pour autoriser le frontend (port 8000)
 app.add_middleware(
