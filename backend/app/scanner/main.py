@@ -6,6 +6,7 @@ from .email_sender import send_email_report
 def execute_nmap_process(scan_type, args):
     """Logique du scan exécutée en arrière-plan 🦾"""
     try:
+        print(f"Scan {scan_type} debut du scan 📷")
         # Le scan peut prendre du temps, mais il tourne sur son propre thread 🧵
         result = subprocess.run(["nmap"] + args, capture_output=True, text=True, check=True)
         save_scan_result(scan_type, result.stdout)
