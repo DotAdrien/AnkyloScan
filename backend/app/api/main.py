@@ -22,11 +22,11 @@ app.include_router(db_router)
 app.include_router(email_router)
 app.include_router(plan_router)
 
-# Fichier : backend/app/api/main.py
+# Dans backend/app/api/main.py
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Autorise toutes les IPs à se connecter 🌐
-    allow_credentials=True,
+    allow_origin_regex=r"http://.*", # Autorise n'importe quelle IP en HTTP 🌍
+    allow_credentials=True, # Indispensable pour Tigrounet et tes cookies 🍪
     allow_methods=["*"],
     allow_headers=["*"],
 )
