@@ -22,11 +22,11 @@ app.include_router(db_router)
 app.include_router(email_router)
 app.include_router(plan_router)
 
-# Configuration CORS pour autoriser le frontend (port 8000)
+# Fichier : backend/app/api/main.py
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000"], # L'URL exacte de ton frontend
-    allow_credentials=True, # Indispensable pour les cookies !
+    allow_origins=["*"], # Autorise toutes les IPs à se connecter 🌐
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -1,11 +1,10 @@
 async function saveEmailConfig() {
-    // Récupération des éléments du DOM 🔍
     const sender = document.querySelector('input[placeholder="alerte@ankyloscan.com"]').value;
     const apiKey = document.querySelector('input[placeholder="A1B2C3D4E5F6G7H8"]').value;
     const receivers = document.querySelector('input[placeholder="admin@test.com;user@test.com"]').value;
 
     try {
-        const response = await fetch('http://localhost:8001/email/save', {
+        const response = await fetch(`http://${window.location.hostname}:8001/email/save`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

@@ -6,9 +6,7 @@ async function showReportContent(filePath) {
     viewer.style.display = 'block';
 
     try {
-        // Note: Tu devras peut-être créer un endpoint API pour lire le fichier
-        // car ici on pointe vers le chemin local enregistré en base
-        const response = await fetch(`http://localhost:8001/db/report?path=${encodeURIComponent(filePath)}`);
+        const response = await fetch(`http://${window.location.hostname}:8001/db/report?path=${encodeURIComponent(filePath)}`);
         const text = await response.text();
         content.innerText = text;
     } catch (error) {
@@ -21,7 +19,7 @@ async function loadScanHistory() {
     if (!listContainer) return;
 
     try {
-        const response = await fetch('http://localhost:8001/db/history');
+        const response = await fetch(`http://${window.location.hostname}:8001/db/history`);
         const scans = await response.json();
 
         const typeMap = {
@@ -45,6 +43,6 @@ async function loadScanHistory() {
             </div>
         `).join('');
     } catch (error) {
-        console.error("Erreur :", error);
+        console.error("Erreur historique :", error);
     }
 }

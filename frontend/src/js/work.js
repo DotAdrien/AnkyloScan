@@ -3,7 +3,7 @@ async function saveAndScheduleScan() {
     const type = document.getElementById('scan-type-select').value;
 
     try {
-        const response = await fetch('http://localhost:8001/plan/save', {
+        const response = await fetch(`http://${window.location.hostname}:8001/plan/save`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -20,17 +20,16 @@ async function saveAndScheduleScan() {
     }
 }
 
-
 async function callScanAPI(endpoint) {
     try {
-        const response = await fetch(`http://localhost:8001/scan/${endpoint}`, {
+        const response = await fetch(`http://${window.location.hostname}:8001/scan/${endpoint}`, {
             method: 'POST',
             credentials: 'include'
         });
         const data = await response.json();
 
         if (response.ok) {
-            alert("Analyse terminée ! 🦖\n" + data.output);
+            alert("Analyse lancée ! 🦖\n" + (data.message || ""));
         } else {
             alert("Erreur : " + (data.detail || "Échec du scan 😱"));
         }
@@ -39,14 +38,6 @@ async function callScanAPI(endpoint) {
     }
 }
 
-function runQuickScan() {
-    callScanAPI('quick');
-}
-
-function runSecurityScan() {
-    callScanAPI('security');
-}
-
-function runFullScan() {
-    callScanAPI('full');
-}
+function runQuickScan() { callScanAPI('quick'); }
+function runSecurityScan() { callScanAPI('security'); }
+function runFullScan() { callScanAPI('full'); }
