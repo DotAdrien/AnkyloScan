@@ -16,6 +16,7 @@ def execute_nmap_process(scan_type, args):
             send_email_report(result.stdout)
             
         print(f"Scan {scan_type} terminé avec succès ! ✨")
+        
     except Exception as e:
         print(f"Erreur lors du scan {scan_type} : {e} 😱")
 

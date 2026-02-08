@@ -2,32 +2,27 @@ import os
 import mysql.connector # type: ignore
 from datetime import datetime
 
-DB_PASSWORD = os.getenv("ADMIN_PASSWORD", "password_aleatoire")
+DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 def save_scan_result(scan_type, raw_output):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    file_name = f"scan_type{scan_type}_{timestamp}.txt"
-    # Le chemin /app/outputs correspond au volume Docker 🐳
-    file_path = f"/app/outputs/{file_name}"
-    
+    file_path = f"/app/outputs/scan_{scan_type}_{timestamp}.txt"
     os.makedirs("/app/outputs", exist_ok=True)
+
+
+    lines = raw_output.splitlines()
+    clean_output = "\n".join([l for l in lines if "OS detection performed" not in l])
+
     with open(file_path, "w") as f:
-        f.write(raw_output)
+        f.write(clean_output)
 
     try:
         conn = mysql.connector.connect(
-            host="db",
-            user="root",
-            password=DB_PASSWORD,
-            database="ankyloscan"
+            host="db", user="root", password=DB_PASSWORD, database="ankyloscan"
         )
         cursor = conn.cursor()
-        # Attention : 'Type' avec une majuscule pour matcher ton init.sql 🐬
-        query = "INSERT INTO Scan (Type, file_path) VALUES (%s, %s)"
-        cursor.execute(query, (scan_type, file_path))
-        
+        cursor.execute("INSERT INTO Scan (Type, file_path) VALUES (%s, %s)", (scan_type, file_path))
         conn.commit()
-        cursor.close()
         conn.close()
     except Exception as e:
-        print(f"Erreur SQL : {e} 😱")
+        print(f"Erreur : {e} 😱")
