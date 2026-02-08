@@ -8,7 +8,7 @@ sudo rm -rf AnkyloScan
 sudo apt update -y && sudo apt install -y docker.io docker-compose
 
 # Installation of AnkyloScan
-git clone https://github.com/DotAdrien/AnkyloScan/tree/Version-1
+git clone -b Version-1 https://github.com/DotAdrien/AnkyloScan
 cd AnkyloScan
 
 # Generate unique password (une seule fois) 🔑
