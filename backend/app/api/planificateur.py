@@ -33,3 +33,5 @@ async def save_plan(config: PlanConfig):
     thread.start()
 
     return {"status": "success", "message": "Planification activée sur le serveur ! 🦖✨"}
+
+
