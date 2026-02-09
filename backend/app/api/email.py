@@ -4,7 +4,7 @@ from pydantic import BaseModel, EmailStr
 
 router = APIRouter(prefix="/email", tags=["Email 📧"])
 
-# Chemin vers le fichier de configuration
+
 EMAIL_FILE = "/app/outputs/email.txt"
 
 class EmailConfig(BaseModel):
@@ -15,10 +15,6 @@ class EmailConfig(BaseModel):
 @router.post("/save")
 async def save_email_config(config: EmailConfig):
     try:
-        # Création du dossier si inexistant
-        os.makedirs(os.path.dirname(EMAIL_FILE), exist_ok=True)
-        
-        # Écriture des 3 lignes demandées 📝
         with open(EMAIL_FILE, "w") as f:
             f.write(f"{config.sender}\n")
             f.write(f"{config.api_key}\n")
