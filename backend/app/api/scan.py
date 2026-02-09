@@ -1,7 +1,6 @@
 import os
 import jwt
 from fastapi import APIRouter, HTTPException, Depends, Cookie
-# Import mis à jour pour la nouvelle structure 🧠
 from app.scanner.main import run_scan
 
 router = APIRouter(prefix="/scan")
@@ -9,6 +8,8 @@ router = APIRouter(prefix="/scan")
 DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 ALGORITHM = "HS256"
 
+
+# a inclure partout
 def get_admin_user(session_token: str = Cookie(None)):
     if not session_token:
         raise HTTPException(status_code=401, detail="Non connecté 😶")
@@ -19,6 +20,7 @@ def get_admin_user(session_token: str = Cookie(None)):
         return payload
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Session invalide 😱")
+# jusqu'a la
 
 @router.post("/quick")
 async def scan_quick(admin=Depends(get_admin_user)):

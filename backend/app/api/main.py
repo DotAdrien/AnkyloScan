@@ -20,29 +20,27 @@ app.include_router(db_router)
 app.include_router(email_router)
 app.include_router(plan_router)
 
-# Dans backend/app/api/main.py
+# securiser ce truc
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"http://.*", # Autorise n'importe quelle IP en HTTP 🌍
-    allow_credentials=True, # Indispensable pour Tigrounet et tes cookies 🍪
+    allow_origin_regex=r"http://.*",
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Récupère le MDP généré ou celui par défaut 🔑
+
 DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 @app.get("/")
 def home():
     return {
-            "message": "AnkyloScan API tournant sur le port 8001 ! 🦖🔥", 
-            "password_debug": DB_PASSWORD  # Ajoute une clé ici ✨
+            "message": "AnkyloScan API tournant sur le port 8001 ! 🦖🔥",
         }
 
 @app.get("/test-db")
 def test_db_connection():
     try:
-        # Connexion au service 'db' défini dans docker-compose
         connection = mysql.connector.connect(
             host="db",
             user="root",
@@ -53,7 +51,6 @@ def test_db_connection():
             connection.close()
             return {"status": "success", "message": "Connexion réussie ! 🛡️"}
     except Exception as e:
-        # Tigrounet signale une erreur si la base boude 😱
         raise HTTPException(status_code=500, detail=f"Erreur : {str(e)} 😱")
 
 
