@@ -23,8 +23,8 @@ def execute_nmap_process(scan_type, args):
 def run_scan(scan_type):
     """Lance le scan sans bloquer l'application 🚀"""
     configs = {
-        1: ["-O",  "-T4", "192.168.2.0/24"],
-        2: ["-p-", "-T4", "-O", "192.168.2.0/24"],
+        1: ["-O",  "-T4",                           "192.168.2.0/24"],
+        2: ["-p-", "-T4", "-O",                     "192.168.2.0/24"],
         3: ["-p-", "-T4", "-A", "--script", "vuln", "192.168.2.0/24"]
     }
     
