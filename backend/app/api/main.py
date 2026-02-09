@@ -5,8 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 
-
-
 app = FastAPI(title="AnkyloScan API 🦖")
 
 

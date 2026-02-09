@@ -3,7 +3,7 @@ import time
 import threading
 from fastapi import APIRouter
 from pydantic import BaseModel
-from app.scanner.main import run_scan # On importe la fonction de scan
+from app.scanner.main import run_scan # type: ignore
 
 router = APIRouter(prefix="/plan", tags=["Planificateur ⏰"])
 PLAN_FILE = "/app/outputs/schedule.txt"
