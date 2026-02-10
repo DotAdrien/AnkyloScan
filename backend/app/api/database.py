@@ -1,7 +1,8 @@
 import os
 import mysql.connector # type: ignore
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends # Ajout de Depends 🛡️
 from fastapi.responses import FileResponse
+from app.secu.main import verify_admin # Import de la sécurité 🦖
 
 router = APIRouter(prefix="/db", tags=["Database 🐬"])
 
@@ -9,7 +10,10 @@ router = APIRouter(prefix="/db", tags=["Database 🐬"])
 DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 @router.get("/history")
-def get_scan_history():
+def get_scan_history(admin=Depends(verify_admin)):
+    """
+    Seul un admin peut consulter l'historique des scans. 🔐
+    """
     conn = None
     try:
         # Connexion à la base de données 🛡️
@@ -21,7 +25,7 @@ def get_scan_history():
         )
         cursor = conn.cursor(dictionary=True)
         
-        # Récupère les 5 entrées les plus récentes via l'ID ou le Time 🕒
+        # Récupère les 5 entrées les plus récentes 🕒
         query = """
             SELECT id_scan as id, type, Time as time, file_path 
             FROM Scan 
@@ -39,9 +43,7 @@ def get_scan_history():
         }
 
         for scan in scans:
-            # On ajoute une description lisible si elle n'est pas en base
             scan["description"] = descriptions.get(scan["type"], "Scan effectué. 🛡️")
-            # Conversion du datetime en string pour le JSON
             if scan["time"]:
                 scan["time"] = scan["time"].strftime("%d/%02m/%Y - %H:%M")
 
@@ -56,7 +58,10 @@ def get_scan_history():
             conn.close()
 
 @router.get("/report")
-def get_report_file(path: str):
+def get_report_file(path: str, admin=Depends(verify_admin)):
+    """
+    L'accès aux fichiers de rapport est aussi protégé. 🛡️
+    """
     if os.path.exists(path):
         return FileResponse(path)
     raise HTTPException(status_code=404, detail="Rapport introuvable 😱")
