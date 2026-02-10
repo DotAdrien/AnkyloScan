@@ -16,6 +16,7 @@
     <script src="js/work.js" defer></script>
     <script src="js/result.js" defer></script>
     <script src="js/email.js" defer></script>
+    <script src="js/affichage.js" defer></script>
 
 
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -32,13 +33,7 @@
         </div>
         
         <nav class="nav-links">
-            <template x-for="item in ['landing', 'about', 'work', 'email','result', 'contact']">
-                <button @click="changePage(item)" 
-                        class="nav-btn"
-                        :class="currentPage === item ? 'active' : ''"
-                        x-text="item === 'work' ? 'SCAN' : item">
-                </button>
-            </template>
+            
         </nav>
     </aside>
 
