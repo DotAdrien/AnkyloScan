@@ -20,7 +20,8 @@ async function submitLogin(context) {
 
         if (response.ok) {
             context.user = fetchMe(); 
-            await context.changePage('profile'); 
+            await context.changePage('profile');
+            location.reload();
         } else {
             alert(data.detail || "Email ou mot de passe incorrect ❌");
         }
