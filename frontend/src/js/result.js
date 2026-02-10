@@ -6,7 +6,7 @@ async function showReportContent(filePath) {
     viewer.style.display = 'block';
 
     try {
-        const response = await fetch(`${window.API_BASE}/db/report?path=${encodeURIComponent(filePath)}`);
+        const response = await fetch(`${window.API_BASE}/db/report?path=${encodeURIComponent(filePath)}`, {credentials: 'include'});
         const text = await response.text();
         content.innerText = text;
     } catch (error) {
@@ -19,7 +19,7 @@ async function loadScanHistory() {
     if (!listContainer) return;
 
     try {
-        const response = await fetch(`${window.API_BASE}/db/history`);
+        const response = await fetch(`${window.API_BASE}/db/history`, {credentials: 'include'});
         const scans = await response.json();
 
         const typeMap = {

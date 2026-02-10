@@ -11,7 +11,8 @@ async function saveEmailConfig() {
                 sender: sender,
                 api_key: apiKey,
                 receivers: receivers
-            })
+            },
+            {credentials: 'include'})
         });
 
         const data = await response.json();
