@@ -19,6 +19,14 @@ CREATE TABLE IF NOT EXISTS Scan (
     file_path VARCHAR(255) NOT NULL
 );
 
+-- Table SystemLogs pour tes remontées de logs AD 🛡️
+CREATE TABLE IF NOT EXISTS SystemLogs (
+    id_log INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT,
+    source VARCHAR(255),
+    message TEXT,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 INSERT INTO Users (Name, Email, Password, Role) 
 VALUES ('admin', 'admin@gmail.com', 'admin', 'admin');
