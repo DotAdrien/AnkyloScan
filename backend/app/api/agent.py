@@ -12,7 +12,7 @@ async def get_script(request: Request):
     token = secrets.token_hex(16)
     host = request.base_url.hostname
     
-    # Enregistrement immédiat du token en base 💾
+    # Enregistrement du token 💾
     conn = mysql.connector.connect(host="db", user="root", password=DB_PASSWORD, database="ankyloscan")
     cursor = conn.cursor()
     cursor.execute("INSERT INTO Agents (token) VALUES (%s)", (token,))
@@ -20,14 +20,18 @@ async def get_script(request: Request):
     cursor.close()
     conn.close()
     
-    script_content = f"""
-import requests
-SERVER_IP = "{host}"
-TOKEN = "{token}"
-print(f"Agent configuré pour {{SERVER_IP}} avec le token {{TOKEN}}")
-# Logique de ton agent ici...
-"""
-    return Response(content=script_content, media_type="text/x-python", headers={"Content-Disposition": "attachment; filename=agent.py"})
+    # Lecture du template externe 📂
+    template_path = os.path.join(os.path.dirname(__file__), "agent", "ad.py")
+    with open(template_path, "r") as f:
+        script_content = f.read().replace("{SERVER_IP}", host).replace("{TOKEN}", token)
+        
+    return Response(
+        content=script_content, 
+        media_type="text/x-python", 
+        headers={"Content-Disposition": "attachment; filename=ad.py"}
+    )
+
+
 
 @router.delete("/clear")
 async def clear_agents(admin=Depends(verify_admin)):
