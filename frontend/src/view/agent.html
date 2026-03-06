@@ -1,7 +1,19 @@
 <link rel="stylesheet" href="style/work.css">
+
 <div class="scan-container">
     <h2 class="scan-title">Agents 🤖</h2>
+    
     <div class="scan-grid">
-        <button class="btn-action" onclick="downloadAgent()">Télécharger Agent 💾</button>
+        <div class="scan-card">
+            <h3>Installation 💾</h3>
+            <p>Récupérer le script de déploiement.</p>
+            <button class="btn-action" onclick="downloadAgent()" style="width: auto; padding: 0.5rem 1rem;">Télécharger Agent 💾</button>
+        </div>
+
+        <div class="scan-card">
+            <h3>Maintenance 🧹</h3>
+            <p>Supprimer tous les jetons actifs.</p>
+            <button class="btn-action" onclick="clearTokens()" style="width: auto; padding: 0.5rem 1rem; background: #f87171;">Clear Tokens 🧹</button>
+        </div>
     </div>
 </div>

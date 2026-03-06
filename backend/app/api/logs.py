@@ -8,6 +8,7 @@ router = APIRouter(prefix="/logs", tags=["Logs 🛡️"])
 DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 class LogEntry(BaseModel):
+    token: str  # Ajout pour identifier l'agent 🤖
     event_id: int
     source: str
     message: str
@@ -16,9 +17,19 @@ class LogEntry(BaseModel):
 def ingest_logs(log: LogEntry):
     conn = mysql.connector.connect(host="db", user="root", password=DB_PASSWORD, database="ankyloscan")
     cursor = conn.cursor()
+
+    # Vérification du token dans la table Agents 🔐
+    cursor.execute("SELECT id FROM Agents WHERE token = %s", (log.token,))
+    if not cursor.fetchone():
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=403, detail="Agent non autorisé 🚫")
+
+    # Insertion si le token est valide ✨
     cursor.execute("INSERT INTO SystemLogs (event_id, source, message) VALUES (%s, %s, %s)", 
                    (log.event_id, log.source, log.message))
     conn.commit()
+    cursor.close()
     conn.close()
     return {"status": "Log reçu ! ✨"}
 
