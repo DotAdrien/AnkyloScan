@@ -28,5 +28,11 @@ CREATE TABLE IF NOT EXISTS SystemLogs (
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS Agents (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    token VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 INSERT INTO Users (Name, Email, Password, Role) 
 VALUES ('admin', 'admin@gmail.com', 'admin', 'admin');
