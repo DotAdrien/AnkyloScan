@@ -1,6 +1,6 @@
 import os
 import secrets
-import mysql.connector
+import mysql.connector # type: ignore
 from fastapi import APIRouter, Request, Response, Depends
 from app.secu.main import verify_admin
 
