@@ -13,7 +13,7 @@ async def get_script(request: Request):
     token = secrets.token_hex(16)
     
     # 1. On récupère dynamiquement l'IP du serveur 🌐
-    server_ip = request.headers.get("host", "127.0.0.1").split(":")[0]
+    server_ip = "192.168.2.103"
     
     # 2. On sauvegarde le token en base pour autoriser l'agent 💾
     conn = None
