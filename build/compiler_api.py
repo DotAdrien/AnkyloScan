@@ -11,7 +11,6 @@ async def build_agent(request: Request):
     ip = data.get("ip", "127.0.0.1")
     token = data.get("token", "default")
     
-    # Code de l'agent avec IP et Token dynamiques 🤖
     agent_code = f"""import requests
 SERVER_IP = "{ip}"
 TOKEN = "{token}" 
@@ -32,15 +31,14 @@ def send_log(event_id, source, message):
 send_log(1, "Agent", "Agent démarré avec succès ! 👍")
 """
     
-    # On sauvegarde le script 💾
     with open("agent.py", "w") as f:
         f.write(agent_code)
         
-    # Compilation 🥵
-    subprocess.run(["pyinstaller", "--onefile", "agent.py"], check=False)
+    # On force l'utilisation de Wine pour compiler 🥵
+    subprocess.run(["wine", "pyinstaller", "--onefile", "agent.py"], check=False)
     
-    # PyInstaller sous Linux crée un binaire sans extension. On s'assure qu'il existe ! 🫣
-    file_path = "dist/agent"
+    # Le fichier aura bien l'extension .exe cette fois ! ✨
+    file_path = "dist/agent.exe"
     if not os.path.exists(file_path):
         with open("fallback.exe", "w") as f:
             f.write("Erreur de compilation")
