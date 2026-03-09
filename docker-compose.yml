@@ -16,6 +16,11 @@ services:
       - scan_reports:/app/outputs
     depends_on:
       - db
+      
+  compiler:
+    build: ./build
+    expose:
+      - "8002" # Port interne pour communiquer avec le backend
 
   db:
     build: ./mysql
@@ -24,13 +29,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${ADMIN_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
-      
-  backend:
-    build: ./backend
-    volumes:
-      - ./backend:/app
-      - /var/run/docker.sock:/var/run/docker.sock # 🔑 Indispensable
-      - scan_reports:/app/outputs
+  
 
   welcome:
     image: alpine

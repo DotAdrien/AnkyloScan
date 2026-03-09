@@ -9,25 +9,18 @@ from app.secu.main import verify_admin
 router = APIRouter(prefix="/agent", tags=["Agent 🤖"])
 DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
+import requests
+from fastapi.responses import Response
+
 @router.get("/download")
 async def get_script(request: Request):
-    # 1. Génère le fichier temporaire (ton code actuel)
     token = secrets.token_hex(16)
-    script_path = "/tmp/ad.py"
-    with open(script_path, "w") as f:
-        f.write(...) # Ton code template ici
-
-    # 2. Compile en .exe via Docker
-    exe_path = "/tmp/ad.exe"
-    subprocess.run([
-        "docker", "run", "--rm",
-        "-v", f"{script_path}:/app/ad.py",
-        "-v", "/tmp:/dist", # Partage le dossier
-        "agent-builder", "pyinstaller", "--onefile", "--distpath", "/dist", "ad.py"
-    ], check=True)
-
-    # 3. Retourne le fichier .exe
-    return FileResponse(exe_path, filename="AnkyloAgent.exe")
+    
+    # On demande au conteneur "compiler" de faire le travail 🥵
+    rep = requests.post("http://compiler:8002/build", json={"token": token, "ip": SERVER_IP})
+    
+    # On renvoie le fichier .exe généré directement à l'utilisateur ✨
+    return Response(content=rep.content, media_type="application/x-msdownload", headers={"Content-Disposition": "attachment; filename=AnkyloAgent.exe"})
 
 
 
