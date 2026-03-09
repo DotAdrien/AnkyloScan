@@ -2,10 +2,11 @@ FROM tobix/pywine:3.11
 
 # On installe FastAPI pour le conteneur Linux 🐧
 RUN apt-get update && apt-get install -y python3-pip
-RUN pip3 install fastapi uvicorn
+# Installation de FastAPI pour le conteneur Linux 🐧
+RUN pip3 install --break-system-packages fastapi uvicorn
 
-# On installe PyInstaller et requests pour Windows via Wine 🪟
-RUN wine pip install pyinstaller requests
+# Installation de PyInstaller et requests pour Windows via Wine 🪟
+RUN wine pip install --break-system-packages pyinstaller requests
 
 WORKDIR /app
 COPY compiler_api.py .
