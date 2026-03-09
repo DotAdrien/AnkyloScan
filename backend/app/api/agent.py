@@ -1,7 +1,9 @@
 import os
+import subprocess
 import secrets
 import mysql.connector # type: ignore
 from fastapi import APIRouter, Request, Response, Depends, HTTPException
+from fastapi.responses import FileResponse
 from app.secu.main import verify_admin 
 
 router = APIRouter(prefix="/agent", tags=["Agent 🤖"])
@@ -9,27 +11,23 @@ DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 @router.get("/download")
 async def get_script(request: Request):
+    # 1. Génère le fichier temporaire (ton code actuel)
     token = secrets.token_hex(16)
-    host = request.base_url.hostname
-    
-    # Enregistrement du token 💾
-    conn = mysql.connector.connect(host="db", user="root", password=DB_PASSWORD, database="ankyloscan")
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO Agents (token) VALUES (%s)", (token,))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    
-    # Lecture du template externe 📂
-    template_path = os.path.join(os.path.dirname(__file__), "agent", "ad.py")
-    with open(template_path, "r") as f:
-        script_content = f.read().replace("{SERVER_IP}", host).replace("{TOKEN}", token)
-        
-    return Response(
-        content=script_content, 
-        media_type="text/x-python", 
-        headers={"Content-Disposition": "attachment; filename=ad.py"}
-    )
+    script_path = "/tmp/ad.py"
+    with open(script_path, "w") as f:
+        f.write(...) # Ton code template ici
+
+    # 2. Compile en .exe via Docker
+    exe_path = "/tmp/ad.exe"
+    subprocess.run([
+        "docker", "run", "--rm",
+        "-v", f"{script_path}:/app/ad.py",
+        "-v", "/tmp:/dist", # Partage le dossier
+        "agent-builder", "pyinstaller", "--onefile", "--distpath", "/dist", "ad.py"
+    ], check=True)
+
+    # 3. Retourne le fichier .exe
+    return FileResponse(exe_path, filename="AnkyloAgent.exe")
 
 
 
