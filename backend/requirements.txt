@@ -4,3 +4,4 @@ uvicorn
 pydantic
 PyJWT
 email-validator
+requests
