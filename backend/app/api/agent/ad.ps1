@@ -8,7 +8,7 @@ $ScriptContent = @"
 `$LastId = 0
 if (Test-Path `$StateFile) { `$LastId = [long](Get-Content `$StateFile) }
 
-`$EventIDs = @(4624, 4625, 4768, 4769, 4720, 4728, 4732, 4756, 1102, 4719, 5136)
+`$EventIDs = @(4625, 4768, 4769, 4720, 4728, 4732, 4756, 1102, 4719, 5136)
 
 # On regarde les 5 dernieres minutes en filtrant par le RecordId memorise
 `$Events = Get-WinEvent -FilterHashtable @{LogName='Security'; Id=`$EventIDs; StartTime=(Get-Date).AddMinutes(-5)} -ErrorAction SilentlyContinue | Where-Object RecordId -gt `$LastId | Sort-Object RecordId
@@ -21,7 +21,6 @@ foreach (`$Event in `$Events) {
     
     `$Msg = switch (`$Id) {
         4625 { 'echec de connexion (Brute-force) ' }
-        4624 { 'Connexion reussie ' }
         4768 { 'Requête ticket Kerberos (TGT) ' }
         4769 { 'Requête ticket service Kerberos ' }
         4720 { 'Creation compte utilisateur ' }
