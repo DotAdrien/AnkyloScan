@@ -21,8 +21,8 @@ foreach (`$Event in `$Events) {
     
     `$Msg = switch (`$Id) {
         4625 { 'echec de connexion (Brute-force) ' }
-        4768 { 'Requête ticket Kerberos (TGT) ' }
-        4769 { 'Requête ticket service Kerberos ' }
+        4768 { 'Ticket Kerberos ' }
+        4769 { 'Ticket service Kerberos ' }
         4720 { 'Creation compte utilisateur ' }
         4728 { 'Ajout groupe de securite global ' }
         4732 { 'Ajout groupe de securite local ' }
@@ -36,7 +36,7 @@ foreach (`$Event in `$Events) {
         token = `$Token
         event_id = `$Id
         source = 'Agent-AD'
-        message = "`$Msg a `$Time"
+        message = "`$Msg `$Event.Message `$Event.Properties `$Time"
     } | ConvertTo-Json -Compress
     
     Invoke-RestMethod -Uri `$Url -Method Post -Body `$Body -ContentType 'application/json; charset=utf-8'
