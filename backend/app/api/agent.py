@@ -1,5 +1,4 @@
 import os
-import requests
 import secrets
 import mysql.connector # type: ignore
 from fastapi import APIRouter, Request, Response, Depends, HTTPException
@@ -11,11 +10,8 @@ DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 @router.get("/download")
 async def get_script(request: Request):
     token = secrets.token_hex(16)
-    
-    # 1. On récupère dynamiquement l'IP du serveur 🌐
     server_ip = "192.168.2.103"
     
-    # 2. On sauvegarde le token en base pour autoriser l'agent 💾
     conn = None
     try:
         conn = mysql.connector.connect(host="db", user="root", password=DB_PASSWORD, database="ankyloscan")
@@ -29,18 +25,21 @@ async def get_script(request: Request):
         if conn and conn.is_connected():
             conn.close()
 
-    # On demande au conteneur "compiler" de faire le travail 🥵
+    # Lecture du fichier PowerShell 📄
     try:
-        rep = requests.post("http://compiler:8002/build", json={"token": token, "ip": server_ip})
-        rep.raise_for_status()
-    except requests.exceptions.RequestException:
-        raise HTTPException(status_code=500, detail="Échec de la compilation de l'agent 😩")
+        with open("app/api/agent/ad.ps1", "r") as f:
+            ps1_content = f.read()
+    except FileNotFoundError:
+        raise HTTPException(status_code=500, detail="Fichier ad.ps1 introuvable 😱")
     
-    # On renvoie le fichier .exe généré directement à l'utilisateur ✨
+    # On remplace les variables ✨
+    ps1_content = ps1_content.replace("SERVER_IP_PLACEHOLDER", server_ip)
+    ps1_content = ps1_content.replace("TOKEN_PLACEHOLDER", token)
+
     return Response(
-        content=rep.content, 
-        media_type="application/x-msdownload", 
-        headers={"Content-Disposition": "attachment; filename=AnkyloAgent.exe"}
+        content=ps1_content, 
+        media_type="text/plain", 
+        headers={"Content-Disposition": "attachment; filename=InstallAnkyloAgent.ps1"}
     )
 
 @router.delete("/clear")
