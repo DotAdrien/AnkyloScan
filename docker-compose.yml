@@ -16,11 +16,6 @@ services:
       - scan_reports:/app/outputs
     depends_on:
       - db
-      
-  compiler:
-    build: ./build
-    expose:
-      - "8002" # Port interne pour communiquer avec le backend
 
   db:
     build: ./mysql
