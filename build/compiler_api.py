@@ -8,8 +8,8 @@ app = FastAPI()
 @app.post("/build")
 async def build_agent(request: Request):
     data = await request.json()
-    ip = data.get("ip", "127.0.0.1")
-    token = data.get("token", "default")
+    ip = data.get("ip")
+    token = data.get("token")
     
     # On lit le template C++ 😌
     with open("agent_template.cpp", "r") as f:
