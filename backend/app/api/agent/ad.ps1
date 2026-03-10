@@ -37,7 +37,7 @@ foreach (`$Event in `$Events) {
         token = `$Token
         event_id = `$Id
         source = 'Agent-AD'
-        message = "`$Msg e `$Time"
+        message = "`$Msg a `$Time"
     } | ConvertTo-Json -Compress
     
     Invoke-RestMethod -Uri `$Url -Method Post -Body `$Body -ContentType 'application/json; charset=utf-8'
