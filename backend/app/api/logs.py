@@ -18,21 +18,22 @@ def ingest_logs(log: LogEntry):
     conn = mysql.connector.connect(host="db", user="root", password=DB_PASSWORD, database="ankyloscan")
     cursor = conn.cursor()
 
-    # Vérification du token dans la table Agents 🔐
+    # Vérification du token 🔐
     cursor.execute("SELECT id FROM Agents WHERE token = %s", (log.token,))
-    if not cursor.fetchone():
+    agent = cursor.fetchone()
+    if not agent:
         cursor.close()
         conn.close()
         raise HTTPException(status_code=403, detail="Agent non autorisé 🚫")
 
-    # Insertion si le token est valide ✨
-    cursor.execute("SELECT id_log FROM SystemLogs WHERE event_id = %s AND timestamp > NOW() - INTERVAL 1 MINUTE", (log.event_id,))
+    # Vérification doublon (pour éviter spam)
+    cursor.execute("SELECT id_log FROM SystemLogs WHERE event_id = %s AND source = %s AND message = %s AND timestamp > NOW() - INTERVAL 1 MINUTE", (log.event_id, log.source, log.message))
+    exists = cursor.fetchone()
     
-    if not cursor.fetchone():
-            cursor.execute(
-            "SELECT id_log FROM SystemLogs WHERE event_id = %s AND source = %s AND message = %s AND timestamp > NOW() - INTERVAL 1 MINUTE", 
-            (log.event_id, log.source, log.message))
-            conn.commit()
+    if not exists:
+        # INSERT manquant ! ✨
+        cursor.execute("INSERT INTO SystemLogs (event_id, source, message) VALUES (%s, %s, %s)", (log.event_id, log.source, log.message))
+        conn.commit()
 
     cursor.close()
     conn.close()
