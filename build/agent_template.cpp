@@ -28,6 +28,23 @@ void send_log(int event_id, const std::string& source, const std::string& messag
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-    send_log(1, "Agent-CPP", "Agent démarré avec succès ! 👍");
+    send_log(1, "Agent-AD", "Démarré ! ✨");
+    std::string lastLog = "";
+
+    while (true) {
+        FILE* pipe = _popen("powershell -command \"Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4625} -MaxEvents 1 | Select-Object -ExpandProperty TimeCreated\"", "r");
+        if (pipe) {
+            char buffer[128];
+            std::string result = "";
+            while (fgets(buffer, sizeof(buffer), pipe) != NULL) result += buffer;
+            _pclose(pipe);
+
+            if (result != "" && result != lastLog) {
+                send_log(4625, "Agent-AD", "Mauvais mot de passe ! 😱");
+                lastLog = result;
+            }
+        }
+        Sleep(10000); // Pause 😪
+    }
     return 0;
 }
