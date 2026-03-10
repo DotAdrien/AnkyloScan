@@ -29,7 +29,9 @@ def ingest_logs(log: LogEntry):
     cursor.execute("SELECT id_log FROM SystemLogs WHERE event_id = %s AND timestamp > NOW() - INTERVAL 1 MINUTE", (log.event_id,))
     
     if not cursor.fetchone():
-            cursor.execute("INSERT INTO SystemLogs (event_id, source, message) VALUES (%s, %s, %s)", (log.event_id, log.source, log.message))
+            cursor.execute(
+            "SELECT id_log FROM SystemLogs WHERE event_id = %s AND source = %s AND message = %s AND timestamp > NOW() - INTERVAL 1 MINUTE", 
+            (log.event_id, log.source, log.message))
             conn.commit()
 
     cursor.close()
