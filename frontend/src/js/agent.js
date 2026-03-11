@@ -3,6 +3,16 @@ async function downloadAgent() {
     window.location.href = `${window.API_BASE}/agent/download`;
 }
 
+async function downloadAgent2() {
+    if (!confirm("Veux tu telecharger l'agent 2 ?")) return;
+    window.location.href = `${window.API_BASE}/agent/download2`;
+}
+
+async function downloadAgent3() {
+    if (!confirm("Veux tu telecharger l'agent 3 ?")) return;
+    window.location.href = `${window.API_BASE}/agent/download3`;
+}
+
 async function clearTokens() {
     if (!confirm("Attention, cela va supprimer tous les agents. Tu es sûr ? 🫣")) return;
 

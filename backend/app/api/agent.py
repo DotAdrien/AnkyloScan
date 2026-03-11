@@ -7,8 +7,8 @@ from app.secu.main import verify_admin
 router = APIRouter(prefix="/agent", tags=["Agent 🤖"])
 DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
-@router.get("/download")
-async def get_script(request: Request):
+async def generate_agent_download(filename_on_disk: str, filename_download: str):
+    """Génère le script d'agent avec token unique et l'envoie"""
     token = secrets.token_hex(16)
     server_ip = "192.168.2.103"
     
@@ -27,10 +27,10 @@ async def get_script(request: Request):
 
     # Lecture du fichier PowerShell 📄
     try:
-        with open("app/api/agent/ad.ps1", "r") as f:
+        with open(f"app/api/agent/{filename_on_disk}", "r") as f:
             ps1_content = f.read()
     except FileNotFoundError:
-        raise HTTPException(status_code=500, detail="Fichier ad.ps1 introuvable 😱")
+        raise HTTPException(status_code=500, detail=f"Fichier {filename_on_disk} introuvable 😱")
     
     # On remplace les variables ✨
     ps1_content = ps1_content.replace("SERVER_IP_PLACEHOLDER", server_ip)
@@ -39,8 +39,20 @@ async def get_script(request: Request):
     return Response(
         content=ps1_content, 
         media_type="text/plain", 
-        headers={"Content-Disposition": "attachment; filename=InstallAnkyloAgent.ps1"}
+        headers={"Content-Disposition": f"attachment; filename={filename_download}"}
     )
+
+@router.get("/download")
+async def get_script(request: Request):
+    return await generate_agent_download("ad.ps1", "InstallAnkyloAgent.ps1")
+
+@router.get("/download2")
+async def get_script_2(request: Request):
+    return await generate_agent_download("agent2.ps1", "InstallAnkyloAgent2.ps1")
+
+@router.get("/download3")
+async def get_script_3(request: Request):
+    return await generate_agent_download("agent3.sh", "InstallAnkyloAgent3.sh")
 
 @router.delete("/clear")
 async def clear_agents(admin=Depends(verify_admin)):
