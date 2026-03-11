@@ -7,7 +7,6 @@ $ScriptContent = @"
 `$LastId = 0
 if (Test-Path `$StateFile) { `$LastId = [long](Get-Content `$StateFile) }
 
-# Liste de tous tes événements 🤓
 `$EventIDs = @(4624, 4625, 4720, 4728, 4732, 4756, 1102, 4719, 5136)
 
 `$Events = Get-WinEvent -FilterHashtable @{LogName='Security'; Id=`$EventIDs; StartTime=(Get-Date).AddMinutes(-5)} -ErrorAction SilentlyContinue | 
@@ -19,27 +18,25 @@ if (Test-Path `$StateFile) { `$LastId = [long](Get-Content `$StateFile) }
 foreach (`$Event in `$Events) {
     `$Xml = [xml]`$Event.ToXml()
     
-    # On récupère le compte (cible ou source selon l'event) 🕵️‍♂️
     `$TargetUserName = (`$Xml.Event.EventData.Data | Where-Object Name -in "TargetUserName", "SubjectUserName" | Select-Object -First 1).'#text'
     `$IpAddress = (`$Xml.Event.EventData.Data | Where-Object Name -eq "IpAddress").'#text'
 
-    # Ignore les comptes machines 🚫
     if (`$TargetUserName -like "*`$") { continue }
 
     `$Time = `$Event.TimeCreated.ToString('yyyy-MM-dd HH:mm:ss')
     `$Id = `$Event.Id
     
-    # Textes simplifiés 🌷
+    # Textes simplifiés SANS emojis ni accents pour eviter les bugs d'encodage 🛡️
     `$Msg = switch (`$Id) {
-        4624 { '✅ Connexion réussie' }
-        4625 { '❌ Échec de connexion' }
-        4720 { '👤 Création compte utilisateur' }
-        4728 { '👥 Ajout groupe global' }
-        4732 { '👥 Ajout groupe local' }
-        4756 { '👥 Ajout groupe universel' }
-        1102 { '🗑️ Journal audit effacé' }
-        4719 { '⚙️ Politique audit modifiée' }
-        5136 { '📝 Objet AD modifié' }
+        4624 { '[SUCCESS] Connexion reussie' }
+        4625 { '[FAILED] Echec de connexion' }
+        4720 { '[NEW] Creation compte utilisateur' }
+        4728 { '[ADD] Ajout groupe global' }
+        4732 { '[ADD] Ajout groupe local' }
+        4756 { '[ADD] Ajout groupe universel' }
+        1102 { '[ALERT] Journal audit efface' }
+        4719 { '[MODIFIED] Politique audit modifiee' }
+        5136 { '[MODIFIED] Objet AD modifie' }
     }
 
     `$SimpleMessage = "`$Msg | Compte: `$TargetUserName | IP: `$IpAddress | Heure: `$Time"
