@@ -4,6 +4,7 @@ import datetime
 import mysql.connector # type: ignore
 from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel, EmailStr
+from app.db import get_db_connection
 
 router = APIRouter(prefix="/auth", tags=["Account 👤"])
 
@@ -31,12 +32,7 @@ def login(user_data: UserLogin, response: Response):
     conn = None
     try:
         # Connexion au service 'db' défini dans docker-compose
-        conn = mysql.connector.connect(
-            host="127.0.0.1", 
-            user="root", 
-            password=DB_PASSWORD, 
-            database="ankyloscan"
-        )
+        conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         
         # Vérification en base avec récupération de toutes les infos

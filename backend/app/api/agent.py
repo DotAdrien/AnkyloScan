@@ -3,9 +3,9 @@ import secrets
 import mysql.connector # type: ignore
 from fastapi import APIRouter, Request, Response, Depends, HTTPException
 from app.secu.main import verify_admin 
+from app.db import get_db_connection
 
 router = APIRouter(prefix="/agent", tags=["Agent 🤖"])
-DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 async def generate_agent_download(filename_on_disk: str, filename_download: str):
     """Génère le script d'agent avec token unique et l'envoie"""
@@ -14,7 +14,7 @@ async def generate_agent_download(filename_on_disk: str, filename_download: str)
     
     conn = None
     try:
-        conn = mysql.connector.connect(host="127.0.0.1", user="root", password=DB_PASSWORD, database="ankyloscan")
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("INSERT INTO Agents (token) VALUES (%s)", (token,))
         conn.commit()
@@ -52,14 +52,14 @@ async def get_script_2(request: Request):
 
 @router.get("/download3")
 async def get_script_3(request: Request):
-    return await generate_agent_download("agent3.sh", "InstallAnkyloAgent3.sh")
+    return await generate_agent_download("agent3.ps1", "InstallAnkyloAgent3.ps1")
 
 @router.delete("/clear")
 async def clear_agents(admin=Depends(verify_admin)):
     """Supprime tous les agents enregistrés 🧹"""
     conn = None
     try:
-        conn = mysql.connector.connect(host="127.0.0.1", user="root", password=DB_PASSWORD, database="ankyloscan")
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("TRUNCATE TABLE Agents") # Vide la table 🚫
         conn.commit()

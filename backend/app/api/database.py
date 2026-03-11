@@ -3,11 +3,9 @@ import mysql.connector # type: ignore
 from fastapi import APIRouter, HTTPException, Depends # Ajout de Depends 🛡️
 from fastapi.responses import FileResponse
 from app.secu.main import verify_admin # Import de la sécurité 🦖
+from app.db import get_db_connection
 
 router = APIRouter(prefix="/db", tags=["Database 🐬"])
-
-# Récupère le mot de passe depuis l'environnement 🔑
-DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
 @router.get("/history")
 def get_scan_history(admin=Depends(verify_admin)):
@@ -17,12 +15,7 @@ def get_scan_history(admin=Depends(verify_admin)):
     conn = None
     try:
         # Connexion à la base de données 🛡️
-        conn = mysql.connector.connect(
-            host="127.0.0.1",
-            user="root",
-            password=DB_PASSWORD,
-            database="ankyloscan"
-        )
+        conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         
         # Récupère les 5 entrées les plus récentes 🕒

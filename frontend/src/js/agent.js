@@ -1,16 +1,11 @@
-async function downloadAgent() {
-    if (!confirm("Veux tu telecharger l'agent ?")) return;
-    window.location.href = `${window.API_BASE}/agent/download`;
-}
-
-async function downloadAgent2() {
-    if (!confirm("Veux tu telecharger l'agent 2 ?")) return;
-    window.location.href = `${window.API_BASE}/agent/download2`;
-}
-
-async function downloadAgent3() {
-    if (!confirm("Veux tu telecharger l'agent 3 ?")) return;
-    window.location.href = `${window.API_BASE}/agent/download3`;
+async function downloadAgent(agentId, agentName) {
+    // Construit un message personnalisé. S'il n'y a pas de nom, message générique.
+    const message = agentName ? `Veux tu telecharger l'agent ${agentName} ?` : "Veux tu telecharger l'agent ?";
+    if (!confirm(message)) return;
+    
+    // Construit l'URL dynamiquement. agentId=1 -> /download, agentId=2 -> /download2
+    const endpoint = agentId === 1 ? 'download' : `download${agentId}`;
+    window.location.href = `${window.API_BASE}/agent/${endpoint}`;
 }
 
 async function clearTokens() {
