@@ -55,6 +55,13 @@ def get_report_file(path: str, admin=Depends(verify_admin)):
     """
     L'accès aux fichiers de rapport est aussi protégé. 🛡️
     """
-    if os.path.exists(path):
-        return FileResponse(path)
+    # CORRECTION : Sécurité Directory Traversal 🛡️
+    # On définit le dossier de base strict
+    base_dir = os.path.abspath("/app/outputs") if os.name != 'nt' else os.path.abspath("outputs")
+    # On nettoie le nom de fichier (on ne garde que le nom, pas le chemin)
+    filename = os.path.basename(path)
+    safe_path = os.path.join(base_dir, filename)
+
+    if os.path.exists(safe_path) and os.path.isfile(safe_path):
+        return FileResponse(safe_path)
     raise HTTPException(status_code=404, detail="Rapport introuvable 😱")
