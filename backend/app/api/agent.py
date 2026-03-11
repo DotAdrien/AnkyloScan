@@ -14,7 +14,7 @@ async def get_script(request: Request):
     
     conn = None
     try:
-        conn = mysql.connector.connect(host="db", user="root", password=DB_PASSWORD, database="ankyloscan")
+        conn = mysql.connector.connect(host="127.0.0.1", user="root", password=DB_PASSWORD, database="ankyloscan")
         cursor = conn.cursor()
         cursor.execute("INSERT INTO Agents (token) VALUES (%s)", (token,))
         conn.commit()
@@ -47,7 +47,7 @@ async def clear_agents(admin=Depends(verify_admin)):
     """Supprime tous les agents enregistrés 🧹"""
     conn = None
     try:
-        conn = mysql.connector.connect(host="db", user="root", password=DB_PASSWORD, database="ankyloscan")
+        conn = mysql.connector.connect(host="127.0.0.1", user="root", password=DB_PASSWORD, database="ankyloscan")
         cursor = conn.cursor()
         cursor.execute("TRUNCATE TABLE Agents") # Vide la table 🚫
         conn.commit()

@@ -46,7 +46,7 @@ def home():
 def test_db_connection():
     try:
         connection = mysql.connector.connect(
-            host="db",
+            host="127.0.0.1",
             user="root",
             password=DB_PASSWORD,
             database="ankyloscan"

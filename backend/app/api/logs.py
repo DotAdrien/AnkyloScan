@@ -15,7 +15,7 @@ class LogEntry(BaseModel):
 
 @router.post("/ingest")
 def ingest_logs(log: LogEntry):
-    conn = mysql.connector.connect(host="db", user="root", password=DB_PASSWORD, database="ankyloscan")
+    conn = mysql.connector.connect(host="127.0.0.1", user="root", password=DB_PASSWORD, database="ankyloscan")
     cursor = conn.cursor()
 
     # Vérification du token 🔐
@@ -43,7 +43,7 @@ def ingest_logs(log: LogEntry):
 def get_logs(admin=Depends(verify_admin)):
     conn = None
     try:
-        conn = mysql.connector.connect(host="db", user="root", password=DB_PASSWORD, database="ankyloscan")
+        conn = mysql.connector.connect(host="127.0.0.1", user="root", password=DB_PASSWORD, database="ankyloscan")
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM SystemLogs ORDER BY timestamp DESC LIMIT 50")
         logs = cursor.fetchall()

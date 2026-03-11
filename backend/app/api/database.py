@@ -18,7 +18,7 @@ def get_scan_history(admin=Depends(verify_admin)):
     try:
         # Connexion à la base de données 🛡️
         conn = mysql.connector.connect(
-            host="db",
+            host="127.0.0.1",
             user="root",
             password=DB_PASSWORD,
             database="ankyloscan"

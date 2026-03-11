@@ -18,7 +18,7 @@ def save_scan_result(scan_type, raw_output):
 
     try:
         conn = mysql.connector.connect(
-            host="db", user="root", password=DB_PASSWORD, database="ankyloscan"
+            host="127.0.0.1", user="root", password=DB_PASSWORD, database="ankyloscan"
         )
         cursor = conn.cursor()
         cursor.execute("INSERT INTO Scan (Type, file_path) VALUES (%s, %s)", (scan_type, file_path))
