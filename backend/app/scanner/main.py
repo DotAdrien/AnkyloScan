@@ -1,39 +1,50 @@
 import subprocess
 import threading
+import socket
 from .database_handler import save_scan_result
 from .email_sender import send_email_report
 
-def execute_nmap_process(scan_type, args):
-    """Logique du scan exécutée en arrière-plan 🦾"""
+def get_local_network():
+    """Détecte le réseau de l'hôte depuis le conteneur 🌐"""
     try:
-        print(f"Scan {scan_type} debut du scan 📷")
-        # Le scan peut prendre du temps, mais il tourne sur son propre thread 🧵
+        # On cherche l'IP de la passerelle pour deviner le réseau local
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        local_ip = s.getsockname()[0]
+        s.close()
+        # On transforme l'IP (ex: 192.168.1.50) en réseau (192.168.1.0/24)
+        return ".".join(local_ip.split('.')[:-1]) + ".0/24"
+    except Exception:
+        return "192.168.2.0/24" # Repli sur ton ancienne config si ça échoue 🤨
+
+def execute_nmap_process(scan_type, args):
+    """Logique du scan en arrière-plan 🦾"""
+    try:
+        print(f"Scan {scan_type} lancé sur {args[-1]} 📷")
         result = subprocess.run(["nmap"] + args, capture_output=True, text=True, check=True)
         save_scan_result(scan_type, result.stdout)
 
-        # Envoi de l'email si c'est un Scan Rapide 📧
         if scan_type == 1:
             send_email_report(result.stdout)
             
-        print(f"Scan {scan_type} terminé avec succès ! ✨")
-        
+        print(f"Scan {scan_type} terminé ! ✨")
     except Exception as e:
-        print(f"Erreur lors du scan {scan_type} : {e} 😱")
+        print(f"Erreur scan {scan_type} : {e} 😱")
 
 def run_scan(scan_type):
     """Lance le scan sans bloquer l'application 🚀"""
+    target_network = get_local_network()
+    
     configs = {
-        1: ["-O",  "-T4",                           "192.168.2.0/24"],
-        2: ["-p-", "-T4", "-O",                     "192.168.2.0/24"],
-        3: ["-p-", "-T4", "-A", "--script", "vuln", "192.168.2.0/24"]
+        1: ["-O",  "-T4",                           target_network],
+        2: ["-p-", "-T4", "-O",                     target_network],
+        3: ["-p-", "-T4", "-A", "--script", "vuln", target_network]
     }
     
     args = configs.get(scan_type, configs[1])
     
-    # Création d'un thread dédié pour ce scan 🧠
     scan_thread = threading.Thread(target=execute_nmap_process, args=(scan_type, args))
-    scan_thread.daemon = True  # Le thread meurt si le serveur s'arrête
+    scan_thread.daemon = True
     scan_thread.start()
     
-    # On retourne True immédiatement pour libérer l'API 🌷
     return True
