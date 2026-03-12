@@ -1,6 +1,6 @@
-document.addEventListener('DOMContentLoaded', async () => {
+window.initAdminSetup = async () => {
     // On vérifie d'abord si on est sur la page de login (vérification simple si un form existe)
-    const loginForm = document.querySelector('form');
+    const loginForm = document.querySelector('.login-container form');
     if (!loginForm) return;
 
     try {
@@ -16,7 +16,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
         console.error("Impossible de vérifier l'état d'initialisation", error);
     }
-});
+};
+
+// Au cas où on recharge directement la page
+document.addEventListener('DOMContentLoaded', window.initAdminSetup);
 
 function enableSetupMode(existingForm) {
     // On change le titre de la page ou du conteneur si possible
