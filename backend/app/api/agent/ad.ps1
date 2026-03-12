@@ -12,16 +12,19 @@ $StateFile = 'C:\AnkyloAgent_LastRecord.txt'
 $LastId = 0
 if (Test-Path $StateFile) { $LastId = [long](Get-Content $StateFile) }
 
-$EventIDs = @(4625, 4768, 4769, 4720, 4728, 4732, 4756, 1102, 4719, 5136)
+# Ajout de 4624 (Succès connexion) pour surveiller les admins
+$EventIDs = @(4624, 4625, 4768, 4769, 4720, 4728, 4732, 4756, 1102, 4719, 5136)
 
 $Events = Get-WinEvent -FilterHashtable @{LogName='Security'; Id=$EventIDs; StartTime=(Get-Date).AddMinutes(-5)} -ErrorAction SilentlyContinue | 
           Where-Object RecordId -gt $LastId | 
           Sort-Object RecordId
 
 $MaxId = $LastId
+$SeenEvents = @{} # Pour le dédoublonnage intelligent dans la boucle actuelle
 
 foreach ($Event in $Events) {
     # On parse le XML pour extraire les infos clés de manière propre ✨
+    $Id = $Event.Id
     $Xml = [xml]$Event.ToXml()
     $EventData = $Xml.Event.EventData.Data
     
@@ -39,21 +42,47 @@ foreach ($Event in $Events) {
         continue 
     }
 
-    $Id = $Event.Id
+    # --- LOGIQUE DE DÉDOUBLONNAGE ET FILTRAGE INTELLIGENT ---
+    # Clé unique pour éviter le spam (ex: "Kerberos-Administrateur" n'apparaitra qu'une fois par scan)
+    $DedupKey = "$Id-$TargetUserName"
+    if ($Id -eq 4768 -or $Id -eq 4769) { $DedupKey = "KerberosFail-$TargetUserName" } 
     
-    # Construction d'un message clair et concis selon l'événement 📜
-    $DetailedMsg = switch ($Id) {
-        4625 { "Échec de connexion pour '$TargetUserName' depuis l'IP '$(Get-EventValue $EventData 'IpAddress')'." }
-        4768 { "Échec TGT Kerberos pour '$TargetUserName' depuis l'IP '$(Get-EventValue $EventData 'ClientAddr')' (Code: $Status)." }
-        4769 { "Échec ticket de service Kerberos pour '$TargetUserName' (Service: $(Get-EventValue $EventData 'ServiceName'))." }
-        4720 { "Le compte '$TargetUserName' a été créé par '$SubjectUserName'." }
-        4728 { "L'utilisateur '$(Get-EventValue $EventData 'MemberName')' a été ajouté au groupe global '$TargetUserName' par '$SubjectUserName'." }
-        4732 { "L'utilisateur '$(Get-EventValue $EventData 'MemberName')' a été ajouté au groupe local '$TargetUserName' par '$SubjectUserName'." }
-        4756 { "L'utilisateur '$(Get-EventValue $EventData 'MemberName')' a été ajouté au groupe universel '$TargetUserName' par '$SubjectUserName'." }
-        1102 { "Le journal de sécurité a été effacé par '$SubjectUserName'." }
-        4719 { "La politique d'audit du système a été modifiée par '$SubjectUserName'." }
-        5136 { "Un objet AD ('$(Get-EventValue $EventData 'ObjectDN')') a été modifié par '$SubjectUserName'." }
-        Default { "Événement de sécurité non classifié (ID: $Id)." }
+    if ($SeenEvents.ContainsKey($DedupKey)) { 
+        $MaxId = [math]::Max($MaxId, $Event.RecordId)
+        continue 
+    }
+    $SeenEvents[$DedupKey] = $true
+
+    # Gestion du LDAP et LogonType
+    $LogonType = Get-EventValue $EventData "LogonType"
+    $NetworkTag = ""
+    if ($LogonType -eq "3") { $NetworkTag = " (via LDAP/Appli Web)" }
+
+    # FILTRE ADMIN POUR LES SUCCÈS (4624)
+    if ($Id -eq 4624) {
+        # Modifie cette condition selon tes conventions (ex: adm_*, admin, root)
+        if ($TargetUserName -notmatch "(?i)admin|root") { 
+            $MaxId = [math]::Max($MaxId, $Event.RecordId)
+            continue 
+        }
+        $DetailedMsg = "Connexion Administrateur réussie pour '$TargetUserName'$NetworkTag."
+    }
+    
+    if ($Id -ne 4624) {
+        # Construction d'un message clair et concis selon l'événement 📜
+        $DetailedMsg = switch ($Id) {
+            4625 { "Échec de connexion pour '$TargetUserName'$NetworkTag depuis l'IP '$(Get-EventValue $EventData 'IpAddress')'." }
+            4768 { "Échec TGT Kerberos pour '$TargetUserName'$NetworkTag depuis l'IP '$(Get-EventValue $EventData 'ClientAddr')' (Code: $Status)." }
+            4769 { "Échec ticket de service Kerberos pour '$TargetUserName'$NetworkTag." }
+            4720 { "Le compte '$TargetUserName' a été créé par '$SubjectUserName'." }
+            4728 { "L'utilisateur '$(Get-EventValue $EventData 'MemberName')' a été ajouté au groupe global '$TargetUserName' par '$SubjectUserName'." }
+            4732 { "L'utilisateur '$(Get-EventValue $EventData 'MemberName')' a été ajouté au groupe local '$TargetUserName' par '$SubjectUserName'." }
+            4756 { "L'utilisateur '$(Get-EventValue $EventData 'MemberName')' a été ajouté au groupe universel '$TargetUserName' par '$SubjectUserName'." }
+            1102 { "Le journal de sécurité a été effacé par '$SubjectUserName'." }
+            4719 { "La politique d'audit du système a été modifiée par '$SubjectUserName'." }
+            5136 { "Un objet AD ('$(Get-EventValue $EventData 'ObjectDN')') a été modifié par '$SubjectUserName'." }
+            Default { "Événement de sécurité non classifié (ID: $Id)." }
+        }
     }
 
     $Body = @{
