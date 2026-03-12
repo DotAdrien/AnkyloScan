@@ -10,6 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const isConnected = checkSessionCookie();
     const navContainer = document.querySelector('.nav-links');
 
+    // Si l'utilisateur n'est pas connecté, on oublie la dernière page visitée pour éviter de le renvoyer sur une page privée
+    if (!isConnected) {
+        localStorage.removeItem('ankyloscan_last_view');
+    }
+
     if (navContainer) {
         // Liste des pages selon l'état de connexion 👤
         const publicPages = ['landing', 'about', 'contact'];
@@ -20,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. Mise à jour du contenu du menu 🛠️
         // Note : On vide et on reconstruit pour correspondre à la logique de ton index.html
         navContainer.innerHTML = pagesToShow.map(item => `
-            <button @click="changePage('${item}')" 
+            <button @click="changePage('${item}'); localStorage.setItem('ankyloscan_last_view', '${item}')" 
                     class="nav-btn"
                     :class="currentPage === '${item}' ? 'active' : ''">
                 ${item === 'work' ? 'SCAN' : item.toUpperCase()}

@@ -1,5 +1,6 @@
 import os
 import secrets
+import socket
 import mysql.connector # type: ignore
 from fastapi import APIRouter, Request, Response, Depends, HTTPException
 from app.secu.main import verify_admin 
@@ -7,10 +8,21 @@ from app.db import get_db_connection
 
 router = APIRouter(prefix="/agent", tags=["Agent 🤖"])
 
+def get_host_ip():
+    """Détecte l'IP locale utilisée pour sortir vers le réseau"""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
 async def generate_agent_download(filename_on_disk: str, filename_download: str):
     """Génère le script d'agent avec token unique et l'envoie"""
     token = secrets.token_hex(16)
-    server_ip = "192.168.2.103"
+    server_ip = get_host_ip()
     
     conn = None
     try:

@@ -27,7 +27,8 @@ app.include_router(agent_router)
 # securiser ce truc
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"http://.*",
+    # Autorise localhost, 127.0.0.1, et les IPs privées (192.168.x.x, 10.x.x.x) sur n'importe quel port
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -56,5 +57,3 @@ def test_db_connection():
             return {"status": "success", "message": "Connexion réussie ! 🛡️"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erreur : {str(e)} 😱")
-
-

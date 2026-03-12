@@ -1,5 +1,6 @@
 import os
 import jwt
+import bcrypt
 import datetime
 import mysql.connector # type: ignore
 from fastapi import APIRouter, HTTPException, Response
@@ -36,11 +37,12 @@ def login(user_data: UserLogin, response: Response):
         cursor = conn.cursor(dictionary=True)
         
         # Vérification en base avec récupération de toutes les infos
-        query = "SELECT id_users, Name, Email, Role FROM Users WHERE Email=%s AND Password=%s"
-        cursor.execute(query, (user_data.email, user_data.password))
+        # On récupère le hash du mot de passe pour le vérifier avec bcrypt
+        query = "SELECT id_users, Name, Email, Role, Password FROM Users WHERE Email=%s"
+        cursor.execute(query, (user_data.email,))
         user = cursor.fetchone()
         
-        if not user:
+        if not user or not bcrypt.checkpw(user_data.password.encode('utf-8'), user['Password'].encode('utf-8')):
             raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect ❌")
 
         # Création du token enrichi
@@ -50,7 +52,7 @@ def login(user_data: UserLogin, response: Response):
         response.set_cookie(
             key="session_token", 
             value=token, 
-            httponly=False, 
+            httponly=True, 
             samesite="lax"
         )
         

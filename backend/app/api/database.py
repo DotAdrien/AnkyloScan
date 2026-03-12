@@ -62,6 +62,11 @@ def get_report_file(path: str, admin=Depends(verify_admin)):
     filename = os.path.basename(path)
     safe_path = os.path.join(base_dir, filename)
 
+    # PROTECTION SUPPLÉMENTAIRE 🛡️
+    # On s'assure que l'utilisateur ne télécharge QUE des rapports de scan et pas la config email/cron
+    if not filename.startswith("scan_") or filename in ["email.txt", "schedule.txt"]:
+        raise HTTPException(status_code=403, detail="Accès interdit à ce fichier 🚫")
+
     if os.path.exists(safe_path) and os.path.isfile(safe_path):
         return FileResponse(safe_path)
     raise HTTPException(status_code=404, detail="Rapport introuvable 😱")

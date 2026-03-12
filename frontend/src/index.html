@@ -50,7 +50,7 @@
     <script>
         function app() {
             return {
-                currentPage: 'landing',
+                currentPage: localStorage.getItem('ankyloscan_last_view') || 'landing',
                 pageContent: '',
                 loading: true,
                 user: { loggedIn: false, id: null, name: '', email: '', rank: '' },
@@ -62,7 +62,7 @@
                     } catch (e) {
                         console.error("Erreur profil:", e);
                     }
-                    await this.changePage('landing');
+                    await this.changePage(this.currentPage);
                 },
 
                 handleProfileClick() {
@@ -75,6 +75,7 @@
 
                 async changePage(pageName) {
                     this.currentPage = pageName;
+                    localStorage.setItem('ankyloscan_last_view', pageName);
                     this.loading = false; // On s'assure que le chargement est caché 🌷
 
                     try {
