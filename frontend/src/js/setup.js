@@ -24,32 +24,32 @@ document.addEventListener('DOMContentLoaded', window.initAdminSetup);
 function enableSetupMode(existingForm) {
     // On change le titre de la page ou du conteneur si possible
     const container = existingForm.parentElement;
-    const title = container.querySelector('h1, h2, h3');
+    const title = container.querySelector('.auth-title') || container.querySelector('h1, h2, h3');
     if (title) title.innerText = "Bienvenue ! Crée ton compte Admin 🦖";
 
-    // On remplace le HTML du formulaire
-    existingForm.innerHTML = `
-        <div class="input-group">
-            <label for="setup-name">Nom d'affichage</label>
-            <input type="text" id="setup-name" required placeholder="Ex: Admin Suprême">
+    // On crée un NOUVEL élément form pour ne pas garder les attributs Alpine (@submit...) 🛡️
+    const newForm = document.createElement('form');
+    
+    newForm.innerHTML = `
+        <div class="form-group">
+            <label for="setup-name" class="form-label">Nom d'affichage</label>
+            <input type="text" id="setup-name" class="form-input" required placeholder="Ex: Admin Suprême">
         </div>
         
-        <div class="input-group">
-            <label for="setup-email">Email</label>
-            <input type="email" id="setup-email" required placeholder="admin@ankyloscan.local">
+        <div class="form-group">
+            <label for="setup-email" class="form-label">Email</label>
+            <input type="email" id="setup-email" class="form-input" required placeholder="admin@ankyloscan.local">
         </div>
 
-        <div class="input-group">
-            <label for="setup-password">Mot de passe Maître</label>
-            <input type="password" id="setup-password" required placeholder="••••••••">
+        <div class="form-group">
+            <label for="setup-password" class="form-label">Mot de passe Maître</label>
+            <input type="password" id="setup-password" class="form-input" required placeholder="••••••••">
         </div>
 
-        <button type="submit" class="btn-primary" style="background-color: #e67e22;">Créer l'Admin & Démarrer 🚀</button>
+        <button type="submit" class="btn-login" style="background-color: #e67e22;">Créer l'Admin & Démarrer 🚀</button>
     `;
 
-    // On remplace l'événement de soumission
-    // On clone le nœud pour supprimer les anciens event listeners (login)
-    const newForm = existingForm.cloneNode(true);
+    // On remplace l'ancien formulaire par le nouveau dans le DOM
     existingForm.parentNode.replaceChild(newForm, existingForm);
 
     newForm.addEventListener('submit', async (e) => {

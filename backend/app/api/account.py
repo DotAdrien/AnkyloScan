@@ -65,10 +65,13 @@ def setup_admin(admin_data: AdminSetup):
 
         # 2. Hashage du mot de passe
         hashed_pw = bcrypt.hashpw(admin_data.password.encode('utf-8'), bcrypt.gensalt())
+        
+        # IMPORTANT : Décoder les bytes en string pour que MySQL le stocke proprement (sans "b'...'")
+        hashed_pw_str = hashed_pw.decode('utf-8')
 
         # 3. Création de l'admin
         query = "INSERT INTO Users (Name, Email, Password, Role) VALUES (%s, %s, %s, 'admin')"
-        cursor.execute(query, (admin_data.name, admin_data.email, hashed_pw))
+        cursor.execute(query, (admin_data.name, admin_data.email, hashed_pw_str))
         conn.commit()
 
         return {"status": "success", "message": "Administrateur créé avec succès ! Tu peux te connecter. ✨"}
