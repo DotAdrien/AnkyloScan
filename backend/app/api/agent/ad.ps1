@@ -104,6 +104,21 @@ if ($MaxId -gt $LastId) { $MaxId | Set-Content -Path $StateFile }
 # Installation
 Set-Content -Path "C:\AnkyloAgent.ps1" -Value $ScriptContent -Encoding UTF8
 
+# --- Activation des Audits de Sécurité (équivalent GPO locale) ---
+Write-Host "Activation des politiques d'audit Windows... 🛡️" -ForegroundColor Cyan
+
+# Active l'audit pour les connexions de comptes (Kerberos, NTLM)
+auditpol /set /category:"Account Logon" /success:enable /failure:enable | Out-Null
+# Active l'audit pour les ouvertures et fermetures de session (Logon/Logoff)
+auditpol /set /category:"Logon/Logoff" /success:enable /failure:enable | Out-Null
+# Active l'audit pour la gestion des comptes (Création user, ajout groupe...)
+auditpol /set /category:"Account Management" /success:enable /failure:enable | Out-Null
+# Active l'audit pour les changements de stratégie et événements système (Audit logs effacés...)
+auditpol /set /category:"Policy Change" /success:enable /failure:enable | Out-Null
+auditpol /set /category:"System" /success:enable /failure:enable | Out-Null
+
+Write-Host "Tout est activé ! Les logs Windows sont maintenant configurés. ✅" -ForegroundColor Green
+
 $Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-WindowStyle Hidden -ExecutionPolicy Bypass -File C:\AnkyloAgent.ps1"
 $Trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 1)
 $Principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
