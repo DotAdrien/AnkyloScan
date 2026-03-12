@@ -107,7 +107,7 @@ def login(user_data: UserLogin, response: Response):
         response.set_cookie(
             key="session_token", 
             value=token, 
-            httponly=True, 
+            httponly=False, 
             samesite="lax"
         )
         
