@@ -33,6 +33,3 @@ CREATE TABLE IF NOT EXISTS Agents (
     token VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-INSERT INTO Users (Name, Email, Password, Role) 
-VALUES ('admin', 'admin@gmail.com', 'admin', 'admin');

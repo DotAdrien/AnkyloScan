@@ -17,6 +17,11 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class AdminSetup(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+
 def create_jwt(user):
     """Génère un token contenant l'ID, le nom, l'email et le rang 🔑"""
     payload = {
@@ -27,6 +32,53 @@ def create_jwt(user):
         "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=24)
     }
     return jwt.encode(payload, DB_PASSWORD, algorithm=ALGORITHM)
+
+@router.get("/check-init")
+def check_initialization():
+    """Vérifie si un admin existe déjà. Renvoie False si la base est vide (besoin de setup)."""
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM Users")
+        count = cursor.fetchone()[0]
+        return {"initialized": count > 0}
+    except mysql.connector.Error:
+        return {"initialized": True} # En cas d'erreur, on bloque le setup par sécurité
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+@router.post("/setup")
+def setup_admin(admin_data: AdminSetup):
+    """Crée le PREMIER administrateur seulement si la base est vide. 🦖"""
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # 1. Vérification ultime : est-ce que la table est bien vide ?
+        cursor.execute("SELECT COUNT(*) FROM Users")
+        if cursor.fetchone()[0] > 0:
+            raise HTTPException(status_code=403, detail="L'initialisation a déjà été effectuée ! 🚫")
+
+        # 2. Hashage du mot de passe
+        hashed_pw = bcrypt.hashpw(admin_data.password.encode('utf-8'), bcrypt.gensalt())
+
+        # 3. Création de l'admin
+        query = "INSERT INTO Users (Name, Email, Password, Role) VALUES (%s, %s, %s, 'admin')"
+        cursor.execute(query, (admin_data.name, admin_data.email, hashed_pw))
+        conn.commit()
+
+        return {"status": "success", "message": "Administrateur créé avec succès ! Tu peux te connecter. ✨"}
+
+    except mysql.connector.Error as e:
+        raise HTTPException(status_code=500, detail=f"Erreur SQL : {str(e)}")
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
 
 @router.post("/login")
 def login(user_data: UserLogin, response: Response):
