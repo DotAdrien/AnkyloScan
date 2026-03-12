@@ -3,6 +3,7 @@ from pydantic import BaseModel
 import mysql.connector # type: ignore
 import os
 from app.secu.main import verify_admin # Sécurité 🛡️
+from app.db import get_db_connection
 
 router = APIRouter(prefix="/logs", tags=["Logs 🛡️"])
 DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
@@ -15,13 +16,14 @@ class LogEntry(BaseModel):
 
 @router.post("/ingest")
 def ingest_logs(log: LogEntry):
-    conn = mysql.connector.connect(host="127.0.0.1", user="root", password=DB_PASSWORD, database="ankyloscan")
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     # Vérification du token 🔐
     cursor.execute("SELECT id FROM Agents WHERE token = %s", (log.token,))
     agent = cursor.fetchone()
     if not agent:
+        print(f"⚠️ REJET LOG : Token invalide ou inconnu reçu -> {log.token}")
         cursor.close()
         conn.close()
         raise HTTPException(status_code=403, detail="Agent non autorisé 🚫")
@@ -43,7 +45,7 @@ def ingest_logs(log: LogEntry):
 def get_logs(admin=Depends(verify_admin)):
     conn = None
     try:
-        conn = mysql.connector.connect(host="127.0.0.1", user="root", password=DB_PASSWORD, database="ankyloscan")
+        conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM SystemLogs ORDER BY timestamp DESC LIMIT 50")
         logs = cursor.fetchall()

@@ -52,7 +52,7 @@ async def get_script_2(request: Request):
 
 @router.get("/download3")
 async def get_script_3(request: Request):
-    return await generate_agent_download("agent3.ps1", "InstallAnkyloAgent3.ps1")
+    return await generate_agent_download("agent3.sh", "InstallAnkyloAgent3.sh")
 
 @router.delete("/clear")
 async def clear_agents(admin=Depends(verify_admin)):

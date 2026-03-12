@@ -1,5 +1,5 @@
 import os
-import mysql.connector
+import mysql.connector # type: ignore
 
 def get_db_connection():
     """Crée une connexion centralisée à la base de données 🐬"""
