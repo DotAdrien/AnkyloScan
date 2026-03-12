@@ -42,26 +42,8 @@ def login(user_data: UserLogin, response: Response):
         cursor.execute(query, (user_data.email,))
         user = cursor.fetchone()
         
-        if not user:
+        if not user or not bcrypt.checkpw(user_data.password.encode('utf-8'), user['Password'].encode('utf-8')):
             raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect ❌")
-
-        # LOGIQUE DE MIGRATION AUTOMATIQUE (Cleartext -> Bcrypt) 🔄
-        password_valid = False
-        try:
-            # 1. On essaie de vérifier comme un hash Bcrypt
-            if bcrypt.checkpw(user_data.password.encode('utf-8'), user['Password'].encode('utf-8')):
-                password_valid = True
-        except ValueError:
-            # 2. Si ça plante (Invalid Salt), c'est que c'est un vieux mot de passe en clair
-            if user_data.password == user['Password']:
-                password_valid = True
-                # 3. On le met à jour immédiatement en version hachée pour la prochaine fois 🛡️
-                new_hash = bcrypt.hashpw(user_data.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-                cursor.execute("UPDATE Users SET Password=%s WHERE id_users=%s", (new_hash, user['id_users']))
-                conn.commit()
-
-        if not password_valid:
-             raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect ❌")
 
         # Création du token enrichi
         token = create_jwt(user)
