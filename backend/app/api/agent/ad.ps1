@@ -72,12 +72,11 @@ foreach ($Event in $Events) {
 
 if ($MaxId -gt $LastId) { $MaxId | Set-Content -Path $StateFile }
 '@
-
 # Installation
 Set-Content -Path "C:\AnkyloAgent.ps1" -Value $ScriptContent -Encoding UTF8
 
 $Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-WindowStyle Hidden -ExecutionPolicy Bypass -File C:\AnkyloAgent.ps1"
-$Trigger = New-ScheduledTaskTrigger -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 1)
+$Trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 1)
 $Principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
 
 Register-ScheduledTask -TaskName "AnkyloLogAgent" -Action $Action -Trigger $Trigger -Principal $Principal -Force
