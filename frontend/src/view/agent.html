@@ -5,9 +5,21 @@
     
     <div class="scan-grid">
         <div class="scan-card">
-            <h3>Windows 💾</h3>
-            <p>Récupérer le script de déploiement.</p>
-            <button class="btn-action" onclick="downloadAgent()" style="width: auto; padding: 0.5rem 1rem;">Télécharger Agent 💾</button>
+            <h3>Domain Controller 🏰</h3>
+            <p>Agent pour contrôleur de domaine (AD).</p>
+            <button class="btn-action" onclick="downloadAgent(1, 'Domain Controller')" style="width: auto; padding: 0.5rem 1rem;">Télécharger AD 💾</button>
+        </div>
+
+        <div class="scan-card">
+            <h3>Hôtes Windows 💻</h3>
+            <p>Agent pour postes clients Windows.</p>
+            <button class="btn-action" onclick="downloadAgent(2, 'Windows Host')" style="width: auto; padding: 0.5rem 1rem;">Télécharger Win 🚀</button>
+        </div>
+
+        <div class="scan-card">
+            <h3>Hôtes Linux 🐧</h3>
+            <p>Script Bash pour serveurs Linux.</p>
+            <button class="btn-action" onclick="downloadAgent(3, 'Linux Host')" style="width: auto; padding: 0.5rem 1rem;">Télécharger Linux 🐧</button>
         </div>
 
         <div class="scan-card">
