@@ -5,3 +5,4 @@ pydantic
 PyJWT
 email-validator
 requests
+bcrypt
