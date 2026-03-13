@@ -1,0 +1,27 @@
+<!-- Vue Dashboard -->
+<link rel="stylesheet" href="style/work.css">
+
+<div x-show="currentPage === 'dashboard'" x-data="dashboard" class="scan-container">
+    <h2 class="scan-title">Tableau de Bord 🚀</h2>
+
+    <div class="scan-grid">
+        <!-- Carte Scans -->
+        <div class="scan-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 150px;">
+            <div style="font-size: 3rem; font-weight: bold; color: #ec4899; margin-bottom: 0.5rem;" x-text="stats.scans">0</div>
+            <div style="color: #9ca3af; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px;">Scans Effectués 🛡️</div>
+        </div>
+        
+        <!-- Carte Agents -->
+        <div class="scan-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 150px;">
+            <div style="font-size: 3rem; font-weight: bold; color: #ec4899; margin-bottom: 0.5rem;" x-text="stats.agents">0</div>
+            <div style="color: #9ca3af; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px;">Agents Actifs 🤖</div>
+        </div>
+
+        <!-- Carte Graphique (Prend toute la largeur) -->
+        <div class="scan-card" style="grid-column: 1 / -1; height: 400px; padding: 1rem;">
+            <div style="position: relative; height: 100%; width: 100%;">
+                <canvas id="scanChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>

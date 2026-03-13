@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navContainer) {
         // Liste des pages selon l'état de connexion 👤
         const publicPages = ['landing', 'about', 'contact'];
-        const privatePages = ['work', 'email', 'result',  'agent', 'logs', 'contact'];
+        const privatePages = ['dashboard', 'work', 'email', 'result', 'agent', 'logs'];
 
         const pagesToShow = isConnected ? privatePages : publicPages;
 

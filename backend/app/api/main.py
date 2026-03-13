@@ -15,6 +15,7 @@ from app.api.email import router as email_router
 from app.api.planificateur import router as plan_router
 from app.api.logs import router as logs_router
 from app.api.agent import router as agent_router
+from app.api import dashboard
 
 app.include_router(auth_router)
 app.include_router(scan_router)
@@ -23,6 +24,7 @@ app.include_router(email_router)
 app.include_router(plan_router)
 app.include_router(logs_router)
 app.include_router(agent_router)
+app.include_router(dashboard.router)
 
 # securiser ce truc
 app.add_middleware(
