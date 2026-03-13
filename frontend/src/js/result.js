@@ -6,7 +6,7 @@ async function loadScanHistory() {
 
     try {
         // Récupération de l'historique
-        const response = await fetch(`${window.API_BASE}/db/history`);
+        const response = await fetch(`${window.API_BASE}/db/history`, { credentials: 'include' });
         if (!response.ok) throw new Error("Impossible de charger l'historique");
         
         const scans = await response.json();
@@ -55,7 +55,7 @@ async function viewReport(path) {
     content.innerText = "Chargement du rapport...";
 
     try {
-        const res = await fetch(`${window.API_BASE}/db/report?path=${encodeURIComponent(path)}`);
+        const res = await fetch(`${window.API_BASE}/db/report?path=${encodeURIComponent(path)}`, { credentials: 'include' });
         if (!res.ok) throw new Error("Fichier introuvable");
         const text = await res.text();
         content.innerText = text;
@@ -71,7 +71,7 @@ async function viewVulns(path) {
     content.innerHTML = '<div style="color:#d1d5db;">Analyse en cours... 🧠</div>';
 
     try {
-        const res = await fetch(`${window.API_BASE}/db/vulns?path=${encodeURIComponent(path)}`);
+        const res = await fetch(`${window.API_BASE}/db/vulns?path=${encodeURIComponent(path)}`, { credentials: 'include' });
         if (!res.ok) throw new Error("Analyse impossible");
         
         const vulns = await res.json();
