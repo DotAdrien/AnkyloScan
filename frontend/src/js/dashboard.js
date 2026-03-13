@@ -11,7 +11,7 @@ document.addEventListener('alpine:init', () => {
 
         async loadStats() {
             try {
-                const response = await fetch('/api/dashboard/stats');
+                const response = await fetch(`${window.API_BASE}/dashboard/stats`, { credentials: 'include' });
                 if (response.ok) {
                     this.stats = await response.json();
                 }
@@ -22,7 +22,7 @@ document.addEventListener('alpine:init', () => {
 
         async loadGraph() {
             try {
-                const response = await fetch('/api/dashboard/graph');
+                const response = await fetch(`${window.API_BASE}/dashboard/graph`, { credentials: 'include' });
                 if (response.ok) {
                     const data = await response.json();
                     this.renderChart(data);
