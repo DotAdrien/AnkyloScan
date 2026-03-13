@@ -2,6 +2,7 @@ import os
 from fastapi import FastAPI, HTTPException
 import mysql.connector # type: ignore
 from fastapi.middleware.cors import CORSMiddleware
+from app.db import get_db_connection # Import get_db_connection
 
 
 
@@ -46,16 +47,9 @@ def home():
         }
 
 @app.get("/test-db")
-def test_db_connection():
-    try:
-        connection = mysql.connector.connect(
-            host="127.0.0.1",
-            user="root",
-            password=DB_PASSWORD,
-            database="ankyloscan"
-        )
-        if connection.is_connected():
-            connection.close()
-            return {"status": "success", "message": "Connexion réussie ! 🛡️"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur : {str(e)} 😱")
+def test_db_connection(): # Use the shared get_db_connection for consistency
+    conn = get_db_connection()
+    if conn and conn.is_connected():
+        conn.close()
+        return {"status": "success", "message": "Connexion réussie ! 🛡️"}
+    raise HTTPException(status_code=500, detail="Erreur : Impossible de se connecter à la base de données 😱")
