@@ -11,5 +11,13 @@
         <pre id="report-content" style="white-space: pre-wrap; color: #e5e7eb; font-family: monospace; font-size: 0.9rem; max-height: 400px; overflow-y: auto;"></pre>
     </div>
 
+    <div id="vuln-viewer" style="display: none; background: rgba(30, 20, 30, 0.95); padding: 1.5rem; border-radius: 1rem; border: 1px solid #f97316; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="margin: 0; color: #f97316;">Vulnérabilités Détectées (Expert V3) 🦖</h3>
+            <button @click="document.getElementById('vuln-viewer').style.display = 'none'" class="btn-detail" style="background: #ef4444;">Fermer ❌</button>
+        </div>
+        <div id="vuln-content" style="max-height: 500px; overflow-y: auto;"></div>
+    </div>
+
     <div class="result-list"></div>
 </div>
