@@ -33,3 +33,12 @@ CREATE TABLE IF NOT EXISTS Agents (
     token VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Table Vuln pour les résultats détaillés des scans 😱
+CREATE TABLE IF NOT EXISTS Vuln (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_scan INT NOT NULL,
+    hosts VARCHAR(255),
+    text TEXT,
+    FOREIGN KEY (id_scan) REFERENCES Scan(id_scan) ON DELETE CASCADE
+);

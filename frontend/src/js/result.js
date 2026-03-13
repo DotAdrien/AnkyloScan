@@ -30,9 +30,11 @@ async function loadScanHistory() {
                     <button onclick="viewReport('${scan.file_path}')" class="btn-detail" style="width: 100%; text-align: center; padding: 0.5rem; font-size: 0.8rem;">
                         Voir Rapport 📄
                     </button>
-                    <button onclick="viewVulns('${scan.file_path}')" class="btn-detail" style="width: 100%; text-align: center; padding: 0.5rem; font-size: 0.8rem; background-color: #f97316; color: white; border: none;">
-                        Vulnérabilités 😱
-                    </button>
+                    ${scan.type === 3 ? `
+                        <button onclick="viewVulns('${scan.file_path}')" class="btn-detail" style="width: 100%; text-align: center; padding: 0.5rem; font-size: 0.8rem; background-color: #f97316; color: white; border: none;">
+                            Vulnérabilités 😱
+                        </button>
+                    ` : ''}
                 </div>
             </div>
         `).join('');

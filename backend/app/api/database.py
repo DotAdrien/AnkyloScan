@@ -141,6 +141,10 @@ def get_vulns_analysis(path: str, admin=Depends(verify_admin)):
     if not filename.startswith("scan_") or filename in ["email.txt", "schedule.txt"]:
         raise HTTPException(status_code=403, detail="Accès interdit 🚫")
 
+    # Restriction : Seul le scan de niveau 3 (scan_3_...) permet l'analyse de vulnérabilités
+    if not filename.startswith("scan_3_"):
+        raise HTTPException(status_code=400, detail="Cette analyse est réservée aux scans complets (Niveau 3).")
+
     if os.path.exists(safe_path) and os.path.isfile(safe_path):
         with open(safe_path, 'r', encoding='utf-8') as f:
             content = f.read()
