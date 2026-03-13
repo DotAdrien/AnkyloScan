@@ -34,6 +34,7 @@ document.addEventListener('alpine:init', () => {
 
         renderChart(data) {
             const ctx = document.getElementById('scanChart');
+            console.log("Canvas context (ctx):", ctx); // Ajout pour le débogage
             if (!ctx) return;
 
             // Si un graphique existe déjà, on le détruit pour éviter les bugs
@@ -41,7 +42,9 @@ document.addEventListener('alpine:init', () => {
                 this.chartInstance.destroy();
             }
 
+            
             const labels = data.map(item => item.date);
+            console.log("Données du graphique reçues :", data); // Ajout pour le débogage
             const counts = data.map(item => item.count);
 
             this.chartInstance = new Chart(ctx, {
