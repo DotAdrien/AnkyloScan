@@ -2,7 +2,9 @@
 
 .nav-dropdown {
     position: relative;
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Soulignement subtil demandé pour les menus contenant des sous-menus */
@@ -36,6 +38,9 @@
     display: flex;
     flex-direction: row;
     gap: 0.5rem;
+    /* Correction des bugs de calcul de taille sous Firefox 🦊 */
+    width: max-content;
+    height: max-content;
 }
 
 /* Animation de survol */
