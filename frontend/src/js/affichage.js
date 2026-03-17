@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     z-index: 100;
                     transition: all 0.3s ease;
                     display: flex;
-                    flex-direction: column;
+                    flex-direction: row;
                     gap: 0.5rem;
                 }
                 /* Animation de survol */
