@@ -52,10 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (item.sub) {
                 // Si l'élément possède un "sub", on crée un menu déroulant
                 const subItemsHtml = item.sub.map(sub => `
-                    <button @click="changePage('${sub.id}'); localStorage.setItem('ankyloscan_last_view', '${sub.id}')"
-                            class="nav-btn"
+                    <button @click="changePage('${sub.id}'); localStorage.setItem('ankyloscan_last_view', '${sub.id}')"                            
                             :class="currentPage === '${sub.id}' ? 'active' : ''">
-                        ${sub.label}
+                        <span>${sub.label}</span>
                     </button>
                 `).join('');
 

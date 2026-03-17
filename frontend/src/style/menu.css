@@ -60,11 +60,14 @@
     cursor: pointer;
     font-size: 0.9rem;
     transition: background 0.2s, color 0.2s;
-    /* On force le texte à la verticale */
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
     white-space: nowrap; /* Empêche le texte de retourner à la ligne et de déborder de la boîte */
     border-radius: 4px;
+}
+
+.nav-dropdown-content button span {
+    display: inline-block;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
 }
 
 .nav-dropdown-content button:hover {
