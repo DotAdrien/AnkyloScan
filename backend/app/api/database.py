@@ -66,18 +66,38 @@ def parse_scan_expert(content):
     """
     Analyse le contenu du rapport Nmap pour extraire les vulnérabilités (Logiciel expert v3) 🧠
     """
+    # --- Récupération des mots à ignorer (Faux positifs) ---
+    ignored_words = set()
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT text FROM liste")
+        for row in cursor.fetchall():
+            ignored_words.add(row['text'].strip())
+    except Exception as e:
+        print(f"⚠️ Erreur récupération liste faux positifs : {e}")
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+    # -------------------------------------------------------
+
     hosts = content.split("Nmap scan report for ")
     results = []
 
     for host in hosts[1:]:
         lines = host.split("\n")
         ip = lines[0].strip()
-        found_something = False
         host_vulns = []
 
         # 1. Scripts NSE
         nse_vulns = re.findall(r"\|\s+(.*?):\s*\n\|\s+VULNERABLE:\n\|\s+(.*?)\n\|\s+State:\s+(.*)", host)
         for script_name, title, state in nse_vulns:
+            # Filtre : on ignore si le titre ou le nom du script est dans la liste (exact match)
+            if script_name.strip() in ignored_words or title.strip() in ignored_words:
+                continue
+
             level = 3 if "Exploitable" in state else 2
             host_vulns.append({
                 "title": title.strip(),
@@ -85,11 +105,15 @@ def parse_scan_expert(content):
                 "level": level,
                 "badge": "🔴 [NIV 3]" if level == 3 else "🟠 [NIV 2]"
             })
-            found_something = True
 
         # 2. Vulners (CVE)
         vulners = re.findall(r"(CVE-\d{4}-\d+)\s+(\d+\.\d+)", host)
         for cve, score in vulners:
+            # Filtre : on ignore si la CVE exacte est dans la liste
+            # Ex: si cve est "CVE-520-100", elle ne sera ignorée QUE si "CVE-520-100" est dans la base
+            if cve.strip() in ignored_words:
+                continue
+
             f_score = float(score)
             if f_score >= 7.0:
                 level = 3
@@ -102,19 +126,18 @@ def parse_scan_expert(content):
                 badge = "🟡 [NIV 1]"
             
             host_vulns.append({"title": f"{cve} - Score: {score}", "state": "CVE Detectée", "level": level, "badge": badge})
-            found_something = True
 
         # 3. Cas spécial Telnet
         if "password required but not set" in host:
-            host_vulns.append({
-                "title": "TELNET : Accès libre sans mot de passe !", 
-                "state": "Accès ouvert 🔓",
-                "level": 3, 
-                "badge": "🔴 [NIV 3]"
-            })
-            found_something = True
+            if "TELNET" not in ignored_words and "TELNET : Accès libre sans mot de passe !" not in ignored_words:
+                host_vulns.append({
+                    "title": "TELNET : Accès libre sans mot de passe !", 
+                    "state": "Accès ouvert 🔓",
+                    "level": 3, 
+                    "badge": "🔴 [NIV 3]"
+                })
 
-        if found_something:
+        if len(host_vulns) > 0:
             results.append({"ip": ip, "vulns": host_vulns})
     
     return results

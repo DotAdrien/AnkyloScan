@@ -4,9 +4,9 @@
 <div class="scan-container" x-show="currentPage === 'list'" x-cloak x-transition>
     <h2 class="scan-title">Liste de mots 📝</h2>
 
-    <!-- x-data initialise notre logique JS et on utilise scan-card pour le style -->
-    <div class="scan-card" x-data="wordListManager()" style="grid-column: 1 / -1; max-width: 800px; margin: 0 auto; width: 100%;">
-        <p style="color: #9ca3af; margin-bottom: 2rem; text-align: center;">Gérez votre liste de mots personnalisée (sauvegardée localement).</p>
+    <!-- Implémentation via l'API connectée à la base de données 🐬 -->
+    <div class="scan-card" x-data="apiWordList()" x-init="fetchWords()" style="grid-column: 1 / -1; max-width: 800px; margin: 0 auto; width: 100%;">
+        <p style="color: #9ca3af; margin-bottom: 2rem; text-align: center;">Gérez votre liste de mots personnalisée (sauvegardée en base de données).</p>
         
         <!-- Champ de saisie et bouton -->
         <div class="form-group" style="display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem;">
@@ -26,10 +26,10 @@
         <!-- Liste des mots -->
         <div class="list-container" style="background: rgba(17, 24, 39, 0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 0.5rem; padding: 1rem;">
             <ul style="list-style: none; padding: 0; margin: 0;">
-                <template x-for="(word, index) in words" :key="index">
+                <template x-for="word in words" :key="word.id">
                     <li style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(255,255,255,0.05); margin-bottom: 0.5rem; border-radius: 0.5rem; transition: background 0.2s;">
-                        <span x-text="word" style="color: #e5e7eb; font-weight: 500; font-size: 1.1rem;"></span>
-                        <button @click="removeWord(index)" class="btn-action" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); width: auto; padding: 0.4rem 0.8rem; margin-top: 0; font-size: 0.9rem;">
+                        <span x-text="word.text" style="color: #e5e7eb; font-weight: 500; font-size: 1.1rem;"></span>
+                        <button @click="removeWord(word.id)" class="btn-action" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); width: auto; padding: 0.4rem 0.8rem; margin-top: 0; font-size: 0.9rem;">
                             Retirer ❌
                         </button>
                     </li>
@@ -41,5 +41,59 @@
                 La liste est vide pour le moment. 🦖
             </div>
         </div>
+
+        <!-- Alpine Component Logic -->
+        <script>
+            function apiWordList() {
+                return {
+                    words: [],
+                    newWord: '',
+                    
+                    async fetchWords() {
+                        try {
+                            const response = await fetch(`${window.API_BASE}/liste`, { credentials: 'include' });
+                            if (response.ok) {
+                                this.words = await response.json();
+                            }
+                        } catch (error) {
+                            console.error("Erreur chargement liste :", error);
+                        }
+                    },
+                    
+                    async addWord() {
+                        if (!this.newWord.trim()) return;
+                        try {
+                            const response = await fetch(`${window.API_BASE}/liste`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ text: this.newWord }),
+                                credentials: 'include'
+                            });
+                            if (response.ok) {
+                                const data = await response.json();
+                                this.words.push({ id: data.id, text: data.text });
+                                this.newWord = ''; // Réinitialise le champ une fois ajouté
+                            }
+                        } catch (error) {
+                            console.error("Erreur ajout mot :", error);
+                        }
+                    },
+                    
+                    async removeWord(id) {
+                        try {
+                            const response = await fetch(`${window.API_BASE}/liste/${id}`, {
+                                method: 'DELETE',
+                                credentials: 'include'
+                            });
+                            if (response.ok) {
+                                this.words = this.words.filter(w => w.id !== id);
+                            }
+                        } catch (error) {
+                            console.error("Erreur suppression mot :", error);
+                        }
+                    }
+                }
+            }
+        </script>
     </div>
 </div>
