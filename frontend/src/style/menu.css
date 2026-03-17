@@ -43,6 +43,16 @@
     height: max-content;
 }
 
+/* Pont invisible pour garder le menu ouvert quand la souris passe dans l'espace vide */
+.nav-dropdown-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -20px;
+    width: 20px;
+}
+
 /* Animation de survol */
 .nav-dropdown:hover .nav-dropdown-content {
     visibility: visible;
@@ -55,10 +65,13 @@
     background: none;
     border: none;
     color: #d1d5db;
-    padding: 1rem 0.5rem;
-    text-align: center;
+    padding: 1.25rem 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 1rem;
     transition: background 0.2s, color 0.2s;
     white-space: nowrap; /* Empêche le texte de retourner à la ligne et de déborder de la boîte */
     border-radius: 4px;
@@ -68,6 +81,7 @@
     display: inline-block;
     writing-mode: vertical-rl;
     transform: rotate(180deg);
+    line-height: 1;
 }
 
 .nav-dropdown-content button:hover {
