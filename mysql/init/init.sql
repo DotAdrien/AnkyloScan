@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS Scan (
     id_scan INT AUTO_INCREMENT PRIMARY KEY,
     Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     Type VARCHAR(255) NOT NULL,
-    file_path VARCHAR(255) NOT NULL
+    file_path VARCHAR(255) NOT NULL,
+    status INT DEFAULT 0
 );
 
 -- Table SystemLogs pour tes remontées de logs AD 🛡️
