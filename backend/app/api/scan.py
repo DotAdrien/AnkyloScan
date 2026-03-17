@@ -1,6 +1,6 @@
 import os
 import json
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from app.scanner.main import run_scan
 from app.secu.main import verify_admin # Import de ta nouvelle fonction 🛡️
 from app.db import get_db_connection
@@ -8,58 +8,49 @@ from app.api.database import parse_scan_expert
 
 router = APIRouter(prefix="/scan")
 
-@router.post("/quick")
-async def scan_quick(admin=Depends(verify_admin)):
-    """Lance un scan rapide si l'utilisateur est admin 🦖"""
-    success = run_scan(1)
-    if success:
-        return {"message": "Scan rapide lancé ! ✨", "admin": admin.get("name")}
-    raise HTTPException(status_code=500, detail="Erreur lors du scan rapide 😱")
+def create_pending_scan(scan_type: int) -> int:
+    """Crée une entrée 'En cours' dans la DB et retourne son ID."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO Scan (Type, file_path, status) VALUES (%s, 'pending', 0)", (str(scan_type),))
+    pending_id = cursor.lastrowid
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return pending_id
 
-@router.post("/security")
-async def scan_security(admin=Depends(verify_admin)):
-    """Lance un scan de sécurité si l'utilisateur est admin 🛡️"""
-    success = run_scan(2)
-    if success:
-        return {"message": "Scan sécurité lancé ! ✨"}
-    raise HTTPException(status_code=500, detail="Erreur lors du scan sécurité 😱")
-
-@router.post("/full")
-async def scan_full(admin=Depends(verify_admin)):
-    """Lance un scan complet si l'utilisateur est admin 🥵"""
-    success = run_scan(3)
-    if success:
-        # --- AUTOMATISATION : Remplissage de la table Vuln ---
-        conn = None
-        try:
-            conn = get_db_connection()
-            cursor = conn.cursor(dictionary=True)
-
-            # 1. On récupère l'ID du scan qui vient d'être créé (le dernier scan de type 3)
-            cursor.execute("SELECT id_scan, file_path FROM Scan WHERE Type='3' ORDER BY id_scan DESC LIMIT 1")
+def process_scan_bg(scan_type: int, pending_id: int):
+    """Tâche de fond globale qui lance le scan et met à jour la base 🌍"""
+    # 1. Lancement du scan (Processus long bloquant)
+    success = run_scan(scan_type)
+    
+    # 2. Une fois terminé, archivage et nettoyage des statuts
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        if success and scan_type == 3:
+            # --- AUTOMATISATION : Remplissage de la table Vuln ---
+            cursor.execute("SELECT id_scan, file_path FROM Scan WHERE Type='3' AND status=1 ORDER BY id_scan DESC LIMIT 1")
             last_scan = cursor.fetchone()
 
             if last_scan:
                 scan_id = last_scan['id_scan']
                 file_path = last_scan['file_path']
 
-                # 2. Construction du chemin du fichier (sécurisé)
                 base_dir = os.path.abspath("/app/outputs") if os.name != 'nt' else os.path.abspath("outputs")
                 filename = os.path.basename(file_path)
                 safe_path = os.path.join(base_dir, filename)
 
-                # 3. Lecture et Parsing
                 if os.path.exists(safe_path):
                     with open(safe_path, 'r', encoding='utf-8') as f:
                         content = f.read()
 
-                    # On utilise l'algo expert existant pour extraire les datas
                     vuln_results = parse_scan_expert(content)
 
-                    # 4. Insertion dans la table Vuln
                     for host in vuln_results:
                         ip = host['ip']
-                        # On sauvegarde la liste des failles en JSON dans la colonne text
                         vulns_json = json.dumps(host['vulns'], ensure_ascii=False)
                         
                         cursor.execute(
@@ -68,22 +59,39 @@ async def scan_full(admin=Depends(verify_admin)):
                         )
                     conn.commit()
 
-                    # --- NETTOYAGE : On ne garde qu'un seul scan de niveau 3 par jour ---
+                    # --- NETTOYAGE : Un seul scan complet par jour ---
                     cursor.execute("""
                         DELETE FROM Scan 
-                        WHERE DATE(Time) = CURDATE() AND Type = '3' AND id_scan != %s
+                        WHERE DATE(Time) = CURDATE() AND Type = '3' AND status = 1 AND id_scan != %s
                     """, (scan_id,))
                     conn.commit()
-                    # Les anciennes entrées dans Vuln sont supprimées automatiquement grâce au ON DELETE CASCADE de la BDD
                     print(f"✅ Vulnérabilités archivées pour le scan #{scan_id}")
 
-        except Exception as e:
-            print(f"⚠️ Erreur lors de l'archivage des vulnérabilités : {e}")
-        finally:
-            if conn and conn.is_connected():
-                cursor.close()
-                conn.close()
-        # -----------------------------------------------------
+        # 3. Suppression du marqueur 'En cours' (le vrai log a été créé par run_scan avec status=1)
+        cursor.execute("DELETE FROM Scan WHERE id_scan = %s", (pending_id,))
+        conn.commit()
 
-        return {"message": "Scan complet lancé ! ✨"}
-    raise HTTPException(status_code=500, detail="Erreur lors du scan complet 😱")
+    except Exception as e:
+        print(f"⚠️ Erreur Background Task : {e}")
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+@router.post("/quick")
+async def scan_quick(background_tasks: BackgroundTasks, admin=Depends(verify_admin)):
+    pending_id = create_pending_scan(1)
+    background_tasks.add_task(process_scan_bg, 1, pending_id)
+    return {"message": "Scan rapide lancé en arrière-plan ! ✨", "admin": admin.get("name")}
+
+@router.post("/security")
+async def scan_security(background_tasks: BackgroundTasks, admin=Depends(verify_admin)):
+    pending_id = create_pending_scan(2)
+    background_tasks.add_task(process_scan_bg, 2, pending_id)
+    return {"message": "Scan sécurité lancé en arrière-plan ! ✨"}
+
+@router.post("/full")
+async def scan_full(background_tasks: BackgroundTasks, admin=Depends(verify_admin)):
+    pending_id = create_pending_scan(3)
+    background_tasks.add_task(process_scan_bg, 3, pending_id)
+    return {"message": "Scan complet lancé en arrière-plan ! ✨"}

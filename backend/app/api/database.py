@@ -21,7 +21,7 @@ def get_scan_history(admin=Depends(verify_admin)):
         
         # Récupère les 5 entrées les plus récentes 🕒
         query = """
-            SELECT id_scan as id, type, Time as time, file_path 
+            SELECT id_scan as id, type, Time as time, file_path, status 
             FROM Scan 
             ORDER BY Time DESC 
             LIMIT 5

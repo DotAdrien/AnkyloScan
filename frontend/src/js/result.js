@@ -17,27 +17,52 @@ async function loadScanHistory() {
         }
 
         // Construction du HTML pour la liste
-        listContainer.innerHTML = scans.map(scan => `
-            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="font-size: 2rem;">${getScanIcon(scan.type)}</div>
-                    <div>
-                        <h4 style="margin: 0; color: #fff;">Scan #${scan.id} <span style="font-size:0.8rem; color:#9ca3af;">(${scan.time})</span></h4>
-                        <p style="margin: 0.2rem 0 0 0; color: #d1d5db; font-size: 0.9rem;">${scan.description}</p>
+        listContainer.innerHTML = scans.map(scan => {
+            // Affichage d'un scan "En cours" ⏳
+            if (scan.status === 0) {
+                const title = scan.type == 1 ? 'Scan Rapide' : scan.type == 2 ? 'Scan Sécurité' : 'Scan Complet';
+                return `
+                    <div style="background: rgba(236, 72, 153, 0.1); border: 1px dashed #ec4899; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; animation: pulse 2s infinite;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="font-size: 2rem; opacity: 0.7;">${getScanIcon(scan.type)}</div>
+                            <div>
+                                <h4 style="margin: 0; color: #ec4899;">${title} <span style="font-size:0.8rem; color:#fbcfe8;">(En cours d'exécution... ⏳)</span></h4>
+                                <p style="margin: 0.2rem 0 0 0; color: #d1d5db; font-size: 0.9rem;">Ce scan travaille en arrière-plan (visible par tous). ✨</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; flex-direction: column; min-width: 140px;">
+                            <button disabled class="btn-detail" style="width: 100%; text-align: center; padding: 0.5rem; font-size: 0.8rem; background-color: #374151; color: #9ca3af; border: none; cursor: wait;">
+                                En attente... ⏳
+                            </button>
+                        </div>
+                    </div>
+                    <style>@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }</style>
+                `;
+            }
+            
+            // Affichage d'un scan terminé ✅
+            return `
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="font-size: 2rem;">${getScanIcon(scan.type)}</div>
+                        <div>
+                            <h4 style="margin: 0; color: #fff;">Scan #${scan.id} <span style="font-size:0.8rem; color:#9ca3af;">(${scan.time})</span></h4>
+                            <p style="margin: 0.2rem 0 0 0; color: #d1d5db; font-size: 0.9rem;">${scan.description}</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; flex-direction: column; min-width: 140px;">
+                        <button onclick="viewReport('${scan.file_path}')" class="btn-detail" style="width: 100%; text-align: center; padding: 0.5rem; font-size: 0.8rem;">
+                            Voir Rapport 📄
+                        </button>
+                        ${scan.type == 3 ? `
+                            <button onclick="viewVulns('${scan.file_path}')" class="btn-detail" style="width: 100%; text-align: center; padding: 0.5rem; font-size: 0.8rem; background-color: #f97316; color: white; border: none;">
+                                Vulnérabilités 😱
+                            </button>
+                        ` : ''}
                     </div>
                 </div>
-                <div style="display: flex; gap: 0.5rem; flex-direction: column; min-width: 140px;">
-                    <button onclick="viewReport('${scan.file_path}')" class="btn-detail" style="width: 100%; text-align: center; padding: 0.5rem; font-size: 0.8rem;">
-                        Voir Rapport 📄
-                    </button>
-                    ${scan.type === 3 ? `
-                        <button onclick="viewVulns('${scan.file_path}')" class="btn-detail" style="width: 100%; text-align: center; padding: 0.5rem; font-size: 0.8rem; background-color: #f97316; color: white; border: none;">
-                            Vulnérabilités 😱
-                        </button>
-                    ` : ''}
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
 
     } catch (error) {
         console.error(error);

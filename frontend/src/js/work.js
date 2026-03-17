@@ -33,7 +33,7 @@ async function callScanAPI(endpoint) {
         const data = await response.json();
 
         if (response.ok) {
-            alert("Analyse lancée ! 🦖\n" + (data.message || ""));
+            alert("Scan envoyé au serveur ! 🦖\nTu peux suivre sa progression globale dans l'onglet RÉSULTATS.");
         } else {
             alert("Erreur : " + (data.detail || "Échec du scan 😱"));
         }
