@@ -37,9 +37,10 @@ def get_scan_history(admin=Depends(verify_admin)):
         }
 
         for scan in scans:
-            scan["description"] = descriptions.get(scan["type"], "Scan effectué. 🛡️")
+            # On convertit en entier car la BDD remonte "type" comme un texte (VARCHAR)
+            scan["description"] = descriptions.get(int(scan["type"]) if str(scan["type"]).isdigit() else 0, "Scan effectué. 🛡️")
             if scan["time"]:
-                scan["time"] = scan["time"].strftime("%d/%02m/%Y - %H:%M")
+                scan["time"] = scan["time"].strftime("%d/%m/%Y - %H:%M") # Correction du format de date
 
         return scans
 

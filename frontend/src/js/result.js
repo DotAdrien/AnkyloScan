@@ -6,7 +6,8 @@ async function loadScanHistory() {
 
     try {
         // Récupération de l'historique
-        const response = await fetch(`${window.API_BASE}/db/history`, { credentials: 'include' });
+        // Ajout d'un timestamp (?t=...) pour forcer le navigateur à récupérer des données fraîches 🕒
+        const response = await fetch(`${window.API_BASE}/db/history?t=${new Date().getTime()}`, { credentials: 'include' });
         if (!response.ok) throw new Error("Impossible de charger l'historique");
         
         const scans = await response.json();
@@ -19,7 +20,7 @@ async function loadScanHistory() {
         // Construction du HTML pour la liste
         listContainer.innerHTML = scans.map(scan => {
             // Affichage d'un scan "En cours" ⏳
-            if (scan.status === 0) {
+            if (scan.status == 0) { // Utilisation de == au lieu de === au cas où le JSON renvoie une string "0"
                 const title = scan.type == 1 ? 'Scan Rapide' : scan.type == 2 ? 'Scan Sécurité' : 'Scan Complet';
                 return `
                     <div style="background: rgba(236, 72, 153, 0.1); border: 1px dashed #ec4899; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; animation: pulse 2s infinite;">
