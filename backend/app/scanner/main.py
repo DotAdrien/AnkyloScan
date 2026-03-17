@@ -1,5 +1,4 @@
 import subprocess
-import threading
 import socket
 from .database_handler import save_scan_result
 from .email_sender import send_email_report
@@ -32,7 +31,7 @@ def execute_nmap_process(scan_type, args):
         print(f"Erreur scan {scan_type} : {e} 😱")
 
 def run_scan(scan_type):
-    """Lance le scan sans bloquer l'application 🚀"""
+    """Lance le scan (FastAPI gère déjà l'exécution en arrière-plan) 🚀"""
     target_network = get_local_network()
     
     configs = {
@@ -43,8 +42,7 @@ def run_scan(scan_type):
     
     args = configs.get(scan_type, configs[1])
     
-    scan_thread = threading.Thread(target=execute_nmap_process, args=(scan_type, args))
-    scan_thread.daemon = True
-    scan_thread.start()
+    # Plus besoin de thread ici, BackgroundTasks s'en occupe ! ✨
+    execute_nmap_process(scan_type, args)
     
     return True
