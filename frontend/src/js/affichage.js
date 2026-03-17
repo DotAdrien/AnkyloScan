@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 label: 'SCANNER', 
                 sub: [
                     { id: 'work', label: 'SCAN' },
+                    { id: 'list', label: 'LISTE' },
                     { id: 'result', label: 'RÉSULTATS' }
                 ] 
             },

@@ -1,0 +1,45 @@
+<!-- Contenu de la page Liste -->
+<div class="page-content" x-show="currentPage === 'list'" x-cloak x-transition>
+    <div class="content-header" style="margin-bottom: 2rem;">
+        <h2>Liste de mots 📝</h2>
+        <p style="color: #9ca3af;">Gérez votre liste de mots personnalisée (sauvegardée localement).</p>
+    </div>
+
+    <!-- x-data initialise notre logique JS -->
+    <div class="card" x-data="wordListManager()">
+        
+        <!-- Champ de saisie et bouton -->
+        <div class="form-group" style="display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem;">
+            <input 
+                type="text" 
+                x-model="newWord" 
+                class="form-input" 
+                placeholder="Entrez un mot à ajouter..." 
+                @keydown.enter="addWord()"
+                style="flex: 1;"
+            >
+            <button @click="addWord()" class="btn-login" style="width: auto; padding: 0.75rem 1.5rem; background-color: #f97316;">
+                Ajouter
+            </button>
+        </div>
+        
+        <!-- Liste des mots -->
+        <div class="list-container" style="background: rgba(17, 24, 39, 0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem;">
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                <template x-for="(word, index) in words" :key="index">
+                    <li style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: rgba(255,255,255,0.05); margin-bottom: 0.5rem; border-radius: 4px; transition: background 0.2s;">
+                        <span x-text="word" style="color: #e5e7eb; font-weight: 500;"></span>
+                        <button @click="removeWord(index)" style="background: transparent; border: none; color: #ef4444; cursor: pointer; font-size: 1.2rem; transition: color 0.2s;" onmouseover="this.style.color='#b91c1c'" onmouseout="this.style.color='#ef4444'">
+                            &times;
+                        </button>
+                    </li>
+                </template>
+            </ul>
+            
+            <!-- Message si la liste est vide -->
+            <div x-show="words.length === 0" style="text-align: center; color: #9ca3af; padding: 2rem 0; font-style: italic;">
+                La liste est vide pour le moment.
+            </div>
+        </div>
+    </div>
+</div>
