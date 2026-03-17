@@ -20,21 +20,31 @@ async function loadScanHistory() {
         listContainer.innerHTML = scans.map(scan => `
             <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="font-size: 2rem;">${getScanIcon(scan.type)}</div>
+                    <div style="font-size: 2rem;">${scan.status === 0 ? '⏳' : scan.status === -1 ? '❌' : getScanIcon(parseInt(scan.type))}</div>
                     <div>
                         <h4 style="margin: 0; color: #fff;">Scan #${scan.id} <span style="font-size:0.8rem; color:#9ca3af;">(${scan.time})</span></h4>
-                        <p style="margin: 0.2rem 0 0 0; color: #d1d5db; font-size: 0.9rem;">${scan.description}</p>
+                        <p style="margin: 0.2rem 0 0 0; color: ${scan.status === 0 ? '#fbbf24' : scan.status === -1 ? '#ef4444' : '#d1d5db'}; font-size: 0.9rem;">${scan.status === -1 ? 'Échec du scan 😱' : scan.description}</p>
                     </div>
                 </div>
                 <div style="display: flex; gap: 0.5rem; flex-direction: column; min-width: 140px;">
-                    <button onclick="viewReport('${scan.file_path}')" class="btn-detail" style="width: 100%; text-align: center; padding: 0.5rem; font-size: 0.8rem;">
-                        Voir Rapport 📄
-                    </button>
-                    ${scan.type === 3 ? `
-                        <button onclick="viewVulns('${scan.file_path}')" class="btn-detail" style="width: 100%; text-align: center; padding: 0.5rem; font-size: 0.8rem; background-color: #f97316; color: white; border: none;">
-                            Vulnérabilités 😱
+                    ${scan.status === 1 ? `
+                        <button onclick="viewReport('${scan.file_path}')" class="btn-detail" style="width: 100%; text-align: center; padding: 0.5rem; font-size: 0.8rem;">
+                            Voir Rapport 📄
                         </button>
-                    ` : ''}
+                        ${parseInt(scan.type) === 3 ? `
+                            <button onclick="viewVulns('${scan.file_path}')" class="btn-detail" style="width: 100%; text-align: center; padding: 0.5rem; font-size: 0.8rem; background-color: #f97316; color: white; border: none;">
+                                Vulnérabilités 😱
+                            </button>
+                        ` : ''}
+                    ` : scan.status === 0 ? `
+                        <button disabled class="btn-detail" style="width: 100%; text-align: center; padding: 0.5rem; font-size: 0.8rem; background-color: #4b5563; color: #9ca3af; cursor: not-allowed; border: none;">
+                            En cours... 🚀
+                        </button>
+                    ` : `
+                        <button disabled class="btn-detail" style="width: 100%; text-align: center; padding: 0.5rem; font-size: 0.8rem; background-color: #7f1d1d; color: #fca5a5; cursor: not-allowed; border: none;">
+                            Erreur ⚠️
+                        </button>
+                    `}
                 </div>
             </div>
         `).join('');

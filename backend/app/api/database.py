@@ -21,7 +21,7 @@ def get_scan_history(admin=Depends(verify_admin)):
         
         # Récupère les 5 entrées les plus récentes 🕒
         query = """
-            SELECT id_scan as id, type, Time as time, file_path 
+            SELECT id_scan as id, type, Time as time, file_path, status 
             FROM Scan 
             ORDER BY Time DESC 
             LIMIT 5
@@ -36,8 +36,19 @@ def get_scan_history(admin=Depends(verify_admin)):
             3: "Analyse complète des vulnérabilités terminée. 🦖"
         }
 
+        descriptions_pending = {
+            1: "Scan rapide en cours... ⏳",
+            2: "Détection des ports et adresses MAC en cours... ⏳",
+            3: "Analyse complète des vulnérabilités en cours... 🧠⏳"
+        }
+
         for scan in scans:
-            scan["description"] = descriptions.get(scan["type"], "Scan effectué. 🛡️")
+            scan_type = int(scan["type"]) if scan["type"] else 1
+            if scan["status"] == 0:
+                scan["description"] = descriptions_pending.get(scan_type, "Scan en cours... ⏳")
+            else:
+                scan["description"] = descriptions.get(scan_type, "Scan effectué. 🛡️")
+
             if scan["time"]:
                 scan["time"] = scan["time"].strftime("%d/%02m/%Y - %H:%M")
 

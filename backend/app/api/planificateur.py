@@ -2,7 +2,6 @@ import os
 import threading
 from fastapi import APIRouter, Depends  # Ajout de Depends 🛡️
 from pydantic import BaseModel
-from app.scanner.main import run_scan
 from app.secu.main import verify_admin  # Import de la sécurité centralisée 🦖
 
 router = APIRouter(prefix="/plan", tags=["Planificateur ⏰"])
@@ -14,9 +13,11 @@ class PlanConfig(BaseModel):
 
 def background_scheduler(freq_hours, scan_type):
     import time
+    from app.api.scan import create_pending_scan, background_scan_task
     while True:
         print(f"Tigrounet lance le scan automatique type {scan_type}...")
-        run_scan(scan_type)
+        scan_id = create_pending_scan(scan_type)
+        background_scan_task(scan_type, scan_id)
         time.sleep(freq_hours * 3600)
 
 @router.post("/save")
