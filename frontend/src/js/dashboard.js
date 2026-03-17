@@ -52,10 +52,10 @@ document.addEventListener('alpine:init', () => {
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Nombre de Scans',
+                        label: 'Vulnérabilités Détectées',
                         data: counts,
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(231, 76, 60, 0.6)', // Rouge pour les failles
+                        borderColor: 'rgba(231, 76, 60, 1)',
                         borderWidth: 1,
                         borderRadius: 5
                     }]

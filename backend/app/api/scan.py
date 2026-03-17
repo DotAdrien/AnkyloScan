@@ -67,6 +67,14 @@ async def scan_full(admin=Depends(verify_admin)):
                             (scan_id, ip, vulns_json)
                         )
                     conn.commit()
+
+                    # --- NETTOYAGE : On ne garde qu'un seul scan de niveau 3 par jour ---
+                    cursor.execute("""
+                        DELETE FROM Scan 
+                        WHERE DATE(Time) = CURDATE() AND Type = '3' AND id_scan != %s
+                    """, (scan_id,))
+                    conn.commit()
+                    # Les anciennes entrées dans Vuln sont supprimées automatiquement grâce au ON DELETE CASCADE de la BDD
                     print(f"✅ Vulnérabilités archivées pour le scan #{scan_id}")
 
         except Exception as e:
