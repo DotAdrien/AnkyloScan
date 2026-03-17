@@ -27,8 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 /* Soulignement subtil demandé pour les menus contenant des sous-menus */
                 .nav-dropdown > .nav-btn {
-                    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-                    padding-bottom: 4px;
+                    border-right: 2px solid rgba(255, 255, 255, 0.2);
+                    padding-right: 4px;
                     transition: border-color 0.3s ease;
                 }
                 .nav-dropdown:hover > .nav-btn,
@@ -40,39 +40,41 @@ document.addEventListener('DOMContentLoaded', () => {
                     visibility: hidden;
                     opacity: 0;
                     position: absolute;
-                    top: 130%;
-                    left: 50%;
-                    transform: translateX(-50%) translateY(10px);
+                    top: 0;
+                    left: 100%;
+                    transform: translateX(20px);
                     background: rgba(17, 24, 39, 0.95);
                     backdrop-filter: blur(8px);
-                    min-width: 150px;
                     border: 1px solid rgba(255,255,255,0.1);
                     border-radius: 8px;
-                    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-                    padding: 0.5rem 0;
+                    box-shadow: 10px 0 25px rgba(0,0,0,0.5);
+                    padding: 0.5rem;
                     z-index: 100;
                     transition: all 0.3s ease;
                     display: flex;
                     flex-direction: column;
+                    gap: 0.5rem;
                 }
                 /* Animation de survol */
                 .nav-dropdown:hover .nav-dropdown-content {
                     visibility: visible;
                     opacity: 1;
-                    top: 100%;
-                    transform: translateX(-50%) translateY(5px);
+                    transform: translateX(5px);
                 }
                 /* Style des boutons du sous-menu */
                 .nav-dropdown-content button {
                     background: none;
                     border: none;
                     color: #d1d5db;
-                    padding: 0.75rem 1rem;
+                    padding: 1rem 0.5rem;
                     text-align: center;
                     cursor: pointer;
                     font-size: 0.9rem;
                     transition: background 0.2s, color 0.2s;
-                    width: 100%;
+                    /* On force le texte à la verticale */
+                    writing-mode: vertical-rl;
+                    transform: rotate(180deg);
+                    border-radius: 4px;
                 }
                 .nav-dropdown-content button:hover {
                     background: rgba(255,255,255,0.05);
@@ -86,11 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 /* Petite flèche d'indication pour montrer que c'est un menu déroulant */
                 .nav-dropdown > .nav-btn::after {
-                    content: ' ▼';
+                    content: ' ▶';
                     font-size: 0.6em;
                     opacity: 0.6;
-                    margin-left: 6px;
-                    vertical-align: middle;
+                    margin: 6px 0;
+                    display: inline-block;
                 }
             `;
             document.head.appendChild(style);
@@ -133,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Si l'élément possède un "sub", on crée un menu déroulant
                 const subItemsHtml = item.sub.map(sub => `
                     <button @click="changePage('${sub.id}'); localStorage.setItem('ankyloscan_last_view', '${sub.id}')"
+                            class="nav-btn"
                             :class="currentPage === '${sub.id}' ? 'active' : ''">
                         ${sub.label}
                     </button>
