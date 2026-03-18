@@ -1,9 +1,14 @@
-function wordList() {
-    return {
+document.addEventListener('alpine:init', () => {
+    Alpine.data('wordList', () => ({
         words: [],
         newWord: '',
         
-        // Charge les mots au chargement de la vue
+        // init() est appelé automatiquement par Alpine au montage de la vue 🚀
+        init() {
+            this.fetchWords();
+        },
+
+        // Charge les mots depuis la base de données
         async fetchWords() {
             try {
                 const response = await fetch(`${window.API_BASE}/liste/`, { credentials: 'include' });
@@ -43,5 +48,5 @@ function wordList() {
                 console.error("Erreur de suppression :", err);
             }
         }
-    };
-}
+    }));
+});
