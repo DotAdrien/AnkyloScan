@@ -3,22 +3,22 @@
 <div class="scan-container" x-init="loadList()">
     <h2 class="scan-title">Liste Faux Positifs 🛡️</h2>
     
-    <div class="scan-card" style="grid-column: 1 / -1; margin-bottom: 2rem;">
+    <div class="scan-card list-add-card">
         <h3>Ajouter un mot à ignorer 🚫</h3>
         <p>Ajoute un titre de vulnérabilité, un script NSE ou une CVE pour l'ignorer lors de l'analyse experte V3.</p>
         
-        <form @submit.prevent="addWordToList()" class="form-field-work" style="display: flex; gap: 1rem; align-items: flex-end; margin-top: 1rem;">
-            <div class="form-group-item" style="flex: 1; margin-bottom: 0;">
-                <label style="display: block; margin-bottom: 0.5rem; color: #9ca3af; font-size: 0.8rem; font-weight: bold; letter-spacing: 1px;">MOT / CVE / TITRE</label>
-                <input type="text" id="new-word-input" placeholder="ex: CVE-2024-1234 ou TELNET" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; outline: none;">
+        <form @submit.prevent="addWordToList()" class="form-field-work list-add-form">
+            <div class="form-group-item list-input-group">
+                <label for="new-word-input">MOT / CVE / TITRE</label>
+                <input type="text" id="new-word-input" placeholder="ex: CVE-2024-1234 ou TELNET" required>
             </div>
-            <button type="submit" class="btn-action" style="margin-bottom: 0; padding: 0.75rem 2rem;">
+            <button type="submit" class="btn-action list-add-button">
                 Ajouter ✨
             </button>
         </form>
     </div>
 
-    <div class="scan-grid" id="words-list-container">
+    <div class="scan-grid list-display-grid" id="words-list-container">
         <!-- Les mots seront injectés ici par list.js -->
     </div>
 </div>
