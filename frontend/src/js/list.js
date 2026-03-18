@@ -17,6 +17,7 @@ window.wordList = function() {
                 }
             } catch (err) {
                 console.error("Erreur de chargement :", err);
+                if (window.showToast) window.showToast("Erreur de chargement", "error");
             }
         },
         
@@ -30,9 +31,15 @@ window.wordList = function() {
                     body: JSON.stringify({ text: this.newWord }),
                     credentials: 'include'
                 });
-                if (response.ok) window.location.reload();
+            if (response.ok) {
+                const data = await response.json();
+                if (window.showToast) window.showToast(data.message || "Mot ajouté ! ✨", "success");
+                this.newWord = ''; // Vide l'input
+                this.fetchWords(); // Rafraîchit la liste sans recharger la page
+            }
             } catch (err) {
                 console.error("Erreur d'ajout :", err);
+                if (window.showToast) window.showToast("Erreur lors de l'ajout", "error");
             }
         },
         
@@ -43,9 +50,14 @@ window.wordList = function() {
                     method: 'DELETE',
                     credentials: 'include'
                 });
-                if (response.ok) window.location.reload();
+            if (response.ok) {
+                const data = await response.json();
+                if (window.showToast) window.showToast(data.message || "Mot supprimé ! 🗑️", "success");
+                this.fetchWords(); // Rafraîchit la liste sans recharger la page
+            }
             } catch (err) {
                 console.error("Erreur de suppression :", err);
+                if (window.showToast) window.showToast("Erreur lors de la suppression", "error");
             }
         }
     };
