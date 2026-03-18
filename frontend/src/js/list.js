@@ -1,23 +1,47 @@
-// list.js 📝 - Logique pour la page Liste
-
-window.wordListManager = function() {
+function wordList() {
     return {
+        words: [],
         newWord: '',
-        words: JSON.parse(localStorage.getItem('ankyloscan_word_list')) || [],
         
-        addWord() {
-            if (this.newWord.trim() !== '') {
-                this.words.push(this.newWord.trim());
-                this.saveWords();
-                this.newWord = ''; // On vide le champ
+        // Charge les mots au chargement de la vue
+        async fetchWords() {
+            try {
+                const response = await fetch(`${window.API_BASE}/liste/`, { credentials: 'include' });
+                if (response.ok) {
+                    this.words = await response.json();
+                }
+            } catch (err) {
+                console.error("Erreur de chargement :", err);
             }
         },
-        removeWord(index) {
-            this.words.splice(index, 1);
-            this.saveWords();
+        
+        // Ajoute un mot et rafraîchit la page 🔄
+        async addWord() {
+            if (!this.newWord.trim()) return;
+            try {
+                const response = await fetch(`${window.API_BASE}/liste/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: this.newWord }),
+                    credentials: 'include'
+                });
+                if (response.ok) window.location.reload();
+            } catch (err) {
+                console.error("Erreur d'ajout :", err);
+            }
         },
-        saveWords() {
-            localStorage.setItem('ankyloscan_word_list', JSON.stringify(this.words));
+        
+        // Supprime un mot et rafraîchit la page 🔄
+        async removeWord(id) {
+            try {
+                const response = await fetch(`${window.API_BASE}/liste/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                if (response.ok) window.location.reload();
+            } catch (err) {
+                console.error("Erreur de suppression :", err);
+            }
         }
-    }
-};
+    };
+}

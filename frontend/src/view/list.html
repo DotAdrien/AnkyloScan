@@ -5,41 +5,7 @@
     <h2 class="scan-title">Liste de mots 📝</h2>
 
     <!-- Implémentation via l'API connectée à la base de données 🐬 -->
-    <div class="scan-card" x-data="{
-        words: [],
-        newWord: '',
-        async fetchWords() {
-            try {
-                const response = await fetch(`${window.API_BASE}/liste/`, { credentials: 'include' });
-                if (response.ok) this.words = await response.json();
-            } catch (err) { console.error('Erreur :', err); }
-        },
-        async addWord() {
-            if (!this.newWord.trim()) return;
-            try {
-                const response = await fetch(`${window.API_BASE}/liste/`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: this.newWord }),
-                    credentials: 'include'
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    this.words.push({ id: data.id, text: data.text });
-                    this.newWord = ''; // Réinitialise le champ une fois ajouté
-                }
-            } catch (err) { console.error('Erreur :', err); }
-        },
-        async removeWord(id) {
-            try {
-                const response = await fetch(`${window.API_BASE}/liste/${id}`, {
-                    method: 'DELETE',
-                    credentials: 'include'
-                });
-                if (response.ok) this.words = this.words.filter(w => w.id !== id);
-            } catch (err) { console.error('Erreur :', err); }
-        }
-    }" x-init="fetchWords()" style="grid-column: 1 / -1; max-width: 800px; margin: 0 auto; width: 100%;">
+    <div class="scan-card" x-data="wordList()" x-init="fetchWords()" style="grid-column: 1 / -1; max-width: 800px; margin: 0 auto; width: 100%;">
         <p style="color: #9ca3af; margin-bottom: 2rem; text-align: center;">Gérez votre liste de mots personnalisée (sauvegardée en base de données).</p>
         
         <!-- Champ de saisie et bouton -->
