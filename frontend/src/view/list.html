@@ -1,45 +1,24 @@
-<!-- Contenu de la page Liste -->
 <link rel="stylesheet" href="style/work.css">
 
-<div class="scan-container" x-show="currentPage === 'list'" x-cloak x-transition>
-    <h2 class="scan-title">Liste de mots 📝</h2>
-
-    <!-- Implémentation via l'API connectée à la base de données 🐬 -->
-    <div class="scan-card" x-data="wordList()" style="grid-column: 1 / -1; max-width: 800px; margin: 0 auto; width: 100%;">
-        <p style="color: #9ca3af; margin-bottom: 2rem; text-align: center;">Gérez votre liste de mots personnalisée (sauvegardée en base de données).</p>
+<div class="scan-container" x-init="loadList()">
+    <h2 class="scan-title">Liste Faux Positifs 🛡️</h2>
+    
+    <div class="scan-card" style="grid-column: 1 / -1; margin-bottom: 2rem;">
+        <h3>Ajouter un mot à ignorer 🚫</h3>
+        <p>Ajoute un titre de vulnérabilité, un script NSE ou une CVE pour l'ignorer lors de l'analyse experte V3.</p>
         
-        <!-- Champ de saisie et bouton -->
-        <div class="form-group" style="display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem;">
-            <input 
-                type="text" 
-                x-model="newWord" 
-                class="form-input" 
-                placeholder="Entrez un mot à ajouter..." 
-                @keydown.enter="addWord()"
-                style="flex: 1; padding: 0.75rem 1rem; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.1); background: rgba(17, 24, 39, 0.8); color: white; outline: none; font-size: 1rem;"
-            >
-            <button @click="addWord()" class="btn-action" style="width: auto; padding: 0.75rem 2rem; margin-top: 0;">
+        <form @submit.prevent="addWordToList()" class="form-field-work" style="display: flex; gap: 1rem; align-items: flex-end; margin-top: 1rem;">
+            <div class="form-group-item" style="flex: 1; margin-bottom: 0;">
+                <label style="display: block; margin-bottom: 0.5rem; color: #9ca3af; font-size: 0.8rem; font-weight: bold; letter-spacing: 1px;">MOT / CVE / TITRE</label>
+                <input type="text" id="new-word-input" placeholder="ex: CVE-2024-1234 ou TELNET" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white; outline: none;">
+            </div>
+            <button type="submit" class="btn-action" style="margin-bottom: 0; padding: 0.75rem 2rem;">
                 Ajouter ✨
             </button>
-        </div>
-        
-        <!-- Liste des mots -->
-        <div class="list-container" style="background: rgba(17, 24, 39, 0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 0.5rem; padding: 1rem;">
-            <ul style="list-style: none; padding: 0; margin: 0;">
-                <template x-for="word in words" :key="word.id">
-                    <li style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(255,255,255,0.05); margin-bottom: 0.5rem; border-radius: 0.5rem; transition: background 0.2s;">
-                        <span x-text="word.text" style="color: #e5e7eb; font-weight: 500; font-size: 1.1rem;"></span>
-                        <button @click="removeWord(word.id)" class="btn-action" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.5); width: auto; padding: 0.4rem 0.8rem; margin-top: 0; font-size: 0.9rem;">
-                            Retirer ❌
-                        </button>
-                    </li>
-                </template>
-            </ul>
-            
-            <!-- Message si la liste est vide -->
-            <div x-show="words.length === 0" style="text-align: center; color: #9ca3af; padding: 3rem 0; font-style: italic;">
-                La liste est vide pour le moment. 🦖
-            </div>
-        </div>
+        </form>
+    </div>
+
+    <div class="scan-grid" id="words-list-container">
+        <!-- Les mots seront injectés ici par list.js -->
     </div>
 </div>
