@@ -1,5 +1,5 @@
-document.addEventListener('alpine:init', () => {
-    Alpine.data('wordList', () => ({
+window.wordList = function() {
+    return {
         words: [],
         newWord: '',
         
@@ -48,5 +48,5 @@ document.addEventListener('alpine:init', () => {
                 console.error("Erreur de suppression :", err);
             }
         }
-    }));
-});
+    };
+};
