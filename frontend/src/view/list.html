@@ -12,9 +12,12 @@
                 <label for="new-word-input">MOT / CVE / TITRE</label>
                 <input type="text" id="new-word-input" placeholder="ex: CVE-2024-1234 ou TELNET" required>
             </div>
-            <button type="submit" class="btn-action list-add-button">
-                Ajouter ✨
-            </button>
+            <!-- Enveloppe le bouton dans un div pour contrôler sa largeur au sein du flex container -->
+            <div style="flex-shrink: 0;"> 
+                <button type="submit" class="btn-action list-add-button" style="width: auto; padding: 0.75rem 1.5rem;">
+                    Ajouter ✨
+                </button>
+            </div>
         </form>
     </div>
 
