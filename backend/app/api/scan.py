@@ -62,7 +62,24 @@ def background_scan_task(scan_type: int, scan_id: int):
                     with open(safe_path, 'r', encoding='utf-8') as f:
                         content = f.read()
 
+                    # Fetch ignored words at the time of scan
+                    current_ignored_words = set()
+                    temp_conn = None
+                    try:
+                        temp_conn = get_db_connection()
+                        temp_cursor = temp_conn.cursor(dictionary=True)
+                        temp_cursor.execute("SELECT text FROM liste")
+                        for row in temp_cursor.fetchall():
+                            current_ignored_words.add(row['text'].strip())
+                    except Exception as e:
+                        print(f"⚠️ Erreur récupération liste faux positifs lors du scan #{scan_id} : {e}")
+                    finally:
+                        if temp_conn and temp_conn.is_connected():
+                            temp_cursor.close()
+                            temp_conn.close()
+
                     vuln_results = parse_scan_expert(content)
+                    vuln_results = parse_scan_expert(content, ignored_words=current_ignored_words)
 
                     for host in vuln_results:
                         ip = host['ip']

@@ -1,5 +1,6 @@
 import os
 import re
+import json # Import added for json.loads
 import mysql.connector # type: ignore
 from fastapi import APIRouter, HTTPException, Depends # Ajout de Depends 🛡️
 from fastapi.responses import FileResponse
@@ -62,26 +63,12 @@ def get_scan_history(admin=Depends(verify_admin)):
             cursor.close()
             conn.close()
 
-def parse_scan_expert(content):
+def parse_scan_expert(content, ignored_words=None):
     """
     Analyse le contenu du rapport Nmap pour extraire les vulnérabilités (Logiciel expert v3) 🧠
     """
-    # --- Récupération des mots à ignorer (Faux positifs) ---
-    ignored_words = set()
-    conn = None
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT text FROM liste")
-        for row in cursor.fetchall():
-            ignored_words.add(row['text'].strip())
-    except Exception as e:
-        print(f"⚠️ Erreur récupération liste faux positifs : {e}")
-    finally:
-        if conn and conn.is_connected():
-            cursor.close()
-            conn.close()
-    # -------------------------------------------------------
+    if ignored_words is None:
+        ignored_words = set() # Default to empty set if not provided
 
     hosts = content.split("Nmap scan report for ")
     results = []
@@ -179,9 +166,39 @@ def get_vulns_analysis(path: str, admin=Depends(verify_admin)):
     if not filename.startswith("scan_3_"):
         raise HTTPException(status_code=400, detail="Cette analyse est réservée aux scans complets (Niveau 3).")
 
-    if os.path.exists(safe_path) and os.path.isfile(safe_path):
-        with open(safe_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-            return parse_scan_expert(content)
-            
-    raise HTTPException(status_code=404, detail="Rapport introuvable 😱")
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        # Get id_scan from file_path
+        # We need to ensure safe_path is correctly formatted for the query
+        # The file_path in DB is typically '/app/outputs/scan_X_timestamp.txt'
+        # safe_path is already absolute, so we need to match it.
+        cursor.execute("SELECT id_scan FROM Scan WHERE file_path = %s", (safe_path,))
+        scan_entry = cursor.fetchone()
+        
+        if not scan_entry:
+            raise HTTPException(status_code=404, detail="Entrée de scan introuvable dans la base de données pour ce rapport.")
+        
+        scan_id = scan_entry['id_scan']
+        
+        # Retrieve vulnerabilities from Vuln table
+        cursor.execute("SELECT hosts, text FROM Vuln WHERE id_scan = %s", (scan_id,))
+        vuln_records = cursor.fetchall()
+        
+        results = []
+        for record in vuln_records:
+            results.append({
+                "ip": record['hosts'],
+                "vulns": json.loads(record['text']) # Parse the JSON string back to a list
+            })
+        
+        return results
+
+    except mysql.connector.Error as e:
+        raise HTTPException(status_code=500, detail=f"Erreur de base de données : {str(e)}")
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
