@@ -3,10 +3,6 @@ $ServerIP = 'SERVER_IP_PLACEHOLDER'
 $Token = 'TOKEN_PLACEHOLDER'
 $Url = "http://$($ServerIP):8001/logs/ingest"
 
-# Récupération des infos de sécurité (Processus lancés au démarrage)
-$Processes = Get-Process | Sort-Object CPU -Descending | Select-Object -First 10
-$User = $env:USERNAME
- 
 # Fonction helper pour extraire une donnée du XML d'un événement Windows
 function Get-EventValue($EventData, $Name) {
     return ($EventData | Where-Object Name -eq $Name).'#text'
@@ -35,6 +31,9 @@ foreach ($Event in $Events) {
     $SubjectUserName = Get-EventValue $EventData "SubjectUserName"
     $SubjectDomainName = Get-EventValue $EventData "SubjectDomainName"
 
+    # Sécurité : on ignore l'événement s'il n'y a pas de nom de processus
+    if (-not $NewProcessName) { continue }
+
     # Extrait juste le nom de l'exécutable
     $ProcessExecutable = Split-Path -Path $NewProcessName -Leaf
 
@@ -61,8 +60,6 @@ foreach ($Event in $Events) {
 
     $MaxId = [math]::Max($MaxId, $Event.RecordId)
 }
-'@
-
 if ($MaxId -gt $LastId) { $MaxId | Set-Content -Path $StateFile }
 
 '@
@@ -79,10 +76,8 @@ $TaskName = "AnkyloProcessMonitor" # Nom de la tâche modifié pour plus de clar
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
 
 $Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-WindowStyle Hidden -ExecutionPolicy Bypass -File $DestPath\AnkyloLoginWorker.ps1"
-# Le déclencheur est la connexion de n'importe quel utilisateur, répété toutes les 5 minutes
-$Trigger = New-ScheduledTaskTrigger -AtLogon
-$Trigger.RepetitionInterval = (New-TimeSpan -Minutes 5) # Répéter toutes les 5 minutes
-$Trigger.RepetitionDuration = (New-TimeSpan -Days 365) # Répéter pendant un an
+# Déclencheur immédiat qui se répète toutes les 5 minutes (plus fiable pour la répétition)
+$Trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 5)
 
 # Exécution avec les privilèges les plus élevés (compte SYSTEM) pour lire les journaux de sécurité
 $Principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
@@ -92,6 +87,12 @@ Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger -Pr
 # --- Activation des Audits de Sécurité (équivalent GPO locale) ---
 Write-Host "Activation des politiques d'audit Windows pour la création de processus... 🛡️" -ForegroundColor Cyan
 auditpol /set /category:"Detailed Tracking" /success:enable /failure:enable | Out-Null
+
+# IMPORTANT: Activer l'enregistrement des lignes de commande dans les journaux Windows (Événement 4688)
+$RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit"
+if (-not (Test-Path $RegPath)) { New-Item -Path $RegPath -Force | Out-Null }
+Set-ItemProperty -Path $RegPath -Name "ProcessCreationIncludeCmdLine_Enabled" -Value 1 -Type DWord -Force | Out-Null
+
 Write-Host "Audit de création de processus activé. ✅" -ForegroundColor Green
 
-Write-Host "Agent de surveillance des processus installé avec succès ! Il se lancera à chaque connexion utilisateur et surveillera les commandes cmd/powershell. 🚀" -ForegroundColor Green
+Write-Host "Agent de surveillance des processus installé avec succès ! Il surveillera en continu les commandes cmd/powershell. 🚀" -ForegroundColor Green
