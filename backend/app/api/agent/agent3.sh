@@ -32,8 +32,9 @@ SERVER_IP="$SERVER_IP"
 TOKEN="$TOKEN"
 STATE_FILE="$STATE_DIR/ankylo_ports_state.txt"
 
-# Récupère les ports en écoute (TCP/UDP), triés pour une comparaison cohérente
-CURRENT_PORTS=\$(ss -tuln | grep LISTEN | awk '{print \$5}' | sort | paste -sd "," -)
+# Récupère les ports en écoute (TCP/UDP). 
+# On évite "grep LISTEN" car les ports UDP apparaissent en "UNCONN" !
+CURRENT_PORTS=\$(ss -tuln | awk 'NR>1 {print \$5}' | sort | paste -sd "," -)
 DATE=\$(date '+%Y-%m-%d %H:%M:%S')
 
 LAST_PORTS=""

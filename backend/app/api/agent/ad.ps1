@@ -32,7 +32,10 @@ foreach ($Event in $Events) {
     $SubjectUserName = Get-EventValue $EventData "SubjectUserName"
 
     # On ignore les comptes machines qui finissent par $
-    if ($TargetUserName -like "*$") { continue }
+    if ($TargetUserName -like "*$") { 
+        $MaxId = [math]::Max($MaxId, $Event.RecordId)
+        continue 
+    }
 
     # On ignore les TGT Kerberos réussis (trop de bruit)
     $ResultCode = Get-EventValue $EventData "ResultCode"
