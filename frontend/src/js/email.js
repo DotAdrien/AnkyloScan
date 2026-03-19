@@ -1,29 +1,58 @@
-async function saveEmailConfig() {
-    const sender = document.querySelector('input[placeholder="alerte@ankyloscan.com"]').value;
-    const apiKey = document.querySelector('input[placeholder="A1B2C3D4E5F6G7H8"]').value;
-    const receivers = document.querySelector('input[placeholder="admin@test.com;user@test.com"]').value;
+// email.js 📧
 
-    try {
-        const response = await fetch(`${window.API_BASE}/email/save`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                sender: sender,
-                api_key: apiKey,
-                receivers: receivers
-            },
-            {credentials: 'include'})
-        });
+document.addEventListener('alpine:init', () => {
+    Alpine.data('emailConfig', () => ({
+        senderEmail: '',
+        apiKey: '',
+        recipients: '',
+        vulnLevel3Alerts: false,
+        agentLogAlerts: false,
 
-        const data = await response.json();
+        async loadEmailConfig() {
+            try {
+                const response = await fetch(`${window.API_BASE}/email/config`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    const config = await response.json();
+                    this.senderEmail = config.sender_email || '';
+                    this.apiKey = config.api_key || '';
+                    this.recipients = config.recipients || '';
+                    this.vulnLevel3Alerts = config.vuln_level3_alerts || false;
+                    this.agentLogAlerts = config.agent_log_alerts || false;
+                } else {
+                    console.error("Failed to load email configuration.");
+                }
+            } catch (error) {
+                console.error("Error loading email configuration:", error);
+            }
+        },
 
-        if (response.ok) {
-            alert(data.message);
-        } else {
-            alert("Erreur : " + (data.detail || "Impossible de sauvegarder 😱"));
+        async saveEmailConfig() {
+            try {
+                const response = await fetch(`${window.API_BASE}/email/save`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sender_email: this.senderEmail,
+                        api_key: this.apiKey,
+                        recipients: this.recipients,
+                        vuln_level3_alerts: this.vulnLevel3Alerts,
+                        agent_log_alerts: this.agentLogAlerts
+                    })
+                });
+
+                if (response.ok) {
+                    alert("Configuration email sauvegardée ! ✨");
+                } else {
+                    const data = await response.json();
+                    alert("Erreur : " + (data.detail || "Échec de la sauvegarde de la configuration email 😱"));
+                }
+            } catch (error) {
+                alert("Erreur de connexion avec le serveur... 😩");
+            }
         }
-    } catch (error) {
-        console.error("Erreur API :", error);
-        alert("Le serveur ne répond pas... 😩");
-    }
-}
+    }));
+});

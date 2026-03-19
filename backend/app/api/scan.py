@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from app.scanner.main import run_scan
 from app.secu.main import verify_admin # Import de ta nouvelle fonction 🛡️
 from app.db import get_db_connection
+from app.utils.email_sender import send_alert_email, get_current_email_config # type: ignore # Import pour l'envoi d'emails
 from app.api.database import parse_scan_expert
 
 router = APIRouter(prefix="/scan")
@@ -97,6 +98,22 @@ def background_scan_task(scan_type: int, scan_id: int):
                     """, (scan_id,))
                     conn.commit()
                     print(f"✅ Vulnérabilités archivées pour le scan #{scan_id}")
+
+                    # --- ENVOI D'EMAIL POUR LES VULNÉRABILITÉS DE NIVEAU 3 ---
+                    email_config = get_current_email_config()
+                    if email_config.vuln_level3_alerts and vuln_results:
+                        subject = f"🚨 Alerte AnkyloScan: Vulnérabilités de Niveau 3 détectées (Scan #{scan_id})"
+                        body = f"Un scan complet (Niveau 3) a détecté des vulnérabilités critiques.\n\n"
+                        body += f"Détails du scan: {file_path}\n\n"
+                        body += "Vulnérabilités détectées:\n"
+                        for host_data in vuln_results:
+                            body += f"  Hôte: {host_data['ip']}\n"
+                            for vuln in host_data['vulns']:
+                                if vuln.get('level') == 3: # N'alerter que pour les vulnérabilités de niveau 3
+                                    body += f"    - {vuln.get('badge', '')} {vuln.get('title', '')} ({vuln.get('state', '')})\n"
+                        body += "\nConnectez-vous à AnkyloScan pour plus de détails."
+                        
+                        send_alert_email(subject, body)
 
         except Exception as e:
             print(f"⚠️ Erreur lors de l'archivage du scan #{scan_id} : {e}")
