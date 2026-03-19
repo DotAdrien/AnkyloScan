@@ -7,9 +7,8 @@ from app.secu.main import verify_admin # Import de la sécurité 🦖
 router = APIRouter(prefix="/email", tags=["Email 📧"])
 
 EMAIL_FILE = "/app/outputs/email_config.json" # Changement de nom pour le fichier JSON
-
 class EmailConfig(BaseModel):
-    sender_email: EmailStr
+    sender_email: str # Changed from EmailStr to str to allow empty string
     api_key: str
     recipients: str
     vuln_level3_alerts: bool = False
