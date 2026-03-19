@@ -3,7 +3,7 @@ from pydantic import BaseModel
 import mysql.connector # type: ignore
 import os
 from app.secu.main import verify_admin # Sécurité 🛡️
-from app.utils.email_sender import send_alert_email, get_current_email_config # type: ignore # Import pour l'envoi d'emails
+from app.api.email_sender import send_alert_email, get_current_email_config # type: ignore # Import pour l'envoi d'emails
 from app.db import get_db_connection
 
 router = APIRouter(prefix="/logs", tags=["Logs 🛡️"])

@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from app.scanner.main import run_scan
 from app.secu.main import verify_admin # Import de ta nouvelle fonction 🛡️
 from app.db import get_db_connection
-from app.utils.email_sender import send_alert_email, get_current_email_config # type: ignore # Import pour l'envoi d'emails
+from app.api.email_sender import send_alert_email, get_current_email_config # type: ignore # Import pour l'envoi d'emails
 from app.api.database import parse_scan_expert
 
 router = APIRouter(prefix="/scan")
