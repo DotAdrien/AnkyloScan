@@ -23,7 +23,7 @@ def execute_nmap_process(scan_type, args):
         result = subprocess.run(["nmap"] + args, capture_output=True, text=True, check=True)
         save_scan_result(scan_type, result.stdout)
 
-        if scan_type == 1:
+        if scan_type == 3:
             send_email_report(result.stdout)
             
         print(f"Scan {scan_type} terminé ! ✨")
