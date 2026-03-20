@@ -5,7 +5,9 @@ document.addEventListener('alpine:init', () => {
         senderEmail: '',
         apiKey: '',
         recipients: '',
-        vulnLevel3Alerts: false,
+        scanQuickAlerts: false,
+        scanSecurityAlerts: false,
+        scanFullAlerts: false,
         agentLogAlerts: false,
 
         async loadEmailConfig() {
@@ -19,7 +21,9 @@ document.addEventListener('alpine:init', () => {
                     this.senderEmail = config.sender_email || '';
                     this.apiKey = config.api_key || '';
                     this.recipients = config.recipients || '';
-                    this.vulnLevel3Alerts = config.vuln_level3_alerts || false;
+                    this.scanQuickAlerts = config.scan_quick_alerts || false;
+                    this.scanSecurityAlerts = config.scan_security_alerts || false;
+                    this.scanFullAlerts = config.scan_full_alerts || false;
                     this.agentLogAlerts = config.agent_log_alerts || false;
                 } else {
                     console.error("Failed to load email configuration.");
@@ -39,7 +43,9 @@ document.addEventListener('alpine:init', () => {
                         sender_email: this.senderEmail,
                         api_key: this.apiKey,
                         recipients: this.recipients,
-                        vuln_level3_alerts: this.vulnLevel3Alerts,
+                        scan_quick_alerts: this.scanQuickAlerts,
+                        scan_security_alerts: this.scanSecurityAlerts,
+                        scan_full_alerts: this.scanFullAlerts,
                         agent_log_alerts: this.agentLogAlerts
                     })
                 });

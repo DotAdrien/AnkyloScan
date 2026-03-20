@@ -14,7 +14,9 @@ class EmailConfig(BaseModel):
     sender_email: str # Changed from EmailStr to str to allow empty string
     api_key: str
     recipients: str
-    vuln_level3_alerts: bool = False
+    scan_quick_alerts: bool = False
+    scan_security_alerts: bool = False
+    scan_full_alerts: bool = False
     agent_log_alerts: bool = False
 
 @router.get("/config")
@@ -28,7 +30,9 @@ async def get_email_config(admin=Depends(verify_admin)):
             sender_email="",
             api_key="",
             recipients="",
-            vuln_level3_alerts=False,
+            scan_quick_alerts=False,
+            scan_security_alerts=False,
+            scan_full_alerts=False,
             agent_log_alerts=False
         )
     

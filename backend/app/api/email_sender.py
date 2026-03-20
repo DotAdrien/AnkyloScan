@@ -15,7 +15,9 @@ def get_current_email_config() -> EmailConfig:
             sender_email="",
             api_key="",
             recipients="",
-            vuln_level3_alerts=False,
+            scan_quick_alerts=False,
+            scan_security_alerts=False,
+            scan_full_alerts=False,
             agent_log_alerts=False
         )
     
@@ -29,7 +31,9 @@ def get_current_email_config() -> EmailConfig:
             sender_email="",
             api_key="",
             recipients="",
-            vuln_level3_alerts=False,
+            scan_quick_alerts=False,
+            scan_security_alerts=False,
+            scan_full_alerts=False,
             agent_log_alerts=False
         )
 
@@ -82,7 +86,7 @@ def send_agent_log_alert(source: str, event_id: int, message: str):
 def send_vuln_alert(scan_id: int, file_path: str, vuln_results: list):
     """Vérifie la configuration et envoie une alerte de vulnérabilité si activé et requise."""
     config = get_current_email_config()
-    if not config.vuln_level3_alerts:
+    if not config.scan_full_alerts:
         return False
         
     # On vérifie s'il y a bien au moins une vuln de niveau 3 dans les résultats
@@ -101,12 +105,20 @@ def send_vuln_alert(scan_id: int, file_path: str, vuln_results: list):
     
     return send_email(subject, body)
 
-def send_raw_scan_report(content: str):
-    """Envoie le rapport brut Nmap (lié à l'option d'alertes des scans complets)."""
+def send_scan_report(scan_type: int, content: str):
+    """Vérifie la config et envoie le rapport de scan brut selon le type."""
     config = get_current_email_config()
-    if not config.vuln_level3_alerts:
+    
+    if scan_type == 1 and config.scan_quick_alerts:
+        subject = "AnkyloScan : Rapport de Scan Rapide ⚡"
+        body = f"Salut ! Tigrounet a terminé le scan rapide. Voici le rapport brut :\n\n{content}"
+    elif scan_type == 2 and config.scan_security_alerts:
+        subject = "AnkyloScan : Rapport de Scan Sécurité 🛡️"
+        body = f"Salut ! Tigrounet a terminé le scan de sécurité. Voici le rapport brut :\n\n{content}"
+    elif scan_type == 3 and config.scan_full_alerts:
+        subject = "AnkyloScan : Rapport de Scan Complet 🦖"
+        body = f"Salut ! Tigrounet a terminé le scan complet. Voici le rapport brut :\n\n{content}"
+    else:
         return False
-        
-    subject = "AnkyloScan : Rapport de Scan Complet 🛡️"
-    body = f"Salut ! Tigrounet a terminé le scan complet. Voici le rapport brut :\n\n{content}"
+
     return send_email(subject, body)

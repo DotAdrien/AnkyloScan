@@ -22,8 +22,16 @@
 
             <div class="options-group">
                 <label class="checkbox-item">
-                    <input type="checkbox" x-model="vulnLevel3Alerts">
-                    <span>Vulnérabilités des scans de niveaux 3 🚨</span>
+                    <input type="checkbox" x-model="scanQuickAlerts">
+                    <span>Alerte de fin de Scan Rapide (Niveau 1) ⚡</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" x-model="scanSecurityAlerts">
+                    <span>Alerte de fin de Scan Sécurité (Niveau 2) 🛡️</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" x-model="scanFullAlerts">
+                    <span>Alerte de fin de Scan Complet & Vulnérabilités (Niveau 3) 🦖</span>
                 </label>
                 <label class="checkbox-item">
                     <input type="checkbox" x-model="agentLogAlerts">
