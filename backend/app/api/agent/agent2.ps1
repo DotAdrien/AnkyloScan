@@ -99,7 +99,7 @@ Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger @($TriggerLo
 
 # --- Activation des Audits de Sécurité (équivalent GPO locale) ---
 Write-Host "Activation des politiques d'audit Windows pour la création de processus... 🛡️" -ForegroundColor Cyan
-auditpol /set /category:"Detailed Tracking" /success:enable /failure:enable | Out-Null
+auditpol /set /subcategory:"{0CCE922B-69AE-11D9-BED3-505054503030}" /success:enable /failure:enable | Out-Null
 
 # IMPORTANT: Activer l'enregistrement des lignes de commande dans les journaux Windows (Événement 4688)
 $RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit"
