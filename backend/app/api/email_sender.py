@@ -99,7 +99,7 @@ def send_vuln_alert(scan_id: int, file_path: str, vuln_results: list):
     for host_data in vuln_results:
         body += f"  Hôte: {host_data['ip']}\n"
         for vuln in host_data['vulns']:
-            if vuln.get('level') == 3:
+            if vuln.get:
                 body += f"    - {vuln.get('badge', '')} {vuln.get('title', '')} ({vuln.get('state', '')})\n"
     body += "\nConnectez-vous à AnkyloScan pour plus de détails."
     
