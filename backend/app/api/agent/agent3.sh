@@ -30,30 +30,59 @@ cat << EOF > "$INSTALL_DIR/$SCRIPT_NAME"
 # Variables injectées (du script parent)
 SERVER_IP="$SERVER_IP"
 TOKEN="$TOKEN"
-STATE_FILE="$STATE_DIR/ankylo_ports_state.txt"
-
-# Récupère les ports en écoute (TCP/UDP). 
-# On évite "grep LISTEN" car les ports UDP apparaissent en "UNCONN" !
-CURRENT_PORTS=\$(ss -tuln | awk 'NR>1 {print \$5}' | sort | paste -sd "," -)
+STATE_DIR="/var/lib/ankyloscan"
+PORTS_STATE_FILE="\$STATE_DIR/ankylo_ports_state.txt"
 DATE=\$(date '+%Y-%m-%d %H:%M:%S')
 
+REPORT_MESSAGE=""
+EVENT_ID=5003 # Nouvel ID pour incident critique
+SOURCE="Agent-Linux-Security"
+CHANGES_DETECTED=false
+
+# 1. Surveillance des nouveaux ports (alerte uniquement si NOUVEAU port)
+CURRENT_PORTS=\$(ss -tuln | awk 'NR>1 {print \$5}' | sort -u | paste -sd "," -)
 LAST_PORTS=""
-if [ -f "\$STATE_FILE" ]; then
-    LAST_PORTS=\$(cat "\$STATE_FILE")
+if [ -f "\$PORTS_STATE_FILE" ]; then
+    LAST_PORTS=\$(cat "\$PORTS_STATE_FILE")
 fi
 
-# Comparer l'état actuel avec le dernier état connu
-if [ "\$CURRENT_PORTS" != "\$LAST_PORTS" ]; then
-    MESSAGE="Changement de ports détecté. Nouveaux ports ouverts: \$CURRENT_PORTS. Précédents: \$LAST_PORTS | Scan: \$DATE"
-    EVENT_ID=5002 # ID pour un changement de port
-    SOURCE="Agent-Linux-PortChangeMonitor"
-
-# Si LAST_PORTS est vide, c'est la première exécution ou le fichier d'état a été supprimé
-    if [ -z "\$LAST_PORTS" ]; then
-        MESSAGE="Initialisation de la surveillance des ports. Ports ouverts: \$CURRENT_PORTS | Scan: \$DATE"
-        EVENT_ID=5001 # ID pour le scan initial
+if [ -n "\$LAST_PORTS" ] && [ "\$CURRENT_PORTS" != "\$LAST_PORTS" ]; then
+    CURRENT_PORTS_NL=\$(echo "\$CURRENT_PORTS" | tr ',' '\n' | sort -u)
+    LAST_PORTS_NL=\$(echo "\$LAST_PORTS" | tr ',' '\n' | sort -u)
+    NEWLY_OPENED_PORTS=\$(comm -13 <(echo "\$LAST_PORTS_NL") <(echo "\$CURRENT_PORTS_NL") | paste -sd "," -)
+    
+    if [ -n "\$NEWLY_OPENED_PORTS" ]; then
+        REPORT_MESSAGE+="Nouveaux ports ouverts (\$NEWLY_OPENED_PORTS). "
+        CHANGES_DETECTED=true
     fi
+fi
+echo "\$CURRENT_PORTS" > "\$PORTS_STATE_FILE"
 
+# 2. Surveillance des fichiers critiques (comptes, mots de passe, SSH, Sudo)
+CRITICAL_FILES=("/etc/passwd" "/etc/shadow" "/etc/group" "/etc/sudoers" "/etc/ssh/sshd_config")
+for FILE_PATH in "\${CRITICAL_FILES[@]}"; do
+    if [ -f "\$FILE_PATH" ]; then
+        FILE_BASENAME=\$(basename "\$FILE_PATH")
+        STATE_FILE="\$STATE_DIR/ankylo_file_\$FILE_BASENAME.md5"
+        CURRENT_MD5=\$(md5sum "\$FILE_PATH" | awk '{print \$1}')
+        
+        LAST_MD5=""
+        if [ -f "\$STATE_FILE" ]; then
+            LAST_MD5=\$(cat "\$STATE_FILE")
+        fi
+
+        if [ -n "\$LAST_MD5" ] && [ "\$CURRENT_MD5" != "\$LAST_MD5" ]; then
+            REPORT_MESSAGE+="Fichier critique modifié (\$FILE_PATH). "
+            CHANGES_DETECTED=true
+        fi
+        echo "\$CURRENT_MD5" > "\$STATE_FILE"
+    fi
+done
+
+# Envoi de l'alerte uniquement si un vrai problème est détecté
+if \$CHANGES_DETECTED; then
+    MESSAGE="Incident de sécurité détecté: \$REPORT_MESSAGE | Scan: \$DATE"
+    
     # Construction du JSON
     JSON_DATA=\$(cat <<JSON
 {
@@ -72,10 +101,7 @@ JSON
     if [ \$? -ne 0 ]; then
         logger -t "AnkyloScan_Agent" "Erreur: Impossible d'envoyer les logs au serveur AnkyloScan."
     fi
-
-    # Mettre à jour le fichier d'état avec les ports actuels
-    echo "\$CURRENT_PORTS" > "\$STATE_FILE"
-fi # Fin du bloc if pour la comparaison des ports
+fi
 EOF
 
 # Rendre le script exécutable

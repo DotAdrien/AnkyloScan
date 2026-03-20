@@ -37,13 +37,23 @@ foreach ($Event in $Events) {
     # Extrait juste le nom de l'exécutable
     $ProcessExecutable = Split-Path -Path $NewProcessName -Leaf
 
-    # Filtre pour cmd.exe ou powershell.exe
-    if ($ProcessExecutable -notmatch "(?i)^(cmd.exe|powershell.exe)$") {
+    # Détection de comportements anormaux (ce qu'un utilisateur standard ne devrait pas faire)
+    $SuspiciousProcesses = "(?i)^(vssadmin\.exe|certutil\.exe|bitsadmin\.exe|whoami\.exe|nltest\.exe|net\.exe|net1\.exe)$"
+    $SuspiciousCommands = "(?i)(-enc|-encodedcommand|iex|invoke-expression|net user|net group|net localgroup|vssadmin delete shadows|certutil -urlcache|downloadstring|bypass)"
+
+    $IsSuspiciousProcess = $ProcessExecutable -match $SuspiciousProcesses
+    $IsSuspiciousCommand = $CommandLine -match $SuspiciousCommands
+    $IsShell = $ProcessExecutable -match "(?i)^(cmd\.exe|powershell\.exe)$"
+
+    # Filtre: on garde si c'est un shell OU si c'est une action anormale/suspecte
+    if (-not ($IsSuspiciousProcess -or $IsSuspiciousCommand -or $IsShell)) {
         $MaxId = [math]::Max($MaxId, $Event.RecordId)
         continue
     }
 
-    $DetailedMsg = "Commande exécutée: '$CommandLine' (Processus: '$ProcessExecutable') par '$SubjectDomainName\$SubjectUserName'."
+    # Ajoute un préfixe d'alerte si l'action est reconnue comme anormale
+    $Prefix = if ($IsSuspiciousProcess -or $IsSuspiciousCommand) { "[COMPORTEMENT ANORMAL] " } else { "" }
+    $DetailedMsg = "${Prefix}Commande exécutée: '$CommandLine' (Processus: '$ProcessExecutable') par '$SubjectDomainName\$SubjectUserName'."
 
     $Body = @{
         token = $Token
@@ -76,13 +86,16 @@ $TaskName = "AnkyloProcessMonitor" # Nom de la tâche modifié pour plus de clar
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
 
 $Action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-WindowStyle Hidden -ExecutionPolicy Bypass -File $DestPath\AnkyloLoginWorker.ps1"
-# Déclencheur immédiat qui se répète toutes les 5 minutes (plus fiable pour la répétition)
-$Trigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 5)
+
+# Déclencheur 1: Au moment où un utilisateur ouvre une session (Logon)
+$TriggerLogon = New-ScheduledTaskTrigger -AtLogOn
+# Déclencheur 2: Répétition toutes les 5 minutes pour une surveillance continue
+$TriggerRepeat = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 5)
 
 # Exécution avec les privilèges les plus élevés (compte SYSTEM) pour lire les journaux de sécurité
 $Principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
 
-Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger $Trigger -Principal $Principal -Force
+Register-ScheduledTask -TaskName $TaskName -Action $Action -Trigger @($TriggerLogon, $TriggerRepeat) -Principal $Principal -Force
 
 # --- Activation des Audits de Sécurité (équivalent GPO locale) ---
 Write-Host "Activation des politiques d'audit Windows pour la création de processus... 🛡️" -ForegroundColor Cyan
