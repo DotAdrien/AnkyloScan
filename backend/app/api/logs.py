@@ -3,7 +3,7 @@ from pydantic import BaseModel
 import mysql.connector # type: ignore
 import os
 from app.secu.main import verify_admin # Sécurité 🛡️
-from app.api.email_sender import send_alert_email, get_current_email_config # type: ignore # Import pour l'envoi d'emails
+from app.api.email_sender import send_agent_log_alert
 from app.db import get_db_connection
 
 router = APIRouter(prefix="/logs", tags=["Logs 🛡️"])
@@ -39,13 +39,7 @@ def ingest_logs(log: LogEntry):
         conn.commit()
 
         # --- ENVOI D'EMAIL POUR LES LOGS D'AGENT ---
-        email_config = get_current_email_config()
-        if email_config.agent_log_alerts:
-            subject = f"🤖 Alerte AnkyloScan: Nouveau log d'agent ({log.source})"
-            body = f"Un nouvel événement a été enregistré par un agent:\n\n"
-            body += f"Source: {log.source}\nEvent ID: {log.event_id}\nMessage: {log.message}\n"
-            body += "\nConnectez-vous à AnkyloScan pour consulter tous les logs."
-            send_alert_email(subject, body)
+        send_agent_log_alert(log.source, log.event_id, log.message)
 
     cursor.close()
     conn.close()

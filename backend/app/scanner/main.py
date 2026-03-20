@@ -1,7 +1,7 @@
 import subprocess
 import socket
 from .database_handler import save_scan_result
-from .email_sender import send_email_report
+from app.api.email_sender import send_raw_scan_report
 
 def get_local_network():
     """Détecte le réseau de l'hôte depuis le conteneur 🌐"""
@@ -24,7 +24,7 @@ def execute_nmap_process(scan_type, args):
         save_scan_result(scan_type, result.stdout)
 
         if scan_type == 3:
-            send_email_report(result.stdout)
+            send_raw_scan_report(result.stdout)
             
         print(f"Scan {scan_type} terminé ! ✨")
     except Exception as e:

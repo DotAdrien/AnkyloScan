@@ -2,8 +2,8 @@ import os
 import json
 import smtplib
 from email.mime.text import MIMEText
-from typing import Optional
-from app.api.email import EMAIL_FILE, EmailConfig # Réutilise le modèle et le chemin du fichier
+from email.mime.multipart import MIMEMultipart
+from app.api.email import EMAIL_FILE, EmailConfig
 
 def get_current_email_config() -> EmailConfig:
     """
@@ -33,38 +33,80 @@ def get_current_email_config() -> EmailConfig:
             agent_log_alerts=False
         )
 
-def send_alert_email(subject: str, body: str):
+def send_email(subject: str, body: str):
     """
-    Simule l'envoi d'un email d'alerte en utilisant la configuration sauvegardée.
-    Pour un vrai envoi, il faudrait intégrer une bibliothèque SMTP ou une API d'envoi d'emails.
+    Fonction centrale et interne pour envoyer un email via SMTP 📧
     """
     config = get_current_email_config()
 
     if not config.recipients or not config.sender_email:
-        print("📧 [EMAIL SENDER] : Impossible d'envoyer l'email. Destinataires ou expéditeur non configurés.")
-        return
+        print(f"📧 [EMAIL SENDER] : Impossible d'envoyer l'email ({subject}). Config manquante.")
+        return False
     
     try:
-        msg = MIMEText(body, 'plain', 'utf-8')
+        msg = MIMEMultipart()
         msg['From'] = config.sender_email
         msg['Subject'] = subject
         
-        # Split recipients by comma or semicolon and strip whitespace
         recipients_list = [r.strip() for r in config.recipients.replace(';', ',').split(',') if r.strip()]
         msg['To'] = ", ".join(recipients_list)
 
         if not recipients_list:
-            print("📧 [EMAIL SENDER] : Aucun destinataire valide configuré.")
-            return
+            return False
 
-        # Utilisation de smtplib pour l'envoi réel
-        # Pour Gmail, l'api_key est généralement le mot de passe d'application
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server: # Utilise SMTP_SSL pour le port 465
+        msg.attach(MIMEText(body, 'plain', 'utf-8'))
+
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
             server.login(config.sender_email, config.api_key)
             server.sendmail(config.sender_email, recipients_list, msg.as_string())
         
-        print(f"✅ Email d'alerte envoyé avec succès à {config.recipients} !")
+        print(f"✅ Email envoyé avec succès : {subject}")
+        return True
     except smtplib.SMTPAuthenticationError:
         print(f"⚠️ [EMAIL SENDER] : Erreur d'authentification SMTP. Vérifiez l'expéditeur et la clé API (mot de passe d'application).")
+        return False
     except Exception as e:
-        print(f"⚠️ [EMAIL SENDER] : Erreur lors de l'envoi de l'email d'alerte : {e}")
+        print(f"⚠️ [EMAIL SENDER] : Erreur lors de l'envoi de l'email : {e}")
+        return False
+
+def send_agent_log_alert(source: str, event_id: int, message: str):
+    """Vérifie la configuration et envoie une alerte de log d'agent si activé."""
+    config = get_current_email_config()
+    if not config.agent_log_alerts:
+        return False
+        
+    subject = f"🤖 Alerte AnkyloScan: Nouveau log d'agent ({source})"
+    body = f"Un nouvel événement a été enregistré par un agent:\n\nSource: {source}\nEvent ID: {event_id}\nMessage: {message}\n\nConnectez-vous à AnkyloScan pour consulter tous les logs."
+    return send_email(subject, body)
+
+def send_vuln_alert(scan_id: int, file_path: str, vuln_results: list):
+    """Vérifie la configuration et envoie une alerte de vulnérabilité si activé et requise."""
+    config = get_current_email_config()
+    if not config.vuln_level3_alerts:
+        return False
+        
+    # On vérifie s'il y a bien au moins une vuln de niveau 3 dans les résultats
+    has_level3 = any(vuln.get('level') == 3 for host in vuln_results for vuln in host.get('vulns', []))
+    if not has_level3:
+        return False
+
+    subject = f"🚨 Alerte AnkyloScan: Vulnérabilités de Niveau 3 détectées (Scan #{scan_id})"
+    body = f"Un scan complet (Niveau 3) a détecté des vulnérabilités critiques.\n\nDétails du scan: {file_path}\n\nVulnérabilités détectées:\n"
+    for host_data in vuln_results:
+        body += f"  Hôte: {host_data['ip']}\n"
+        for vuln in host_data['vulns']:
+            if vuln.get('level') == 3:
+                body += f"    - {vuln.get('badge', '')} {vuln.get('title', '')} ({vuln.get('state', '')})\n"
+    body += "\nConnectez-vous à AnkyloScan pour plus de détails."
+    
+    return send_email(subject, body)
+
+def send_raw_scan_report(content: str):
+    """Envoie le rapport brut Nmap (lié à l'option d'alertes des scans complets)."""
+    config = get_current_email_config()
+    if not config.vuln_level3_alerts:
+        return False
+        
+    subject = "AnkyloScan : Rapport de Scan Complet 🛡️"
+    body = f"Salut ! Tigrounet a terminé le scan complet. Voici le rapport brut :\n\n{content}"
+    return send_email(subject, body)
