@@ -90,7 +90,7 @@ def send_vuln_alert(scan_id: int, file_path: str, vuln_results: list):
         return False
         
     # On vérifie s'il y a bien au moins une vuln de niveau 3 dans les résultats
-    has_level3 = any(vuln.get('level') == 3 for host in vuln_results for vuln in host.get('vulns', []))
+    has_level3 = any(vuln.get for host in vuln_results for vuln in host.get('vulns', []))
     if not has_level3:
         return False
 
