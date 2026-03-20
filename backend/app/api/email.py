@@ -6,7 +6,10 @@ from app.secu.main import verify_admin # Import de la sécurité 🦖
 
 router = APIRouter(prefix="/email", tags=["Email 📧"])
 
-EMAIL_FILE = "/app/outputs/email_config.json" # Changement de nom pour le fichier JSON
+# Résolution dynamique du chemin pour cibler ton dossier local backend/app/outputs
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EMAIL_FILE = os.path.join(BASE_DIR, "outputs", "email_config.json")
+
 class EmailConfig(BaseModel):
     sender_email: str # Changed from EmailStr to str to allow empty string
     api_key: str
