@@ -19,7 +19,7 @@ class PlanConfig(BaseModel):
     scan_type: int
 
 def background_scheduler(freq_hours, scan_type, stop_event_ref):
-    from app.api.scan import create_pending_scan, background_scan_task
+    from app.scanner.tasks import create_pending_scan, background_scan_task
     while not stop_event_ref.is_set():
         print(f"Tigrounet lance le scan automatique type {scan_type}...")
         scan_id = create_pending_scan(scan_type)
