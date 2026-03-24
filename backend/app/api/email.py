@@ -1,17 +1,16 @@
 import os
 import json
-from fastapi import APIRouter, HTTPException, Depends # Ajout de Depends 🛡️
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, EmailStr
-from app.secu.main import verify_admin # Import de la sécurité 🦖
+from app.secu.main import verify_admin
 
 router = APIRouter(prefix="/email", tags=["Email 📧"])
 
-# Résolution dynamique du chemin pour cibler ton dossier local backend/app/outputs
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EMAIL_FILE = os.path.join(BASE_DIR, "outputs", "email_config.json")
 
 class EmailConfig(BaseModel):
-    sender_email: str # Changed from EmailStr to str to allow empty string
+    sender_email: str
     api_key: str
     recipients: str
     scan_quick_alerts: bool = False
@@ -21,11 +20,7 @@ class EmailConfig(BaseModel):
 
 @router.get("/config")
 async def get_email_config(admin=Depends(verify_admin)):
-    """
-    Récupère la configuration email actuelle depuis le fichier.
-    """
     if not os.path.exists(EMAIL_FILE):
-        # Retourne une configuration par défaut si le fichier n'existe pas
         return EmailConfig(
             sender_email="",
             api_key="",
@@ -41,16 +36,12 @@ async def get_email_config(admin=Depends(verify_admin)):
             config_data = json.load(f)
         return EmailConfig(**config_data)
     except json.JSONDecodeError:
-        raise HTTPException(status_code=500, detail="Erreur de lecture du fichier de configuration email (JSON invalide) 😱")
+        raise HTTPException(status_code=500, detail="Error reading email configuration file (Invalid JSON) 😱")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur de lecture du fichier de configuration email : {str(e)} 😱")
+        raise HTTPException(status_code=500, detail=f"Error reading email configuration file: {str(e)} 😱")
 
 @router.post("/save")
 async def save_email_config(config: EmailConfig, admin=Depends(verify_admin)):
-    """
-    Seul un admin peut modifier les paramètres d'alerte. 🔐
-    Le token est vérifié avant d'écrire sur le disque. Les données sont sauvegardées en JSON.
-    """
     try:
         os.makedirs(os.path.dirname(EMAIL_FILE), exist_ok=True)
         with open(EMAIL_FILE, "w") as f:
@@ -58,7 +49,7 @@ async def save_email_config(config: EmailConfig, admin=Depends(verify_admin)):
             
         return {
             "status": "success", 
-            "message": f"Config enregistrée par {admin.get('name')} ! 🦖✨"
+            "message": f"Configuration saved by {admin.get('name')}! 🦖✨"
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur d'écriture du fichier de configuration email : {str(e)} 😱")
+        raise HTTPException(status_code=500, detail=f"Error writing email configuration file: {str(e)} 😱")

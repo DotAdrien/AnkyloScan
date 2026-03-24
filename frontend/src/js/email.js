@@ -1,5 +1,3 @@
-// email.js 📧
-
 document.addEventListener('alpine:init', () => {
     Alpine.data('emailConfig', () => ({
         senderEmail: '',
@@ -51,13 +49,13 @@ document.addEventListener('alpine:init', () => {
                 });
 
                 if (response.ok) {
-                    alert("Configuration email sauvegardée ! ✨");
+                    alert("Email configuration saved! ✨");
                 } else {
                     const data = await response.json();
-                    alert("Erreur : " + (data.detail || "Échec de la sauvegarde de la configuration email 😱"));
+                    alert("Error: " + (data.detail || "Failed to save email configuration 😱"));
                 }
             } catch (error) {
-                alert("Erreur de connexion avec le serveur... 😩");
+                alert("Connection error with the server... 😩");
             }
         }
     }));

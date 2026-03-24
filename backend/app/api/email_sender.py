@@ -6,10 +6,6 @@ from email.mime.multipart import MIMEMultipart
 from app.api.email import EMAIL_FILE, EmailConfig
 
 def get_current_email_config() -> EmailConfig:
-    """
-    Récupère la configuration email actuelle depuis le fichier.
-    Retourne une configuration par défaut si le fichier n'existe pas ou est invalide.
-    """
     if not os.path.exists(EMAIL_FILE):
         return EmailConfig(
             sender_email="",
@@ -26,7 +22,7 @@ def get_current_email_config() -> EmailConfig:
             config_data = json.load(f)
         return EmailConfig(**config_data)
     except (json.JSONDecodeError, TypeError) as e:
-        print(f"⚠️ Erreur de lecture ou de parsing du fichier de configuration email : {e}. Retourne la config par défaut.")
+        print(f"⚠️ Error reading or parsing email configuration file: {e}. Returning default config.")
         return EmailConfig(
             sender_email="",
             api_key="",
@@ -38,13 +34,10 @@ def get_current_email_config() -> EmailConfig:
         )
 
 def send_email(subject: str, body: str):
-    """
-    Fonction centrale et interne pour envoyer un email via SMTP 📧
-    """
     config = get_current_email_config()
 
     if not config.recipients or not config.sender_email:
-        print(f"📧 [EMAIL SENDER] : Impossible d'envoyer l'email ({subject}). Config manquante.")
+        print(f"📧 [EMAIL SENDER]: Unable to send email ({subject}). Missing configuration.")
         return False
     
     try:
@@ -64,32 +57,29 @@ def send_email(subject: str, body: str):
             server.login(config.sender_email, config.api_key)
             server.sendmail(config.sender_email, recipients_list, msg.as_string())
         
-        print(f"✅ Email envoyé avec succès : {subject}")
+        print(f"✅ Email sent successfully: {subject}")
         return True
     except smtplib.SMTPAuthenticationError:
-        print(f"⚠️ [EMAIL SENDER] : Erreur d'authentification SMTP. Vérifiez l'expéditeur et la clé API (mot de passe d'application).")
+        print(f"⚠️ [EMAIL SENDER]: SMTP Authentication Error. Check sender email and API key (App Password).")
         return False
     except Exception as e:
-        print(f"⚠️ [EMAIL SENDER] : Erreur lors de l'envoi de l'email : {e}")
+        print(f"⚠️ [EMAIL SENDER]: Error while sending email: {e}")
         return False
 
 def send_agent_log_alert(source: str, event_id: int, message: str):
-    """Vérifie la configuration et envoie une alerte de log d'agent si activé."""
     config = get_current_email_config()
     if not config.agent_log_alerts:
         return False
         
-    subject = f"🤖 Alerte AnkyloScan: Nouveau log d'agent ({source})"
-    body = f"Un nouvel événement a été enregistré par un agent:\n\nSource: {source}\nEvent ID: {event_id}\nMessage: {message}\n\nConnectez-vous à AnkyloScan pour consulter tous les logs."
+    subject = f"🤖 AnkyloScan Alert: New Agent Log ({source})"
+    body = f"A new event has been recorded by an agent:\n\nSource: {source}\nEvent ID: {event_id}\nMessage: {message}\n\nLog in to AnkyloScan to view all logs."
     return send_email(subject, body)
 
 def send_vuln_alert(scan_id: int, file_path: str, vuln_results: list):
-    """Vérifie la configuration et envoie une alerte de vulnérabilité si activé et requise."""
     config = get_current_email_config()
     if not config.scan_full_alerts:
         return False
         
-    # On vérifie s'il y a bien au moins une vuln de niveau 3 dans les résultats
     has_level3 = False
     for host in vuln_results:
         for port_data in host.get('ports', []):
@@ -101,31 +91,30 @@ def send_vuln_alert(scan_id: int, file_path: str, vuln_results: list):
     if not has_level3:
         return False
 
-    subject = f"🚨 Alerte AnkyloScan: Vulnérabilités de Niveau 3 détectées (Scan #{scan_id})"
-    body = f"Un scan complet (Niveau 3) a détecté des vulnérabilités critiques.\n\nDétails du scan: {file_path}\n\nVulnérabilités détectées:\n"
+    subject = f"🚨 AnkyloScan Alert: Level 3 Vulnerabilities Detected (Scan #{scan_id})"
+    body = f"A full scan (Level 3) has detected critical vulnerabilities.\n\nScan Details: {file_path}\n\nDetected Vulnerabilities:\n"
     for host_data in vuln_results:
-        body += f"  Hôte: {host_data['ip']}\n"
+        body += f"  Host: {host_data['ip']}\n"
         for port_data in host_data.get('ports', []):
             body += f"    Port: {port_data['port']}\n"
             for vuln in port_data.get('vulns', []):
                 body += f"      - {vuln.get('badge', '')} {vuln.get('title', '')} ({vuln.get('state', '')})\n"
-    body += "\nConnectez-vous à AnkyloScan pour plus de détails."
+    body += "\nLog in to AnkyloScan for more details."
     
     return send_email(subject, body)
 
 def send_scan_report(scan_type: int, content: str):
-    """Vérifie la config et envoie le rapport de scan brut selon le type."""
     config = get_current_email_config()
     
     if scan_type == 1 and config.scan_quick_alerts:
-        subject = "AnkyloScan : Rapport de Scan Rapide ⚡"
-        body = f"Salut ! Tigrounet a terminé le scan rapide. Voici le rapport brut :\n\n{content}"
+        subject = "AnkyloScan: Quick Scan Report ⚡"
+        body = f"Hello! The quick scan is finished. Here is the raw report:\n\n{content}"
     elif scan_type == 2 and config.scan_security_alerts:
-        subject = "AnkyloScan : Rapport de Scan Sécurité 🛡️"
-        body = f"Salut ! Tigrounet a terminé le scan de sécurité. Voici le rapport brut :\n\n{content}"
+        subject = "AnkyloScan: Security Scan Report 🛡️"
+        body = f"Hello! The security scan is finished. Here is the raw report:\n\n{content}"
     elif scan_type == 3 and config.scan_full_alerts:
-        subject = "AnkyloScan : Rapport de Scan Complet 🦖"
-        body = f"Salut ! Tigrounet a terminé le scan complet. Voici le rapport brut :\n\n{content}"
+        subject = "AnkyloScan: Full Scan Report 🦖"
+        body = f"Hello! The full scan is finished. Here is the raw report:\n\n{content}"
     else:
         return False
 

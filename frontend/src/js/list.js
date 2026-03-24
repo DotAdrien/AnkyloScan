@@ -1,23 +1,21 @@
-// list.js 🚫
-
 async function loadList() {
     const container = document.getElementById('words-list-container');
     if (!container) return;
 
-    container.innerHTML = '<p style="color: white; grid-column: 1 / -1; text-align: center;">Chargement de la liste... ⏳</p>';
+    container.innerHTML = '<p style="color: white; grid-column: 1 / -1; text-align: center;">Loading the list... ⏳</p>';
 
     try {
         const response = await fetch(`${window.API_BASE}/liste`, {
             method: 'GET',
-            credentials: 'include' // Obligatoire pour envoyer le cookie de session 🍪
+            credentials: 'include'
         });
 
-        if (!response.ok) throw new Error("Erreur de récupération de la liste");
+        if (!response.ok) throw new Error("Error retrieving the list");
 
         const words = await response.json();
         
         if (words.length === 0) {
-            container.innerHTML = '<p style="color: #9ca3af; grid-column: 1 / -1; text-align: center;">La liste est vide. Aucun mot ignoré. 😌</p>';
+            container.innerHTML = '<p style="color: #9ca3af; grid-column: 1 / -1; text-align: center;">The list is empty. No words ignored. 😌</p>';
             return;
         }
 
@@ -27,13 +25,13 @@ async function loadList() {
                     <h3 style="margin-bottom: 0.2rem; font-size: 1.1rem; word-break: break-all;">${word.text}</h3>
                 </div>
                 <button class="btn-action" onclick="deleteWord(${word.id || word.id_liste})" style="background: #ef4444; width: auto; padding: 0.5rem 1rem; flex-shrink: 0;">
-                    Supprimer 🗑️
+                    Delete 🗑️
                 </button>
             </div>
         `).join('');
     } catch (error) {
-        console.error("Erreur:", error);
-        container.innerHTML = '<p style="color: #ef4444; grid-column: 1 / -1; text-align: center;">Impossible de charger la liste 😱</p>';
+        console.error("Error:", error);
+        container.innerHTML = '<p style="color: #ef4444; grid-column: 1 / -1; text-align: center;">Unable to load the list 😱</p>';
     }
 }
 
@@ -53,19 +51,19 @@ async function addWordToList() {
 
         if (response.ok) {
             input.value = '';
-            loadList(); // Recharge la liste de façon fluide ✨
+            loadList();
         } else {
             const data = await response.json();
-            alert("Erreur : " + (data.detail || "Impossible d'ajouter le mot 😱"));
+            alert("Error: " + (data.detail || "Unable to add the word 😱"));
         }
     } catch (error) {
-        console.error("Erreur:", error);
-        alert("Le serveur ne répond pas... 😩");
+        console.error("Error:", error);
+        alert("The server is not responding... 😩");
     }
 }
 
 async function deleteWord(id) {
-    if (!confirm("Veux-tu vraiment supprimer ce mot de la liste ? 🗑️")) return;
+    if (!confirm("Are you sure you want to delete this word from the list? 🗑️")) return;
 
     try {
         const response = await fetch(`${window.API_BASE}/liste/${id}`, {
@@ -74,13 +72,13 @@ async function deleteWord(id) {
         });
 
         if (response.ok) {
-            loadList(); // Rafraîchit les cartes après suppression 🧹
+            loadList();
         } else {
             const data = await response.json();
-            alert("Erreur : " + (data.detail || "Échec de la suppression 😱"));
+            alert("Error: " + (data.detail || "Deletion failed 😱"));
         }
     } catch (error) {
-        console.error("Erreur:", error);
-        alert("Le serveur ne répond pas... 😩");
+        console.error("Error:", error);
+        alert("The server is not responding... 😩");
     }
 }

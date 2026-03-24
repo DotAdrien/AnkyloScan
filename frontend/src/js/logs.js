@@ -19,6 +19,6 @@ async function loadSystemLogs() {
             </div>
         `).join('');
     } catch (error) {
-        listContainer.innerHTML = "<p>Erreur lors du chargement 😱</p>";
+        listContainer.innerHTML = "<p>Error during loading 😱</p>";
     }
 }

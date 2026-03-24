@@ -1,20 +1,20 @@
 <link rel="stylesheet" href="style/result.css">
 
 <div class="result-container" x-init="loadScanHistory()">
-    <h2 class="result-title">Historique des Scans 📊</h2>
+    <h2 class="result-title">Scan History 📊</h2>
     
     <div id="report-viewer" style="display: none; background: rgba(20, 20, 43, 0.95); padding: 1.5rem; border-radius: 1rem; border: 1px solid #ec4899; margin-bottom: 2rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3 style="margin: 0; color: #ec4899;">Contenu du Rapport 📄</h3>
-            <button @click="document.getElementById('report-viewer').style.display = 'none'" class="btn-detail">Fermer ❌</button>
+            <h3 style="margin: 0; color: #ec4899;">Report Content 📄</h3>
+            <button @click="document.getElementById('report-viewer').style.display = 'none'" class="btn-detail">Close ❌</button>
         </div>
         <pre id="report-content" style="white-space: pre-wrap; color: #e5e7eb; font-family: monospace; font-size: 0.9rem; max-height: 400px; overflow-y: auto;"></pre>
     </div>
 
     <div id="vuln-viewer" style="display: none; background: rgba(30, 20, 30, 0.95); padding: 1.5rem; border-radius: 1rem; border: 1px solid #f97316; margin-bottom: 2rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3 style="margin: 0; color: #f97316;">Vulnérabilités Détectées (Expert V3) 🦖</h3>
-            <button @click="document.getElementById('vuln-viewer').style.display = 'none'" class="btn-detail" style="background: #ef4444;">Fermer ❌</button>
+            <h3 style="margin: 0; color: #f97316;">Detected Vulnerabilities (Expert V3) 🦖</h3>
+            <button @click="document.getElementById('vuln-viewer').style.display = 'none'" class="btn-detail" style="background: #ef4444;">Close ❌</button>
         </div>
         <div id="vuln-content" style="max-height: 500px; overflow-y: auto;"></div>
     </div>
