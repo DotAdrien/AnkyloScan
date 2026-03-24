@@ -51,7 +51,7 @@ def get_scan_history(admin=Depends(verify_admin)):
                 scan["description"] = descriptions.get(scan_type, "Scan effectué. 🛡️")
 
             if scan["time"]:
-                scan["time"] = scan["time"].strftime("%d/%02m/%Y - %H:%M")
+                scan["time"] = scan["time"].strftime("%d/%m/%Y - %H:%M")
 
         return scans
 
@@ -65,67 +65,128 @@ def get_scan_history(admin=Depends(verify_admin)):
 
 def parse_scan_expert(content, ignored_words=None):
     """
-    Analyse le contenu du rapport Nmap pour extraire les vulnérabilités (Logiciel expert v3) 🧠
+    Analyse le contenu du rapport Nmap (format XML) pour extraire les vulnérabilités 🧠
+    Structure : Hôte -> Port -> Vulnérabilités
     """
     if ignored_words is None:
-        ignored_words = set() # Default to empty set if not provided
+        ignored_words = set()
 
-    hosts = content.split("Nmap scan report for ")
+    import xml.etree.ElementTree as ET
+    
     results = []
+    
+    try:
+        root = ET.fromstring(content)
+    except Exception:
+        return results
+        
+    for host in root.findall("host"):
+        address_elem = host.find("address[@addrtype='ipv4']")
+        if address_elem is None:
+            continue
+        ip = address_elem.get("addr")
+        
+        host_ports = []
+        
+        ports_elem = host.find("ports")
+        if ports_elem is not None:
+            for port in ports_elem.findall("port"):
+                port_id = port.get("portid")
+                port_vulns = []
+                
+                for script in port.findall("script"):
+                    script_id = script.get("id")
+                    output = script.get("output")
+                    
+                    if script_id == "vulners":
+                        for cpe_table in script.findall("table"):
+                            for vuln_table in cpe_table.findall("table"):
+                                vuln_id = ""
+                                cvss = 0.0
+                                is_exploit = False
+                                for elem in vuln_table.findall("elem"):
+                                    if elem.get("key") == "id":
+                                        vuln_id = elem.text
+                                    elif elem.get("key") == "cvss":
+                                        try:
+                                            cvss = float(elem.text)
+                                        except (ValueError, TypeError):
+                                            pass
+                                    elif elem.get("key") == "is_exploit":
+                                        is_exploit = (elem.text == "true")
+                                        
+                                if vuln_id:
+                                    if vuln_id.strip() in ignored_words:
+                                        continue
+                                        
+                                    level = 1
+                                    badge = "🟡 [NIV 1]"
+                                    if cvss >= 7.0 or is_exploit:
+                                        level = 3
+                                        badge = "🔴 [NIV 3]"
+                                    elif cvss >= 4.0:
+                                        level = 2
+                                        badge = "🟠 [NIV 2]"
+                                        
+                                    port_vulns.append({
+                                        "title": f"{vuln_id} - Score: {cvss}",
+                                        "state": "CVE Detectée",
+                                        "level": level,
+                                        "badge": badge
+                                    })
+                    elif script_id and ("vuln" in script_id or script_id.startswith("ssl-")):
+                        found_table = False
+                        for table in script.findall("table"):
+                            title_elem = table.find("elem[@key='title']")
+                            state_elem = table.find("elem[@key='state']")
+                            if title_elem is not None and state_elem is not None:
+                                title = title_elem.text
+                                state = state_elem.text
+                                found_table = True
+                                
+                                if title.strip() in ignored_words or script_id.strip() in ignored_words:
+                                    continue
+                                    
+                                level = 3 if "EXPLOITABLE" in state.upper() or "VULNERABLE" in state.upper() else 2
+                                badge = "🔴 [NIV 3]" if level == 3 else "🟠 [NIV 2]"
+                                
+                                port_vulns.append({
+                                    "title": title.strip(),
+                                    "state": state.strip(),
+                                    "level": level,
+                                    "badge": badge
+                                })
+                        
+                        if not found_table and output and "VULNERABLE" in output:
+                            if script_id.strip() not in ignored_words:
+                                port_vulns.append({
+                                    "title": script_id,
+                                    "state": "VULNERABLE",
+                                    "level": 3,
+                                    "badge": "🔴 [NIV 3]"
+                                })
 
-    for host in hosts[1:]:
-        lines = host.split("\n")
-        ip = lines[0].strip()
-        host_vulns = []
-
-        # 1. Scripts NSE
-        nse_vulns = re.findall(r"\|\s+(.*?):\s*\n\|\s+VULNERABLE:\n\|\s+(.*?)\n\|\s+State:\s+(.*)", host)
-        for script_name, title, state in nse_vulns:
-            # Filtre : on ignore si le titre ou le nom du script est dans la liste (exact match)
-            if script_name.strip() in ignored_words or title.strip() in ignored_words:
-                continue
-
-            level = 3 if "Exploitable" in state else 2
-            host_vulns.append({
-                "title": title.strip(),
-                "state": state.strip(),
-                "level": level,
-                "badge": "🔴 [NIV 3]" if level == 3 else "🟠 [NIV 2]"
+                    # 3. Cas spécial Telnet
+                    if output and "password required but not set" in output:
+                        if "TELNET" not in ignored_words and "TELNET : Accès libre sans mot de passe !" not in ignored_words:
+                            port_vulns.append({
+                                "title": "TELNET : Accès libre sans mot de passe !", 
+                                "state": "Accès ouvert 🔓",
+                                "level": 3, 
+                                "badge": "🔴 [NIV 3]"
+                            })
+                            
+                if len(port_vulns) > 0:
+                    host_ports.append({
+                        "port": port_id,
+                        "vulns": port_vulns
+                    })
+                    
+        if len(host_ports) > 0:
+            results.append({
+                "ip": ip,
+                "ports": host_ports
             })
-
-        # 2. Vulners (CVE)
-        vulners = re.findall(r"(CVE-\d{4}-\d+)\s+(\d+\.\d+)", host)
-        for cve, score in vulners:
-            # Filtre : on ignore si la CVE exacte est dans la liste
-            # Ex: si cve est "CVE-520-100", elle ne sera ignorée QUE si "CVE-520-100" est dans la base
-            if cve.strip() in ignored_words:
-                continue
-
-            f_score = float(score)
-            if f_score >= 7.0:
-                level = 3
-                badge = "🔴 [NIV 3]"
-            elif f_score >= 4.0:
-                level = 2
-                badge = "🟠 [NIV 2]"
-            else:
-                level = 1
-                badge = "🟡 [NIV 1]"
-            
-            host_vulns.append({"title": f"{cve} - Score: {score}", "state": "CVE Detectée", "level": level, "badge": badge})
-
-        # 3. Cas spécial Telnet
-        if "password required but not set" in host:
-            if "TELNET" not in ignored_words and "TELNET : Accès libre sans mot de passe !" not in ignored_words:
-                host_vulns.append({
-                    "title": "TELNET : Accès libre sans mot de passe !", 
-                    "state": "Accès ouvert 🔓",
-                    "level": 3, 
-                    "badge": "🔴 [NIV 3]"
-                })
-
-        if len(host_vulns) > 0:
-            results.append({"ip": ip, "vulns": host_vulns})
     
     return results
 
@@ -191,7 +252,7 @@ def get_vulns_analysis(path: str, admin=Depends(verify_admin)):
         for record in vuln_records:
             results.append({
                 "ip": record['hosts'],
-                "vulns": json.loads(record['text']) # Parse the JSON string back to a list
+                "ports": json.loads(record['text']) # Parse the JSON string back to a list
             })
         
         return results

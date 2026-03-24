@@ -56,7 +56,7 @@ def background_scan_task(scan_type: int, scan_id: int):
             # --- AUTOMATISATION : Remplissage de la table Vuln pour le scan complet ---
             if scan_type == 3 and file_path != "en_cours...":
                 base_dir = os.path.abspath("/app/outputs") if os.name != 'nt' else os.path.abspath("outputs")
-                filename = os.path.basename(file_path)
+                filename = os.path.basename(file_path).replace(".txt", ".xml")
                 safe_path = os.path.join(base_dir, filename)
 
                 if os.path.exists(safe_path):
@@ -79,23 +79,16 @@ def background_scan_task(scan_type: int, scan_id: int):
                             temp_cursor.close()
                             temp_conn.close()
 
-                    vuln_results = parse_scan_expert(content)
                     vuln_results = parse_scan_expert(content, ignored_words=current_ignored_words)
 
                     for host in vuln_results:
                         ip = host['ip']
-                        vulns_json = json.dumps(host['vulns'], ensure_ascii=False)
+                        vulns_json = json.dumps(host['ports'], ensure_ascii=False)
                         
                         cursor.execute(
                             "INSERT INTO Vuln (id_scan, hosts, text) VALUES (%s, %s, %s)",
                             (scan_id, ip, vulns_json)
                         )
-                    conn.commit()
-
-                    cursor.execute("""
-                        DELETE FROM Scan 
-                        WHERE DATE(Time) = CURDATE() AND Type = '3' AND id_scan != %s
-                    """, (scan_id,))
                     conn.commit()
                     print(f"✅ Vulnérabilités archivées pour le scan #{scan_id}")
 

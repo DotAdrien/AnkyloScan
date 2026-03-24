@@ -4,7 +4,7 @@ from datetime import datetime
 
 DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 
-def save_scan_result(scan_type, raw_output):
+def save_scan_result(scan_type, raw_output, xml_output=None):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     file_path = f"/app/outputs/scan_{scan_type}_{timestamp}.txt"
     os.makedirs("/app/outputs", exist_ok=True)
@@ -15,6 +15,11 @@ def save_scan_result(scan_type, raw_output):
 
     with open(file_path, "w") as f:
         f.write(clean_output)
+        
+    if xml_output:
+        xml_path = file_path.replace(".txt", ".xml")
+        with open(xml_path, "w", encoding="utf-8") as f:
+            f.write(xml_output)
 
     try:
         conn = mysql.connector.connect(

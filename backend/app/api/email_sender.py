@@ -90,7 +90,14 @@ def send_vuln_alert(scan_id: int, file_path: str, vuln_results: list):
         return False
         
     # On vérifie s'il y a bien au moins une vuln de niveau 3 dans les résultats
-    has_level3 = any(vuln.get for host in vuln_results for vuln in host.get('vulns', []))
+    has_level3 = False
+    for host in vuln_results:
+        for port_data in host.get('ports', []):
+            for vuln in port_data.get('vulns', []):
+                if vuln.get('level') == 3:
+                    has_level3 = True
+                    break
+
     if not has_level3:
         return False
 
@@ -98,9 +105,10 @@ def send_vuln_alert(scan_id: int, file_path: str, vuln_results: list):
     body = f"Un scan complet (Niveau 3) a détecté des vulnérabilités critiques.\n\nDétails du scan: {file_path}\n\nVulnérabilités détectées:\n"
     for host_data in vuln_results:
         body += f"  Hôte: {host_data['ip']}\n"
-        for vuln in host_data['vulns']:
-            if vuln.get:
-                body += f"    - {vuln.get('badge', '')} {vuln.get('title', '')} ({vuln.get('state', '')})\n"
+        for port_data in host_data.get('ports', []):
+            body += f"    Port: {port_data['port']}\n"
+            for vuln in port_data.get('vulns', []):
+                body += f"      - {vuln.get('badge', '')} {vuln.get('title', '')} ({vuln.get('state', '')})\n"
     body += "\nConnectez-vous à AnkyloScan pour plus de détails."
     
     return send_email(subject, body)
