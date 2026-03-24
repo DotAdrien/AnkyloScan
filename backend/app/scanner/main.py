@@ -21,7 +21,7 @@ def get_local_network():
 def execute_nmap_process(scan_type, args, xml_path=None):
     """Logique du scan en arrière-plan 🦾"""
     try:
-        print(f"Scan {scan_type} lancé sur {args[-1]} 📷")
+        print(f"Scan {scan_type} lancé sur {args[-1]} 📷", flush=True)
         
         # Utilisation de Popen pour lire la sortie Nmap en temps réel ✨
         process = subprocess.Popen(["nmap"] + args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
@@ -31,7 +31,7 @@ def execute_nmap_process(scan_type, args, xml_path=None):
             output_lines.append(line)
             # On affiche les lignes contenant les statistiques de progression dans la console Python
             if "Stats:" in line or "About" in line:
-                print(f"⏳ [Scan {scan_type}] Progression : {line.strip()}")
+                print(f"⏳ [Scan {scan_type}] Progression : {line.strip()}", flush=True)
                 
         process.wait()
         if process.returncode != 0:
@@ -47,9 +47,9 @@ def execute_nmap_process(scan_type, args, xml_path=None):
 
         send_scan_report(scan_type, raw_output)
             
-        print(f"Scan {scan_type} terminé ! ✨")
+        print(f"Scan {scan_type} terminé ! ✨", flush=True)
     except Exception as e:
-        print(f"Erreur scan {scan_type} : {e} 😱")
+        print(f"Erreur scan {scan_type} : {e} 😱", flush=True)
     finally:
         if xml_path and os.path.exists(xml_path):
             try:
