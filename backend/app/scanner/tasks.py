@@ -219,9 +219,15 @@ def background_scan_task(scan_type: int, scan_id: int):
 
         except Exception as e:
             print(f"⚠️ Erreur lors de l'archivage du scan #{scan_id} : {e}")
-            if conn and conn.is_connected():
-                cursor.execute("UPDATE Scan SET status = -1 WHERE id_scan = %s", (scan_id,))
-                conn.commit()
+            try:
+                # En cas de coupure brutale, on refait une connexion saine pour avertir de l'échec 🚑
+                err_conn = get_db_connection()
+                err_cursor = err_conn.cursor()
+                err_cursor.execute("UPDATE Scan SET status = -1 WHERE id_scan = %s", (scan_id,))
+                err_conn.commit()
+                err_conn.close()
+            except Exception as e_inner:
+                print(f"Impossible de mettre à jour le statut du scan #{scan_id} à -1: {e_inner}")
         finally:
             if conn and conn.is_connected():
                 cursor.close()

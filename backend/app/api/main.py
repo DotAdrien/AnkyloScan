@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException
 import mysql.connector # type: ignore
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.secu.db import get_db_connection
 
 
 app = FastAPI(title="AnkyloScan API 🦖")
@@ -50,12 +51,7 @@ def home():
 @app.get("/test-db")
 def test_db_connection():
     try:
-        connection = mysql.connector.connect(
-            host="127.0.0.1",
-            user="root",
-            password=DB_PASSWORD,
-            database="ankyloscan"
-        )
+        connection = get_db_connection()
         if connection.is_connected():
             connection.close()
             return {"status": "success", "message": "Connexion réussie ! 🛡️"}

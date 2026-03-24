@@ -1,8 +1,6 @@
 import os
-import mysql.connector # type: ignore
 from datetime import datetime
-
-DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
+from app.secu.db import get_db_connection
 
 def save_scan_result(scan_type, raw_output, xml_output=None):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -22,9 +20,7 @@ def save_scan_result(scan_type, raw_output, xml_output=None):
             f.write(xml_output)
 
     try:
-        conn = mysql.connector.connect(
-            host="127.0.0.1", user="root", password=DB_PASSWORD, database="ankyloscan"
-        )
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("INSERT INTO Scan (Type, file_path) VALUES (%s, %s)", (scan_type, file_path))
         conn.commit()
