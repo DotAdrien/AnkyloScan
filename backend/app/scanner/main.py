@@ -65,14 +65,11 @@ def run_scan(scan_type):
     if scan_type == 3:
         fd, xml_path = tempfile.mkstemp(suffix=".xml")
         os.close(fd)
-        args = ["-p-", "-T4", "--script", "vulners,vuln", "-oX", xml_path, target_network]
+        args = ["-p-", "-T4", "-sV", "--script", "vulners,vuln", "-oX", xml_path, target_network]
     elif scan_type == 2:
         args = ["-p-", "-T4", "-O", target_network]
     else:
         args = ["-O",  "-T4", target_network]
-        
-    # Ajout de l'argument pour que Nmap donne son pourcentage toutes les 5 minutes ⏱️
-    args = ["--stats-every", "1m"] + args
         
     # Plus besoin de thread ici, BackgroundTasks s'en occupe ! ✨
     execute_nmap_process(scan_type, args, xml_path)
