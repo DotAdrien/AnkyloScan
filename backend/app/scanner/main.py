@@ -65,7 +65,16 @@ def run_scan(scan_type):
     if scan_type == 3:
         fd, xml_path = tempfile.mkstemp(suffix=".xml")
         os.close(fd)
-        args = ["-p-", "-T4", "-O", "-sV", "--script", "vulners,vuln", "-oX", xml_path, target_network]
+        args = [
+                    "-p-",                  # Scanne l'intégralité des ports (1-65535)
+                    "-T4",                  # Accélère l'exécution (agressivité temporelle)
+                    "-O",                   # Tente l'identification de l'OS
+                    "-sV",                  # Détection de version des services
+                    "--version-intensity", "9", # Intensité maximale pour la détection de version
+                    "--script", "vulners,vuln", # Utilisation des scripts de vulnérabilités
+                    "-oX", xml_path,        # Sortie au format XML pour traitement futur
+                    target_network          # Ta cible ou ton réseau
+                ]
     elif scan_type == 2:
         args = ["-p-", "-T4", "-O", target_network]
     else:
