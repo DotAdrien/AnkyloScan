@@ -7,7 +7,6 @@ def save_scan_result(scan_type, raw_output, xml_output=None):
     file_path = f"/app/outputs/scan_{scan_type}_{timestamp}.txt"
     os.makedirs("/app/outputs", exist_ok=True)
 
-
     lines = raw_output.splitlines()
     clean_output = "\n".join([l for l in lines if "OS detection performed" not in l])
 
@@ -26,4 +25,4 @@ def save_scan_result(scan_type, raw_output, xml_output=None):
         conn.commit()
         conn.close()
     except Exception as e:
-        print(f"Erreur : {e} 😱")
+        print(f"Error: {e}")

@@ -5,14 +5,13 @@ from app.secu.db import get_db_connection
 from app.api.email_sender import send_vuln_alert
 
 def create_pending_scan(scan_type: int) -> int:
-    """Crée une entrée en base de données avec le statut 0 (en cours)"""
     conn = None
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO Scan (Type, file_path, status) VALUES (%s, %s, 0)",
-            (str(scan_type), "en_cours...")
+            (str(scan_type), "in_progress...")
         )
         conn.commit()
         return cursor.lastrowid
@@ -22,10 +21,6 @@ def create_pending_scan(scan_type: int) -> int:
             conn.close()
 
 def parse_scan_expert(content, ignored_words=None):
-    """
-    Analyse le contenu du rapport Nmap (format XML) pour extraire les vulnérabilités 🧠
-    Structure : Hôte -> Port -> Vulnérabilités
-    """
     if ignored_words is None:
         ignored_words = set()
 
@@ -78,17 +73,17 @@ def parse_scan_expert(content, ignored_words=None):
                                         continue
                                         
                                     level = 1
-                                    badge = "🟡 [NIV 1]"
+                                    badge = "🟡 [LVL 1]"
                                     if cvss >= 7.0 or is_exploit:
                                         level = 3
-                                        badge = "🔴 [NIV 3]"
+                                        badge = "🔴 [LVL 3]"
                                     elif cvss >= 4.0:
                                         level = 2
-                                        badge = "🟠 [NIV 2]"
+                                        badge = "🟠 [LVL 2]"
                                         
                                     port_vulns.append({
                                         "title": f"{vuln_id} - Score: {cvss}",
-                                        "state": "CVE Detectée",
+                                        "state": "CVE Detected",
                                         "level": level,
                                         "badge": badge
                                     })
@@ -106,7 +101,7 @@ def parse_scan_expert(content, ignored_words=None):
                                     continue
                                     
                                 level = 3 if "EXPLOITABLE" in state.upper() or "VULNERABLE" in state.upper() else 2
-                                badge = "🔴 [NIV 3]" if level == 3 else "🟠 [NIV 2]"
+                                badge = "🔴 [LVL 3]" if level == 3 else "🟠 [LVL 2]"
                                 
                                 port_vulns.append({
                                     "title": title.strip(),
@@ -121,17 +116,16 @@ def parse_scan_expert(content, ignored_words=None):
                                     "title": script_id,
                                     "state": "VULNERABLE",
                                     "level": 3,
-                                    "badge": "🔴 [NIV 3]"
+                                    "badge": "🔴 [LVL 3]"
                                 })
 
-                    # 3. Cas spécial Telnet
                     if output and "password required but not set" in output:
-                        if "TELNET" not in ignored_words and "TELNET : Accès libre sans mot de passe !" not in ignored_words:
+                        if "TELNET" not in ignored_words and "TELNET: Open access without password!" not in ignored_words:
                             port_vulns.append({
-                                "title": "TELNET : Accès libre sans mot de passe !", 
-                                "state": "Accès ouvert 🔓",
+                                "title": "TELNET: Open access without password!", 
+                                "state": "Open Access",
                                 "level": 3, 
-                                "badge": "🔴 [NIV 3]"
+                                "badge": "🔴 [LVL 3]"
                             })
                             
                 if len(port_vulns) > 0:
@@ -149,7 +143,6 @@ def parse_scan_expert(content, ignored_words=None):
     return results
 
 def background_scan_task(scan_type: int, scan_id: int):
-    """Exécute le scan en arrière-plan et met à jour la base de données"""
     success = run_scan(scan_type)
     
     if success:
@@ -158,25 +151,21 @@ def background_scan_task(scan_type: int, scan_id: int):
             conn = get_db_connection()
             cursor = conn.cursor(dictionary=True)
 
-            # 1. On récupère la ligne que run_scan a éventuellement insérée en base
             cursor.execute("SELECT id_scan, file_path FROM Scan WHERE Type=%s ORDER BY id_scan DESC LIMIT 1", (str(scan_type),))
             last_scan = cursor.fetchone()
 
             if last_scan and last_scan['id_scan'] > scan_id:
                 file_path = last_scan['file_path']
-                # On nettoie la ligne insérée par run_scan pour éviter les doublons
                 cursor.execute("DELETE FROM Scan WHERE id_scan = %s", (last_scan['id_scan'],))
             elif last_scan:
                 file_path = last_scan['file_path']
             else:
-                file_path = "chemin_introuvable"
+                file_path = "path_not_found"
 
-            # 2. On met à jour notre ligne initiale (passe à status = 1)
             cursor.execute("UPDATE Scan SET status = 1, file_path = %s WHERE id_scan = %s", (file_path, scan_id))
             conn.commit()
 
-            # --- AUTOMATISATION : Remplissage de la table Vuln pour le scan complet ---
-            if scan_type == 3 and file_path != "en_cours...":
+            if scan_type == 3 and file_path != "in_progress...":
                 base_dir = os.path.abspath("/app/outputs") if os.name != 'nt' else os.path.abspath("outputs")
                 filename = os.path.basename(file_path).replace(".txt", ".xml")
                 safe_path = os.path.join(base_dir, filename)
@@ -185,7 +174,6 @@ def background_scan_task(scan_type: int, scan_id: int):
                     with open(safe_path, 'r', encoding='utf-8') as f:
                         content = f.read()
 
-                    # Fetch ignored words at the time of scan
                     current_ignored_words = set()
                     temp_conn = None
                     try:
@@ -195,7 +183,7 @@ def background_scan_task(scan_type: int, scan_id: int):
                         for row in temp_cursor.fetchall():
                             current_ignored_words.add(row['text'].strip())
                     except Exception as e:
-                        print(f"⚠️ Erreur récupération liste faux positifs lors du scan #{scan_id} : {e}")
+                        print(f"Error fetching false positive list for scan #{scan_id}: {e}")
                     finally:
                         if temp_conn and temp_conn.is_connected():
                             temp_cursor.close()
@@ -212,22 +200,20 @@ def background_scan_task(scan_type: int, scan_id: int):
                             (scan_id, ip, vulns_json)
                         )
                     conn.commit()
-                    print(f"✅ Vulnérabilités archivées pour le scan #{scan_id}")
+                    print(f"Vulnerabilities archived for scan #{scan_id}")
 
-                    # --- ENVOI D'EMAIL POUR LES VULNÉRABILITÉS DE NIVEAU 3 ---
                     send_vuln_alert(scan_id, file_path, vuln_results)
 
         except Exception as e:
-            print(f"⚠️ Erreur lors de l'archivage du scan #{scan_id} : {e}")
+            print(f"Error archiving scan #{scan_id}: {e}")
             try:
-                # En cas de coupure brutale, on refait une connexion saine pour avertir de l'échec 🚑
                 err_conn = get_db_connection()
                 err_cursor = err_conn.cursor()
                 err_cursor.execute("UPDATE Scan SET status = -1 WHERE id_scan = %s", (scan_id,))
                 err_conn.commit()
                 err_conn.close()
             except Exception as e_inner:
-                print(f"Impossible de mettre à jour le statut du scan #{scan_id} à -1: {e_inner}")
+                print(f"Failed to update scan status for #{scan_id} to -1: {e_inner}")
         finally:
             if conn and conn.is_connected():
                 cursor.close()

@@ -6,32 +6,26 @@ from .database_handler import save_scan_result
 from app.api.email_sender import send_scan_report
 
 def get_local_network():
-    """Détecte le réseau de l'hôte depuis le conteneur 🌐"""
     try:
-        # On cherche l'IP de la passerelle pour deviner le réseau local
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
         local_ip = s.getsockname()[0]
         s.close()
-        # On transforme l'IP (ex: 192.168.1.50) en réseau (192.168.1.0/24)
         return ".".join(local_ip.split('.')[:-1]) + ".0/24"
     except Exception:
-        return "192.168.2.0/24" # Repli sur ton ancienne config si ça échoue 🤨
+        return "192.168.2.0/24"
 
 def execute_nmap_process(scan_type, args, xml_path=None):
-    """Logique du scan en arrière-plan 🦾"""
     try:
-        print(f"Scan {scan_type} lancé sur {args[-1]} 📷", flush=True)
+        print(f"Scan {scan_type} started on {args[-1]}", flush=True)
         
-        # Utilisation de Popen pour lire la sortie Nmap en temps réel ✨
         process = subprocess.Popen(["nmap"] + args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
         
         output_lines = []
         for line in process.stdout:
             output_lines.append(line)
-            # On affiche les lignes contenant les statistiques de progression dans la console Python
             if "Stats:" in line or "About" in line:
-                print(f"⏳ [Scan {scan_type}] Progression : {line.strip()}", flush=True)
+                print(f"[Scan {scan_type}] Progress: {line.strip()}", flush=True)
                 
         process.wait()
         if process.returncode != 0:
@@ -47,9 +41,9 @@ def execute_nmap_process(scan_type, args, xml_path=None):
 
         send_scan_report(scan_type, raw_output)
             
-        print(f"Scan {scan_type} terminé ! ✨", flush=True)
+        print(f"Scan {scan_type} completed", flush=True)
     except Exception as e:
-        print(f"Erreur scan {scan_type} : {e} 😱", flush=True)
+        print(f"Error scan {scan_type}: {e}", flush=True)
     finally:
         if xml_path and os.path.exists(xml_path):
             try:
@@ -58,7 +52,6 @@ def execute_nmap_process(scan_type, args, xml_path=None):
                 pass
 
 def run_scan(scan_type):
-    """Lance le scan (FastAPI gère déjà l'exécution en arrière-plan) 🚀"""
     target_network = get_local_network()
     
     xml_path = None
@@ -66,21 +59,20 @@ def run_scan(scan_type):
         fd, xml_path = tempfile.mkstemp(suffix=".xml")
         os.close(fd)
         args = [
-                    "-p-",                  # Scanne l'intégralité des ports (1-65535)
-                    "-T4",                  # Accélère l'exécution (agressivité temporelle)
-                    "-O",                   # Tente l'identification de l'OS
-                    "-sV",                  # Détection de version des services
-                    "--version-intensity", "9", # Intensité maximale pour la détection de version
-                    "--script", "vulners,vuln", # Utilisation des scripts de vulnérabilités
-                    "-oX", xml_path,        # Sortie au format XML pour traitement futur
-                    target_network          # Ta cible ou ton réseau
+                    "-p-",
+                    "-T4",
+                    "-O",
+                    "-sV",
+                    "--version-intensity", "9",
+                    "--script", "vulners,vuln",
+                    "-oX", xml_path,
+                    target_network
                 ]
     elif scan_type == 2:
         args = ["-p-", "-T4", "-O", target_network]
     else:
         args = ["-O",  "-T4", target_network]
         
-    # Plus besoin de thread ici, BackgroundTasks s'en occupe ! ✨
     execute_nmap_process(scan_type, args, xml_path)
     
     return True
