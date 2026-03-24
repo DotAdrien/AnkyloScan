@@ -22,16 +22,30 @@ def execute_nmap_process(scan_type, args, xml_path=None):
     """Logique du scan en arrière-plan 🦾"""
     try:
         print(f"Scan {scan_type} lancé sur {args[-1]} 📷")
-        result = subprocess.run(["nmap"] + args, capture_output=True, text=True, check=True)
+        
+        # Utilisation de Popen pour lire la sortie Nmap en temps réel ✨
+        process = subprocess.Popen(["nmap"] + args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+        
+        output_lines = []
+        for line in process.stdout:
+            output_lines.append(line)
+            # On affiche les lignes contenant les statistiques de progression dans la console Python
+            if "Stats:" in line or "About" in line:
+                print(f"⏳ [Scan {scan_type}] Progression : {line.strip()}")
+                
+        process.wait()
+        if process.returncode != 0:
+            raise subprocess.CalledProcessError(process.returncode, process.args)
         
         xml_output = None
         if xml_path and os.path.exists(xml_path):
             with open(xml_path, 'r', encoding='utf-8') as f:
                 xml_output = f.read()
 
-        save_scan_result(scan_type, result.stdout, xml_output)
+        raw_output = "".join(output_lines)
+        save_scan_result(scan_type, raw_output, xml_output)
 
-        send_scan_report(scan_type, result.stdout)
+        send_scan_report(scan_type, raw_output)
             
         print(f"Scan {scan_type} terminé ! ✨")
     except Exception as e:
@@ -56,6 +70,9 @@ def run_scan(scan_type):
         args = ["-p-", "-T4", "-O", target_network]
     else:
         args = ["-O",  "-T4", target_network]
+        
+    # Ajout de l'argument pour que Nmap donne son pourcentage toutes les 5 minutes ⏱️
+    args = ["--stats-every", "5m"] + args
         
     # Plus besoin de thread ici, BackgroundTasks s'en occupe ! ✨
     execute_nmap_process(scan_type, args, xml_path)
