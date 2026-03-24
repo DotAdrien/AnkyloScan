@@ -4,7 +4,7 @@ import socket
 import mysql.connector # type: ignore
 from fastapi import APIRouter, Request, Response, Depends, HTTPException
 from app.secu.main import verify_admin 
-from app.db import get_db_connection
+from app.secu.db import get_db_connection
 
 router = APIRouter(prefix="/agent", tags=["Agent 🤖"])
 

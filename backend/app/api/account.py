@@ -5,7 +5,7 @@ import datetime
 import mysql.connector # type: ignore
 from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel, EmailStr
-from app.db import get_db_connection
+from app.secu.db import get_db_connection
 
 router = APIRouter(prefix="/auth", tags=["Account 👤"])
 

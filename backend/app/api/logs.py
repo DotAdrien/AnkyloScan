@@ -4,7 +4,7 @@ import mysql.connector # type: ignore
 import os
 from app.secu.main import verify_admin # Sécurité 🛡️
 from app.api.email_sender import send_agent_log_alert
-from app.db import get_db_connection
+from app.secu.db import get_db_connection
 
 router = APIRouter(prefix="/logs", tags=["Logs 🛡️"])
 DB_PASSWORD = os.getenv("ADMIN_PASSWORD")

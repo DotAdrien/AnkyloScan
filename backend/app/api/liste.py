@@ -2,7 +2,7 @@ import mysql.connector # type: ignore
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from app.secu.main import verify_admin
-from app.db import get_db_connection
+from app.secu.db import get_db_connection
 
 router = APIRouter(prefix="/liste", tags=["Liste 📝"])
 

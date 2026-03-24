@@ -5,7 +5,7 @@ import mysql.connector # type: ignore
 from fastapi import APIRouter, HTTPException, Depends # Ajout de Depends 🛡️
 from fastapi.responses import FileResponse
 from app.secu.main import verify_admin # Import de la sécurité 🦖
-from app.db import get_db_connection
+from app.secu.db import get_db_connection
 
 router = APIRouter(prefix="/db", tags=["Database 🐬"])
 

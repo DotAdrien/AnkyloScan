@@ -1,7 +1,7 @@
 import os
 import json
 from app.scanner.main import run_scan
-from app.db import get_db_connection
+from app.secu.db import get_db_connection
 from app.api.email_sender import send_vuln_alert
 
 def create_pending_scan(scan_type: int) -> int:

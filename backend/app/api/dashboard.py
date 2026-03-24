@@ -3,7 +3,7 @@ import json
 import mysql.connector # type: ignore
 from fastapi import APIRouter, HTTPException, Depends
 from app.secu.main import verify_admin
-from app.db import get_db_connection
+from app.secu.db import get_db_connection
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard 📊"])
 
