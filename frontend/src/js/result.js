@@ -96,11 +96,16 @@ async function viewVulns(path) {
         content.innerHTML = vulns.map(host => `
             <div style="margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
                 <h4 style="color: #60a5fa; margin-bottom: 0.5rem;">🌐 Hôte : ${host.ip}</h4>
-                ${host.vulns.map(v => `
-                    <div style="margin-left: 1rem; margin-bottom: 0.2rem; color: #e5e7eb;">
-                        <span style="font-weight: bold;">${v.badge}</span> ${v.title} <span style="color: #9ca3af; font-size: 0.85em;">(${v.state})</span>
+                ${host.ports ? host.ports.map(portObj => `
+                    <div style="margin-left: 0.5rem; margin-bottom: 0.5rem;">
+                        <h5 style="color: #fbbf24; margin: 0.5rem 0;">↳ Port : ${portObj.port}</h5>
+                        ${portObj.vulns ? portObj.vulns.map(v => `
+                            <div style="margin-left: 1.5rem; margin-bottom: 0.2rem; color: #e5e7eb;">
+                                <span style="font-weight: bold;">${v.badge}</span> ${v.title} <span style="color: #9ca3af; font-size: 0.85em;">(${v.state})</span>
+                            </div>
+                        `).join('') : ''}
                     </div>
-                `).join('')}
+                `).join('') : ''}
             </div>
         `).join('');
 
