@@ -72,7 +72,7 @@ def run_scan(scan_type):
         args = ["-O",  "-T4", target_network]
         
     # Ajout de l'argument pour que Nmap donne son pourcentage toutes les 5 minutes ⏱️
-    args = ["--stats-every", "5m"] + args
+    args = ["--stats-every", "1m"] + args
         
     # Plus besoin de thread ici, BackgroundTasks s'en occupe ! ✨
     execute_nmap_process(scan_type, args, xml_path)
