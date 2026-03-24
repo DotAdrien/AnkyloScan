@@ -38,12 +38,12 @@ foreach ($Event in $Events) {
     $ProcessExecutable = Split-Path -Path $NewProcessName -Leaf
 
     # Détection de comportements anormaux (ce qu'un utilisateur standard ne devrait pas faire)
-    $SuspiciousProcesses = "(?i)^(vssadmin\.exe|certutil\.exe|bitsadmin\.exe|whoami\.exe|nltest\.exe|net\.exe|net1\.exe)$"
-    $SuspiciousCommands = "(?i)(-enc|-encodedcommand|iex|invoke-expression|net user|net group|net localgroup|vssadmin delete shadows|certutil -urlcache|downloadstring|bypass)"
+    $SuspiciousProcesses = "(?i)^(vssadmin\.exe|certutil\.exe|bitsadmin\.exe|whoami\.exe|nltest\.exe|net\.exe|net1\.exe|wmic\.exe|reg\.exe|schtasks\.exe|sc\.exe|taskkill\.exe|ipconfig\.exe|ping\.exe|tracert\.exe|arp\.exe|route\.exe|ftp\.exe|tftp\.exe|mshta\.exe|cscript\.exe|wscript\.exe|rundll32\.exe|regsvr32\.exe|mmc\.exe|control\.exe)$"
+    $SuspiciousCommands = "(?i)(-enc|-encodedcommand|iex|invoke-expression|downloadstring|bypass|hidden|net user|net localgroup|vssadmin|certutil|schtasks|reg add|reg delete|runas)"
 
     $IsSuspiciousProcess = $ProcessExecutable -match $SuspiciousProcesses
     $IsSuspiciousCommand = $CommandLine -match $SuspiciousCommands
-    $IsShell = $ProcessExecutable -match "(?i)^(cmd\.exe|powershell\.exe)$"
+    $IsShell = $ProcessExecutable -match "(?i)^(cmd\.exe|powershell\.exe|pwsh\.exe|powershell_ise\.exe|wsl\.exe|bash\.exe|wt\.exe)$"
 
     # Filtre: on garde si c'est un shell OU si c'est une action anormale/suspecte
     if (-not ($IsSuspiciousProcess -or $IsSuspiciousCommand -or $IsShell)) {
@@ -52,8 +52,8 @@ foreach ($Event in $Events) {
     }
 
     # Ajoute un préfixe d'alerte si l'action est reconnue comme anormale
-    $Prefix = if ($IsSuspiciousProcess -or $IsSuspiciousCommand) { "[COMPORTEMENT ANORMAL] " } else { "" }
-    $DetailedMsg = "${Prefix}Commande exécutée: '$CommandLine' (Processus: '$ProcessExecutable') par '$SubjectDomainName\$SubjectUserName'."
+    $Prefix = "[ALERTE SÉCURITÉ CRITIQUE] "
+    $DetailedMsg = "${Prefix}Action non autorisée détectée: '$CommandLine' (Processus: '$ProcessExecutable') lancée par '$SubjectDomainName\$SubjectUserName'."
 
     $Body = @{
         token = $Token

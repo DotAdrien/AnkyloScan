@@ -31,7 +31,6 @@ cat << EOF > "$INSTALL_DIR/$SCRIPT_NAME"
 SERVER_IP="$SERVER_IP"
 TOKEN="$TOKEN"
 STATE_DIR="/var/lib/ankyloscan"
-PORTS_STATE_FILE="\$STATE_DIR/ankylo_ports_state.txt"
 DATE=\$(date '+%Y-%m-%d %H:%M:%S')
 
 REPORT_MESSAGE=""
@@ -39,24 +38,55 @@ EVENT_ID=5003 # Nouvel ID pour incident critique
 SOURCE="Agent-Linux-Security"
 CHANGES_DETECTED=false
 
-# 1. Surveillance des nouveaux ports (alerte uniquement si NOUVEAU port)
-CURRENT_PORTS=\$(ss -tuln | awk 'NR>1 {print \$5}' | sort -u | paste -sd "," -)
-LAST_PORTS=""
-if [ -f "\$PORTS_STATE_FILE" ]; then
-    LAST_PORTS=\$(cat "\$PORTS_STATE_FILE")
+# 1. Surveillance des processus et commandes (Comportements anormaux)
+SUSPICIOUS_REGEX="\b(nc|netcat|socat|nmap|tcpdump|wireshark|strace|wget|curl|whoami|id|uname|ncat|john|hydra|sqlmap|chisel)\b|bash -i|sh -i|python[0-9]* -c|perl -e"
+
+# a) Processus suspects en cours d'exécution
+SUSPICIOUS_PROCESSES=\$(ps -eo user,pid,cmd --no-headers | grep -E -i "\$SUSPICIOUS_REGEX" | grep -v -E "(grep|ankylo_linux_agent)")
+
+if [ -n "\$SUSPICIOUS_PROCESSES" ]; then
+    CURRENT_PROC_MD5=\$(echo "\$SUSPICIOUS_PROCESSES" | md5sum | awk '{print \$1}')
+    LAST_PROC_MD5=""
+    if [ -f "\$STATE_DIR/ankylo_proc.md5" ]; then
+        LAST_PROC_MD5=\$(cat "\$STATE_DIR/ankylo_proc.md5")
+    fi
+
+    if [ "\$CURRENT_PROC_MD5" != "\$LAST_PROC_MD5" ]; then
+        FORMATTED_PROCS=\$(echo "\$SUSPICIOUS_PROCESSES" | tr '\n' '|' | sed 's/|\$//')
+        REPORT_MESSAGE+="[ALERTE CRITIQUE] Processus suspect en cours: \$FORMATTED_PROCS. "
+        CHANGES_DETECTED=true
+        echo "\$CURRENT_PROC_MD5" > "\$STATE_DIR/ankylo_proc.md5"
+    fi
+else
+    rm -f "\$STATE_DIR/ankylo_proc.md5" 2>/dev/null
 fi
 
-if [ -n "\$LAST_PORTS" ] && [ "\$CURRENT_PORTS" != "\$LAST_PORTS" ]; then
-    CURRENT_PORTS_NL=\$(echo "\$CURRENT_PORTS" | tr ',' '\n' | sort -u)
-    LAST_PORTS_NL=\$(echo "\$LAST_PORTS" | tr ',' '\n' | sort -u)
-    NEWLY_OPENED_PORTS=\$(comm -13 <(echo "\$LAST_PORTS_NL") <(echo "\$CURRENT_PORTS_NL") | paste -sd "," -)
-    
-    if [ -n "\$NEWLY_OPENED_PORTS" ]; then
-        REPORT_MESSAGE+="Nouveaux ports ouverts (\$NEWLY_OPENED_PORTS). "
+# b) Commandes suspectes dans l'historique (pour capter les actions rapides)
+RECENT_BAD_CMDS=""
+for HIST_FILE in /home/*/.bash_history /root/.bash_history; do
+    if [ -f "\$HIST_FILE" ]; then
+        USER_NAME=\$(basename \$(dirname "\$HIST_FILE"))
+        FOUND_CMDS=\$(tail -n 20 "\$HIST_FILE" 2>/dev/null | grep -E -i "\$SUSPICIOUS_REGEX" | tr '\n' ',' | sed 's/,\$//')
+        
+        if [ -n "\$FOUND_CMDS" ]; then
+            RECENT_BAD_CMDS+="User \$USER_NAME: [\$FOUND_CMDS]. "
+        fi
+    fi
+done
+
+if [ -n "\$RECENT_BAD_CMDS" ]; then
+    CURRENT_HIST_MD5=\$(echo "\$RECENT_BAD_CMDS" | md5sum | awk '{print \$1}')
+    LAST_HIST_MD5=""
+    if [ -f "\$STATE_DIR/ankylo_hist.md5" ]; then
+        LAST_HIST_MD5=\$(cat "\$STATE_DIR/ankylo_hist.md5")
+    fi
+
+    if [ "\$CURRENT_HIST_MD5" != "\$LAST_HIST_MD5" ]; then
+        REPORT_MESSAGE+="[ALERTE HISTORIQUE] Commandes interdites exécutées: \$RECENT_BAD_CMDS. "
         CHANGES_DETECTED=true
+        echo "\$CURRENT_HIST_MD5" > "\$STATE_DIR/ankylo_hist.md5"
     fi
 fi
-echo "\$CURRENT_PORTS" > "\$PORTS_STATE_FILE"
 
 # 2. Surveillance des fichiers critiques (comptes, mots de passe, SSH, Sudo)
 CRITICAL_FILES=("/etc/passwd" "/etc/shadow" "/etc/group" "/etc/sudoers" "/etc/ssh/sshd_config")
@@ -118,7 +148,7 @@ echo "Configuration de la tâche Cron pour exécuter l'agent toutes les 5 minute
 (crontab -l 2>/dev/null | grep -v "$SCRIPT_NAME" || true; echo "$CRON_CMD") | crontab -
 
 if [ $? -eq 0 ]; then
-    echo "Succès ! L'agent Linux est installé et surveillera les changements de ports toutes les 5 minutes. 🛡️"
+    echo "Succès ! L'agent Linux est installé et surveillera les commandes suspectes toutes les 5 minutes. 🛡️"
 else
     echo "Erreur lors de la configuration du Cron. Essayez avec sudo. 😱"
 fi
