@@ -29,10 +29,8 @@ app.include_router(agent_router)
 app.include_router(dashboard.router)
 app.include_router(liste_router)
 
-# securiser ce truc
 app.add_middleware(
     CORSMiddleware,
-    # Autorise localhost, 127.0.0.1, et les IPs privées (192.168.x.x, 10.x.x.x) sur n'importe quel port
     allow_origin_regex=r"http://(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+)?",
     allow_credentials=True,
     allow_methods=["*"],
@@ -45,7 +43,7 @@ DB_PASSWORD = os.getenv("ADMIN_PASSWORD")
 @app.get("/")
 def home():
     return {
-            "message": "AnkyloScan API tournant sur le port 8001 ! 🦖🔥",
+            "message": "AnkyloScan API running on port 8001! 🦖🔥",
         }
 
 @app.get("/test-db")
@@ -54,6 +52,6 @@ def test_db_connection():
         connection = get_db_connection()
         if connection.is_connected():
             connection.close()
-            return {"status": "success", "message": "Connexion réussie ! 🛡️"}
+            return {"status": "success", "message": "Connection successful! 🛡️"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur : {str(e)} 😱")
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)} 😱")
