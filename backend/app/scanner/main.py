@@ -65,7 +65,7 @@ def run_scan(scan_type):
     if scan_type == 3:
         fd, xml_path = tempfile.mkstemp(suffix=".xml")
         os.close(fd)
-        args = ["-p-", "-T4", "-sV", "--script", "vulners,vuln", "-oX", xml_path, target_network]
+        args = ["-p-", "-T4", "-O", "-sV", "--script", "vulners,vuln", "-oX", xml_path, target_network]
     elif scan_type == 2:
         args = ["-p-", "-T4", "-O", target_network]
     else:
