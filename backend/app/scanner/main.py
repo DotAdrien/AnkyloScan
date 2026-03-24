@@ -61,9 +61,7 @@ def run_scan(scan_type):
         args = [
                     "-p-",
                     "-T4",
-                    "-O",
-                    "-sV",
-                    "--version-intensity", "9",
+                    "-A",
                     "--script", "vulners,vuln",
                     "-oX", xml_path,
                     target_network
