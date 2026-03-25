@@ -13,7 +13,7 @@ $LastId = 0
 if (Test-Path $StateFile) { $LastId = [long](Get-Content $StateFile) }
 
 # Ajout de 4624 (Succès connexion) pour surveiller les admins
-$EventIDs = @(4624, 4625, 4768, 4769, 4720, 4728, 4732, 4756, 1102, 4719, 5136)
+$EventIDs = @(4624, 4625, 4768, 4720, 4728, 4732, 4756, 1102, 4719, 5136)
 
 $Events = Get-WinEvent -FilterHashtable @{LogName='Security'; Id=$EventIDs; StartTime=(Get-Date).AddMinutes(-5)} -ErrorAction SilentlyContinue | 
           Where-Object RecordId -gt $LastId | 
@@ -40,7 +40,7 @@ foreach ($Event in $Events) {
     # On ignore les TGT Kerberos réussis (trop de bruit)
     $ResultCode = Get-EventValue $EventData "ResultCode"
     $Status = Get-EventValue $EventData "Status"
-    if (($Event.Id -eq 4768 -and $Status -eq "0x0") -or ($Event.Id -eq 4769 -and $ResultCode -eq "0x0")) {
+    if ($Event.Id -eq 4768 -and $Status -eq "0x0") {
         $MaxId = [math]::Max($MaxId, $Event.RecordId)
         continue 
     }
@@ -48,7 +48,7 @@ foreach ($Event in $Events) {
     # --- LOGIQUE DE DÉDOUBLONNAGE ET FILTRAGE INTELLIGENT ---
     # Clé unique pour éviter le spam (ex: "Kerberos-Administrateur" n'apparaitra qu'une fois par scan)
     $DedupKey = "$Id-$TargetUserName"
-    if ($Id -eq 4768 -or $Id -eq 4769) { $DedupKey = "KerberosFail-$TargetUserName" } 
+    if ($Id -eq 4768) { $DedupKey = "KerberosFail-$TargetUserName" } 
     
     if ($SeenEvents.ContainsKey($DedupKey)) { 
         $MaxId = [math]::Max($MaxId, $Event.RecordId)
@@ -76,7 +76,6 @@ foreach ($Event in $Events) {
         $DetailedMsg = switch ($Id) {
             4625 { "Échec de connexion pour '$TargetUserName'$NetworkTag depuis l'IP '$(Get-EventValue $EventData 'IpAddress')'." }
             4768 { "Échec TGT Kerberos pour '$TargetUserName'$NetworkTag depuis l'IP '$(Get-EventValue $EventData 'ClientAddr')' (Code: $Status)." }
-            4769 { "Échec ticket de service Kerberos pour '$TargetUserName'$NetworkTag." }
             4720 { "Le compte '$TargetUserName' a été créé par '$SubjectUserName'." }
             4728 { "L'utilisateur '$(Get-EventValue $EventData 'MemberName')' a été ajouté au groupe global '$TargetUserName' par '$SubjectUserName'." }
             4732 { "L'utilisateur '$(Get-EventValue $EventData 'MemberName')' a été ajouté au groupe local '$TargetUserName' par '$SubjectUserName'." }

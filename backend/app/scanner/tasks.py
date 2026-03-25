@@ -20,9 +20,9 @@ def create_pending_scan(scan_type: int) -> int:
             cursor.close()
             conn.close()
 
-def parse_scan_expert(content, ignored_words=None):
-    if ignored_words is None:
-        ignored_words = set()
+def parse_scan_expert(content, ignored_rules=None):
+    if ignored_rules is None:
+        ignored_rules = set()
 
     import xml.etree.ElementTree as ET
     
@@ -45,6 +45,10 @@ def parse_scan_expert(content, ignored_words=None):
         if ports_elem is not None:
             for port in ports_elem.findall("port"):
                 port_id = port.get("portid")
+                
+                if (ip, port_id) in ignored_rules:
+                    continue
+
                 port_vulns = []
                 
                 for script in port.findall("script"):
@@ -55,11 +59,14 @@ def parse_scan_expert(content, ignored_words=None):
                         for cpe_table in script.findall("table"):
                             for vuln_table in cpe_table.findall("table"):
                                 vuln_id = ""
+                                vuln_type = ""
                                 cvss = 0.0
                                 is_exploit = False
                                 for elem in vuln_table.findall("elem"):
                                     if elem.get("key") == "id":
                                         vuln_id = elem.text
+                                    elif elem.get("key") == "type":
+                                        vuln_type = elem.text
                                     elif elem.get("key") == "cvss":
                                         try:
                                             cvss = float(elem.text)
@@ -69,9 +76,6 @@ def parse_scan_expert(content, ignored_words=None):
                                         is_exploit = (elem.text == "true")
                                         
                                 if vuln_id:
-                                    if vuln_id.strip() in ignored_words:
-                                        continue
-                                        
                                     level = 1
                                     badge = "🟡 [LVL 1]"
                                     if cvss >= 7.0 or is_exploit:
@@ -81,8 +85,16 @@ def parse_scan_expert(content, ignored_words=None):
                                         level = 2
                                         badge = "🟠 [LVL 2]"
                                         
+                                    # Raccourcir les IDs très longs (ex: hash GitHub) pour l'affichage
+                                    display_id = vuln_id
+                                    if not vuln_id.startswith("CVE-") and len(vuln_id) > 15:
+                                        display_id = vuln_id[:12] + "..."
+                                        
+                                    # Construction propre du lien Vulners
+                                    link_url = f"https://vulners.com/{vuln_type}/{vuln_id}" if vuln_type else f"https://vulners.com/search?query={vuln_id}"
+                                        
                                     port_vulns.append({
-                                        "title": f"{vuln_id} - Score: {cvss}",
+                                        "title": f"<a href='{link_url}' target='_blank' style='color: #60a5fa; text-decoration: underline;' title='{vuln_id}'>{display_id}</a> - Score: {cvss}",
                                         "state": "CVE Detected",
                                         "level": level,
                                         "badge": badge
@@ -97,9 +109,6 @@ def parse_scan_expert(content, ignored_words=None):
                                 state = state_elem.text
                                 found_table = True
                                 
-                                if title.strip() in ignored_words or script_id.strip() in ignored_words:
-                                    continue
-                                    
                                 level = 3 if "EXPLOITABLE" in state.upper() or "VULNERABLE" in state.upper() else 2
                                 badge = "🔴 [LVL 3]" if level == 3 else "🟠 [LVL 2]"
                                 
@@ -111,23 +120,13 @@ def parse_scan_expert(content, ignored_words=None):
                                 })
                         
                         if not found_table and output and "VULNERABLE" in output:
-                            if script_id.strip() not in ignored_words:
-                                port_vulns.append({
-                                    "title": script_id,
-                                    "state": "VULNERABLE",
-                                    "level": 3,
-                                    "badge": "🔴 [LVL 3]"
-                                })
-
-                    if output and "password required but not set" in output:
-                        if "TELNET" not in ignored_words and "TELNET: Open access without password!" not in ignored_words:
                             port_vulns.append({
-                                "title": "TELNET: Open access without password!", 
-                                "state": "Open Access",
-                                "level": 3, 
+                                "title": script_id,
+                                "state": "VULNERABLE",
+                                "level": 3,
                                 "badge": "🔴 [LVL 3]"
                             })
-                            
+
                 if len(port_vulns) > 0:
                     host_ports.append({
                         "port": port_id,
@@ -174,14 +173,14 @@ def background_scan_task(scan_type: int, scan_id: int):
                     with open(safe_path, 'r', encoding='utf-8') as f:
                         content = f.read()
 
-                    current_ignored_words = set()
+                    current_ignored_rules = set()
                     temp_conn = None
                     try:
                         temp_conn = get_db_connection()
                         temp_cursor = temp_conn.cursor(dictionary=True)
-                        temp_cursor.execute("SELECT text FROM liste")
+                        temp_cursor.execute("SELECT host, port FROM liste")
                         for row in temp_cursor.fetchall():
-                            current_ignored_words.add(row['text'].strip())
+                            current_ignored_rules.add((row['host'].strip(), row['port'].strip()))
                     except Exception as e:
                         print(f"Error fetching false positive list for scan #{scan_id}: {e}")
                     finally:
@@ -189,7 +188,7 @@ def background_scan_task(scan_type: int, scan_id: int):
                             temp_cursor.close()
                             temp_conn.close()
 
-                    vuln_results = parse_scan_expert(content, ignored_words=current_ignored_words)
+                    vuln_results = parse_scan_expert(content, ignored_rules=current_ignored_rules)
 
                     for host in vuln_results:
                         ip = host['ip']
