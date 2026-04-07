@@ -1,50 +1,50 @@
 <link rel="stylesheet" href="style/work.css">
 
 <div class="scan-container">
-    <h2 class="scan-title">Scans Réseau 🛡️</h2>
+    <h2 class="scan-title">Network Scans 🛡️</h2>
     
     <div class="scan-card" style="grid-column: 1 / -1; margin-bottom: 2rem;">
-        <h3>Planification de Vulnérabilité ⏰</h3>
-        <p>Configure la fréquence et le type de scan automatique.</p>
+        <h3>Vulnerability Scheduling ⏰</h3>
+        <p>Configure the frequency and type of automatic scans.</p>
         
         <div class="form-field-work">
             <div class="form-group-item">
-                <label>TIME</label>
+                <label>TIME (HOURS)</label>
                 <input type="number" id="scan-frequency" value="24" min="1" max="168">
             </div>
 
             <div class="form-group-item">
-                <label>TYPE DE SCAN</label>
+                <label>SCAN TYPE</label>
                 <select id="scan-type-select">
-                    <option value="1">1 - Rapide 🔍</option>
-                    <option value="2">2 - Sécurité 🛡️</option>
-                    <option value="3" selected>3 - Complet 🦖</option>
+                    <option value="1">1 - Quick 🔍</option>
+                    <option value="2">2 - Security 🛡️</option>
+                    <option value="3" selected>3 - Full 🦖</option>
                 </select>
             </div>
 
             <button class="btn-action" @click="saveAndScheduleScan()">
-                Enregistrer 💾
+                Save 💾
             </button>
         </div>
     </div>
 
     <div class="scan-grid">
         <div class="scan-card">
-            <h3>Scan Rapide 🔍</h3>
-            <p>Machines et de leur OS.</p>
-            <button class="btn-action" @click="runQuickScan()">Lancer ✨</button>
+            <h3>Quick Scan 🔍</h3>
+            <p>Machines and their OS.</p>
+            <button class="btn-action" @click="runQuickScan()">Launch ✨</button>
         </div>
 
         <div class="scan-card">
-            <h3>Scan Sécurité 🛡️</h3>
-            <p>Ports ouverts et adresses MAC.</p>
-            <button class="btn-action" @click="runSecurityScan()">Lancer ✨</button>
+            <h3>Security Scan 🛡️</h3>
+            <p>Open ports and MAC addresses.</p>
+            <button class="btn-action" @click="runSecurityScan()">Launch ✨</button>
         </div>
 
         <div class="scan-card">
-            <h3>Scan Complet 🦖</h3>
-            <p>Analyse versions et vulnérabilités.</p>
-            <button class="btn-action" @click="runFullScan()">Lancer ✨</button>
+            <h3>Full Scan 🦖</h3>
+            <p>Version analysis and vulnerabilities.</p>
+            <button class="btn-action" @click="runFullScan()">Launch ✨</button>
         </div>
     </div>
 </div>

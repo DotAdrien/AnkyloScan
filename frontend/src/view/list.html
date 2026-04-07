@@ -1,0 +1,29 @@
+<link rel="stylesheet" href="style/work.css">
+
+<div class="scan-container" x-init="loadList()">
+    <h2 class="scan-title">False Positives List 🛡️</h2>
+    
+    <div class="scan-card list-add-card">
+        <h3>Add host & port to ignore 🚫</h3>
+        <p>Ignore all vulnerabilities from a specific host and port during the V3 expert analysis.</p>
+        
+        <form @submit.prevent="addWordToList()" class="form-field-work list-add-form" style="align-items: center; gap: 1rem; display: flex;">
+            <div class="form-group-item list-input-group" style="flex-grow: 1;">
+                <label for="new-host-input">HOST (IP)</label>
+                <input type="text" id="new-host-input" placeholder="e.g.: 192.168.1.10" required style="width: 100%;">
+            </div>
+            <div class="form-group-item list-input-group" style="flex-grow: 1;">
+                <label for="new-port-input">PORT</label>
+                <input type="text" id="new-port-input" placeholder="e.g.: 443" required style="width: 100%;">
+            </div>
+            <div style="flex-shrink: 0; align-self: flex-end;">
+                <button type="submit" class="btn-action list-add-button" style="width: auto; padding: 0.75rem 1.5rem;">
+                    Add ✨
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="scan-grid list-display-grid" id="words-list-container">
+    </div>
+</div>

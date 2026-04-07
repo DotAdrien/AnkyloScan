@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS Scan (
     Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     Type VARCHAR(255) NOT NULL,
     file_path VARCHAR(255) NOT NULL,
-    status INT DEFAULT 1
+    status INT DEFAULT 0
 );
 
 -- Table SystemLogs pour tes remontées de logs AD 🛡️
@@ -42,4 +42,10 @@ CREATE TABLE IF NOT EXISTS Vuln (
     hosts VARCHAR(255),
     text TEXT,
     FOREIGN KEY (id_scan) REFERENCES Scan(id_scan) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS liste (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    host VARCHAR(255) NOT NULL,
+    port VARCHAR(255) NOT NULL
 );

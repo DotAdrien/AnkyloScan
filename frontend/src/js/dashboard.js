@@ -4,7 +4,6 @@ document.addEventListener('alpine:init', () => {
         chartInstance: null,
 
         async init() {
-            // Charge les données dès que le composant est monté
             await this.loadStats();
             await this.loadGraph();
         },
@@ -16,7 +15,7 @@ document.addEventListener('alpine:init', () => {
                     this.stats = await response.json();
                 }
             } catch (error) {
-                console.error("Erreur chargement stats:", error);
+                console.error("Error loading stats:", error);
             }
         },
 
@@ -28,33 +27,29 @@ document.addEventListener('alpine:init', () => {
                     this.renderChart(data);
                 }
             } catch (error) {
-                console.error("Erreur chargement graph:", error);
+                console.error("Error loading graph:", error);
             }
         },
 
         renderChart(data) {
             const ctx = document.getElementById('scanChart');
-            console.log("Canvas context (ctx):", ctx); // Ajout pour le débogage
             if (!ctx) return;
 
-            // Si un graphique existe déjà, on le détruit pour éviter les bugs
             if (this.chartInstance) {
                 this.chartInstance.destroy();
             }
 
-            
             const labels = data.map(item => item.date);
-            console.log("Données du graphique reçues :", data); // Ajout pour le débogage
             const counts = data.map(item => item.count);
 
             this.chartInstance = new Chart(ctx, {
-                type: 'bar', // ou 'line'
+                type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Vulnérabilités Détectées',
+                        label: 'Detected Vulnerabilities',
                         data: counts,
-                        backgroundColor: 'rgba(231, 76, 60, 0.6)', // Rouge pour les failles
+                        backgroundColor: 'rgba(231, 76, 60, 0.6)',
                         borderColor: 'rgba(231, 76, 60, 1)',
                         borderWidth: 1,
                         borderRadius: 5

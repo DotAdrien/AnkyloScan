@@ -1,37 +1,37 @@
 <link rel="stylesheet" href="style/profile.css">
 
-
+<div class="profile-container">
     <div class="profile-header">
         <div class="profile-avatar" x-text="user.name ? user.name.charAt(0).toUpperCase() : '?'"></div>
         <div>
-            <h2 style="margin:0">Mon Profil ✨</h2>
+            <h2 style="margin:0">My Profile ✨</h2>
             <p style="color: #ec4899; margin:0" x-text="user.rank"></p>
         </div>
     </div>
 
     <div class="profile-info-grid">
         <div class="info-item">
-            <span class="info-label">IDENTIFIANT UNIQUE</span>
+            <span class="info-label">UNIQUE IDENTIFIER</span>
             <span x-text="'#' + user.id"></span>
         </div>
         
         <div class="info-item">
-            <span class="info-label">NOM D'UTILISATEUR</span>
+            <span class="info-label">USERNAME</span>
             <span x-text="user.name"></span>
         </div>
 
         <div class="info-item">
-            <span class="info-label">ADRESSE EMAIL</span>
+            <span class="info-label">EMAIL ADDRESS</span>
             <span x-text="user.email"></span>
         </div>
 
         <div class="info-item">
-            <span class="info-label">RANG SYSTÈME</span>
+            <span class="info-label">SYSTEM RANK</span>
             <span x-text="user.rank"></span>
         </div>
     </div>
     
     <button @click="logout()" class="btn-logout">
-        <span>Se déconnecter 😌👋</span>
+        <span>Log Out 😌👋</span>
     </button>
 </div>

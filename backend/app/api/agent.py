@@ -4,12 +4,11 @@ import socket
 import mysql.connector # type: ignore
 from fastapi import APIRouter, Request, Response, Depends, HTTPException
 from app.secu.main import verify_admin 
-from app.db import get_db_connection
+from app.secu.db import get_db_connection
 
 router = APIRouter(prefix="/agent", tags=["Agent 🤖"])
 
 def get_host_ip():
-    """Détecte l'IP locale utilisée pour sortir vers le réseau"""
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
@@ -20,7 +19,6 @@ def get_host_ip():
         return "127.0.0.1"
 
 async def generate_agent_download(filename_on_disk: str, filename_download: str):
-    """Génère le script d'agent avec token unique et l'envoie"""
     token = secrets.token_hex(16)
     server_ip = get_host_ip()
     
@@ -32,19 +30,17 @@ async def generate_agent_download(filename_on_disk: str, filename_download: str)
         conn.commit()
         cursor.close()
     except mysql.connector.Error:
-        raise HTTPException(status_code=500, detail="La base de données boude... 😱")
+        raise HTTPException(status_code=500, detail="Database connection error... 😱")
     finally:
         if conn and conn.is_connected():
             conn.close()
 
-    # Lecture du fichier PowerShell 📄
     try:
         with open(f"app/api/agent/{filename_on_disk}", "r") as f:
             ps1_content = f.read()
     except FileNotFoundError:
-        raise HTTPException(status_code=500, detail=f"Fichier {filename_on_disk} introuvable 😱")
+        raise HTTPException(status_code=500, detail=f"File {filename_on_disk} not found 😱")
     
-    # On remplace les variables ✨
     ps1_content = ps1_content.replace("SERVER_IP_PLACEHOLDER", server_ip)
     ps1_content = ps1_content.replace("TOKEN_PLACEHOLDER", token)
 
@@ -68,17 +64,16 @@ async def get_script_3(request: Request):
 
 @router.delete("/clear")
 async def clear_agents(admin=Depends(verify_admin)):
-    """Supprime tous les agents enregistrés 🧹"""
     conn = None
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("TRUNCATE TABLE Agents") # Vide la table 🚫
+        cursor.execute("TRUNCATE TABLE Agents")
         conn.commit()
         cursor.close()
-        return {"status": "success", "message": "Table des agents vidée ! 😌"}
+        return {"status": "success", "message": "Agent table cleared! 😌"}
     except mysql.connector.Error:
-        raise HTTPException(status_code=500, detail="Erreur lors du nettoyage 😱")
+        raise HTTPException(status_code=500, detail="Error during cleanup 😱")
     finally:
         if conn and conn.is_connected():
             conn.close()

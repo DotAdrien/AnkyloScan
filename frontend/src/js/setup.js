@@ -1,39 +1,32 @@
 window.initAdminSetup = async () => {
-    // On vérifie d'abord si on est sur la page de login (vérification simple si un form existe)
     const loginForm = document.querySelector('.login-container form');
     if (!loginForm) return;
 
     try {
-        // Demande au backend si l'admin existe déjà
         const response = await fetch(`${window.API_BASE}/auth/check-init`);
         const data = await response.json();
 
-        // Si initialized est FALSE, c'est qu'il n'y a aucun user. On lance le mode SETUP. 🛠️
         if (data.initialized === false) {
-            console.log("⚠️ Aucun utilisateur détecté. Passage en mode Initialisation.");
             enableSetupMode(loginForm);
         }
     } catch (error) {
-        console.error("Impossible de vérifier l'état d'initialisation", error);
+        console.error("Failed to verify initialization status", error);
     }
 };
 
-// Au cas où on recharge directement la page
 document.addEventListener('DOMContentLoaded', window.initAdminSetup);
 
 function enableSetupMode(existingForm) {
-    // On change le titre de la page ou du conteneur si possible
     const container = existingForm.parentElement;
     const title = container.querySelector('.auth-title') || container.querySelector('h1, h2, h3');
-    if (title) title.innerText = "Bienvenue ! Crée ton compte Admin 🦖";
+    if (title) title.innerText = "Welcome! Create your Admin account";
 
-    // On crée un NOUVEL élément form pour ne pas garder les attributs Alpine (@submit...) 🛡️
     const newForm = document.createElement('form');
     
     newForm.innerHTML = `
         <div class="form-group">
-            <label for="setup-name" class="form-label">Nom d'affichage</label>
-            <input type="text" id="setup-name" class="form-input" required placeholder="Ex: Admin Suprême">
+            <label for="setup-name" class="form-label">Display Name</label>
+            <input type="text" id="setup-name" class="form-input" required placeholder="e.g. System Admin">
         </div>
         
         <div class="form-group">
@@ -42,14 +35,13 @@ function enableSetupMode(existingForm) {
         </div>
 
         <div class="form-group">
-            <label for="setup-password" class="form-label">Mot de passe Maître</label>
+            <label for="setup-password" class="form-label">Master Password</label>
             <input type="password" id="setup-password" class="form-input" required placeholder="••••••••">
         </div>
 
-        <button type="submit" class="btn-login" style="background-color: #e67e22;">Créer l'Admin & Démarrer 🚀</button>
+        <button type="submit" class="btn-login" style="background-color: #e67e22;">Create Admin & Start</button>
     `;
 
-    // On remplace l'ancien formulaire par le nouveau dans le DOM
     existingForm.parentNode.replaceChild(newForm, existingForm);
 
     newForm.addEventListener('submit', async (e) => {
@@ -70,12 +62,12 @@ function enableSetupMode(existingForm) {
 
             if (res.ok) {
                 alert(result.message);
-                location.reload(); // Recharger pour afficher le formulaire de login normal
+                location.reload();
             } else {
-                alert("Erreur : " + result.detail);
+                alert("Error: " + result.detail);
             }
         } catch (err) {
-            alert("Erreur de connexion au serveur 😱");
+            alert("Connection error with the server");
         }
     });
 }

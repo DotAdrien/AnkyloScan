@@ -1,42 +1,46 @@
 <link rel="stylesheet" href="style/email.css">
 
-<div class="email-container">
-    <h2 class="email-title">Configuration Alertes 📧</h2>
+<div class="email-container" x-data="emailConfig" x-init="loadEmailConfig()">
+    <h2 class="email-title">Alert Configuration 📧</h2>
     
     <div class="email-card">
         <form class="email-form" @submit.prevent="saveEmailConfig()">
             <div class="form-field">
-                <label>Email Expéditeur</label>
-                <input type="email" placeholder="alerte@ankyloscan.com" required>
+                <label>Sender Email</label>
+                <input type="email" x-model="senderEmail" placeholder="alert@ankyloscan.com" required>
             </div>
             
             <div class="form-field">
-                <label>Clé API (16 caractères)</label>
-                <input type="text" maxlength="16" placeholder="A1B2C3D4E5F6G7H8" required>
+                <label>API Key (16 characters)</label>
+                <input type="text" x-model="apiKey" maxlength="16" placeholder="A1B2C3D4E5F6G7H8" required>
             </div>
             
             <div class="form-field">
-                <label>Destinataires (séparés par ;)</label>
-                <input type="text" placeholder="admin@test.com;user@test.com">
+                <label>Recipients (separated by ;)</label>
+                <input type="text" x-model="recipients" placeholder="admin@test.com;user@test.com">
             </div>
 
             <div class="options-group">
                 <label class="checkbox-item">
-                    <input type="checkbox">
-                    <span>Option 1 : Alertes Critiques 🚨</span>
+                    <input type="checkbox" x-model="scanQuickAlerts">
+                    <span>Quick Scan Completion Alert (Level 1) ⚡</span>
                 </label>
                 <label class="checkbox-item">
-                    <input type="checkbox">
-                    <span>Option 2 : Rapport Hebdomadaire 📊</span>
+                    <input type="checkbox" x-model="scanSecurityAlerts">
+                    <span>Security Scan Completion Alert (Level 2) 🛡️</span>
                 </label>
                 <label class="checkbox-item">
-                    <input type="checkbox">
-                    <span>Option 3 : Logs de Connexion 👤</span>
+                    <input type="checkbox" x-model="scanFullAlerts">
+                    <span>Full Scan & Vulnerabilities Alert (Level 3) 🦖</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" x-model="agentLogAlerts">
+                    <span>Agent Logs 🤖</span>
                 </label>
             </div>
             
             <button type="submit" class="btn-submit">
-                Sauvegarder la config 🥵
+                Save Configuration 🥵
             </button>
         </form>
     </div>

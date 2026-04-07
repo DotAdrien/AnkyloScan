@@ -5,7 +5,6 @@ async function submitLogin(context) {
     if (!emailInput || !passwordInput) return;
 
     try {
-        // Détection automatique de l'IP pour l'auth 👤
         const response = await fetch(`${window.API_BASE}/auth/login`, {
             method: 'POST',
             credentials: 'include',
@@ -23,11 +22,11 @@ async function submitLogin(context) {
             await context.changePage('profile');
             location.reload();
         } else {
-            alert(data.detail || "Email ou mot de passe incorrect ❌");
+            alert(data.detail || "Incorrect email or password ❌");
         }
     } catch (error) {
-        console.error("Erreur API :", error);
-        alert("Le serveur AnkyloScan ne répond pas... 😱");
+        console.error("API Error:", error);
+        alert("The AnkyloScan server is not responding... 😱");
     }
 }
 

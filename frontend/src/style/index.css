@@ -1,3 +1,6 @@
+/* Import du style pour le menu déroulant */
+@import url('./menu.css');
+
 /* style.css */
 body {
     margin: 0;

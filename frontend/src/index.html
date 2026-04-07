@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -7,7 +7,7 @@
 
     <script>
     window.API_BASE = `http://${window.location.hostname}:8001`;
-    console.log("AnkyloScan API réglée sur : " + window.API_BASE);
+    console.log("AnkyloScan API set to: " + window.API_BASE);
     </script>
     
     <script src="js/login.js" defer></script>
@@ -20,13 +20,11 @@
     <script src="js/agent.js" defer></script>
     <script src="js/setup.js" defer></script>
     <script src="js/dashboard.js" defer></script>
+    <script src="js/list.js" defer></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="style/index.css">
-    
-
 </head>
 
 <body class="bg-custom" x-data="app()" x-init="await init()">
@@ -37,7 +35,6 @@
         </div>
         
         <nav class="nav-links">
-            
         </nav>
     </aside>
 
@@ -62,7 +59,7 @@
                         const profile = fetchMe();
                         if (profile) this.user = profile;
                     } catch (e) {
-                        console.error("Erreur profil:", e);
+                        console.error("Profile error:", e);
                     }
                     await this.changePage(this.currentPage);
                 },
@@ -78,16 +75,15 @@
                 async changePage(pageName) {
                     this.currentPage = pageName;
                     localStorage.setItem('ankyloscan_last_view', pageName);
-                    this.loading = false; // On s'assure que le chargement est caché 🌷
+                    this.loading = false;
 
                     try {
                         const response = await fetch(`view/${pageName}.html`);
-                        if (!response.ok) throw new Error('Page non trouvée');
+                        if (!response.ok) throw new Error('Page not found');
                         
-                        // Mise à jour directe sans délai ni calcul de temps 🚀
                         this.pageContent = await response.text();
                     } catch (err) {
-                        this.pageContent = "<div>Erreur 😱</div>";
+                        this.pageContent = "<div>Error 😱</div>";
                     }
                 }
             }

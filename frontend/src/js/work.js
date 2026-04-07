@@ -2,7 +2,7 @@ async function saveAndScheduleScan() {
     const frequency = document.getElementById('scan-frequency').value;
     const type = document.getElementById('scan-type-select').value;
 
-try {
+    try {
         const response = await fetch(`${window.API_BASE}/plan/save`, {
             method: 'POST',
             credentials: 'include',
@@ -14,13 +14,13 @@ try {
         });
 
         if (response.ok) {
-            alert("C'est bon ! Le serveur a pris le relais. Tu peux fermer la page. 🌷");
+            alert("Success! The server has taken over. You can now close this page.");
         } else {
             const data = await response.json();
-            alert("Erreur : " + (data.detail || "Échec de la planification 😱"));
+            alert("Error: " + (data.detail || "Scheduling failed"));
         }
     } catch (error) {
-        alert("Erreur de connexion avec le serveur... 😩");
+        alert("Connection error with the server...");
     }
 }
 
@@ -33,12 +33,12 @@ async function callScanAPI(endpoint) {
         const data = await response.json();
 
         if (response.ok) {
-            alert("Scan envoyé au serveur ! 🦖\nTu peux suivre sa progression globale dans l'onglet RÉSULTATS.");
+            alert("Scan started!\n" + (data.message || ""));
         } else {
-            alert("Erreur : " + (data.detail || "Échec du scan 😱"));
+            alert("Error: " + (data.detail || "Scan failed"));
         }
     } catch (error) {
-        alert("Le serveur ne répond pas... 😩");
+        alert("The server is not responding...");
     }
 }
 

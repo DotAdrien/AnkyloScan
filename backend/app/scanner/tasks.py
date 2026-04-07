@@ -1,0 +1,232 @@
+import os
+import json
+from app.scanner.main import run_scan
+from app.secu.db import get_db_connection
+from app.api.email_sender import send_vuln_alert
+
+def create_pending_scan(scan_type: int) -> int:
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO Scan (Type, file_path, status) VALUES (%s, %s, 0)",
+            (str(scan_type), "in_progress...")
+        )
+        conn.commit()
+        return cursor.lastrowid
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
+def parse_scan_expert(content, ignored_rules=None):
+    if ignored_rules is None:
+        ignored_rules = set()
+
+    import xml.etree.ElementTree as ET
+    
+    results = []
+    
+    try:
+        root = ET.fromstring(content)
+    except Exception:
+        return results
+        
+    for host in root.findall("host"):
+        address_elem = host.find("address[@addrtype='ipv4']")
+        if address_elem is None:
+            continue
+        ip = address_elem.get("addr")
+        
+        host_ports = []
+        
+        ports_elem = host.find("ports")
+        if ports_elem is not None:
+            for port in ports_elem.findall("port"):
+                port_id = port.get("portid")
+                
+                if (ip, port_id) in ignored_rules:
+                    continue
+
+                port_vulns = []
+                
+                for script in port.findall("script"):
+                    script_id = script.get("id")
+                    output = script.get("output")
+                    
+                    if script_id == "vulners":
+                        for cpe_table in script.findall("table"):
+                            for vuln_table in cpe_table.findall("table"):
+                                vuln_id = ""
+                                vuln_type = ""
+                                cvss = 0.0
+                                is_exploit = False
+                                for elem in vuln_table.findall("elem"):
+                                    if elem.get("key") == "id":
+                                        vuln_id = elem.text
+                                    elif elem.get("key") == "type":
+                                        vuln_type = elem.text
+                                    elif elem.get("key") == "cvss":
+                                        try:
+                                            cvss = float(elem.text)
+                                        except (ValueError, TypeError):
+                                            pass
+                                    elif elem.get("key") == "is_exploit":
+                                        is_exploit = (elem.text == "true")
+                                        
+                                if vuln_id:
+                                    level = 1
+                                    badge = "🟡 [LVL 1]"
+                                    if cvss >= 7.0 or is_exploit:
+                                        level = 3
+                                        badge = "🔴 [LVL 3]"
+                                    elif cvss >= 4.0:
+                                        level = 2
+                                        badge = "🟠 [LVL 2]"
+                                        
+                                    # Raccourcir les IDs très longs (ex: hash GitHub) pour l'affichage
+                                    display_id = vuln_id
+                                    if not vuln_id.startswith("CVE-") and len(vuln_id) > 15:
+                                        display_id = vuln_id[:12] + "..."
+                                        
+                                    # Construction propre du lien Vulners
+                                    link_url = f"https://vulners.com/{vuln_type}/{vuln_id}" if vuln_type else f"https://vulners.com/search?query={vuln_id}"
+                                        
+                                    port_vulns.append({
+                                        "title": f"<a href='{link_url}' target='_blank' style='color: #60a5fa; text-decoration: underline;' title='{vuln_id}'>{display_id}</a> - Score: {cvss}",
+                                        "state": "CVE Detected",
+                                        "level": level,
+                                        "badge": badge
+                                    })
+                    elif script_id and ("vuln" in script_id or script_id.startswith("ssl-")):
+                        found_table = False
+                        for table in script.findall("table"):
+                            title_elem = table.find("elem[@key='title']")
+                            state_elem = table.find("elem[@key='state']")
+                            if title_elem is not None and state_elem is not None:
+                                title = title_elem.text
+                                state = state_elem.text
+                                found_table = True
+                                
+                                level = 3 if "EXPLOITABLE" in state.upper() or "VULNERABLE" in state.upper() else 2
+                                badge = "🔴 [LVL 3]" if level == 3 else "🟠 [LVL 2]"
+                                
+                                port_vulns.append({
+                                    "title": title.strip(),
+                                    "state": state.strip(),
+                                    "level": level,
+                                    "badge": badge
+                                })
+                        
+                        if not found_table and output and "VULNERABLE" in output:
+                            port_vulns.append({
+                                "title": script_id,
+                                "state": "VULNERABLE",
+                                "level": 3,
+                                "badge": "🔴 [LVL 3]"
+                            })
+
+                if len(port_vulns) > 0:
+                    host_ports.append({
+                        "port": port_id,
+                        "vulns": port_vulns
+                    })
+                    
+        if len(host_ports) > 0:
+            results.append({
+                "ip": ip,
+                "ports": host_ports
+            })
+    
+    return results
+
+def background_scan_task(scan_type: int, scan_id: int):
+    success = run_scan(scan_type)
+    
+    if success:
+        conn = None
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+
+            cursor.execute("SELECT id_scan, file_path FROM Scan WHERE Type=%s ORDER BY id_scan DESC LIMIT 1", (str(scan_type),))
+            last_scan = cursor.fetchone()
+
+            if last_scan and last_scan['id_scan'] > scan_id:
+                file_path = last_scan['file_path']
+                cursor.execute("DELETE FROM Scan WHERE id_scan = %s", (last_scan['id_scan'],))
+            elif last_scan:
+                file_path = last_scan['file_path']
+            else:
+                file_path = "path_not_found"
+
+            cursor.execute("UPDATE Scan SET status = 1, file_path = %s WHERE id_scan = %s", (file_path, scan_id))
+            conn.commit()
+
+            if scan_type == 3 and file_path != "in_progress...":
+                base_dir = os.path.abspath("/app/outputs") if os.name != 'nt' else os.path.abspath("outputs")
+                filename = os.path.basename(file_path).replace(".txt", ".xml")
+                safe_path = os.path.join(base_dir, filename)
+
+                if os.path.exists(safe_path):
+                    with open(safe_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+
+                    current_ignored_rules = set()
+                    temp_conn = None
+                    try:
+                        temp_conn = get_db_connection()
+                        temp_cursor = temp_conn.cursor(dictionary=True)
+                        temp_cursor.execute("SELECT host, port FROM liste")
+                        for row in temp_cursor.fetchall():
+                            current_ignored_rules.add((row['host'].strip(), row['port'].strip()))
+                    except Exception as e:
+                        print(f"Error fetching false positive list for scan #{scan_id}: {e}")
+                    finally:
+                        if temp_conn and temp_conn.is_connected():
+                            temp_cursor.close()
+                            temp_conn.close()
+
+                    vuln_results = parse_scan_expert(content, ignored_rules=current_ignored_rules)
+
+                    for host in vuln_results:
+                        ip = host['ip']
+                        vulns_json = json.dumps(host['ports'], ensure_ascii=False)
+                        
+                        cursor.execute(
+                            "INSERT INTO Vuln (id_scan, hosts, text) VALUES (%s, %s, %s)",
+                            (scan_id, ip, vulns_json)
+                        )
+                    conn.commit()
+                    print(f"Vulnerabilities archived for scan #{scan_id}")
+
+                    send_vuln_alert(scan_id, file_path, vuln_results)
+
+        except Exception as e:
+            print(f"Error archiving scan #{scan_id}: {e}")
+            try:
+                err_conn = get_db_connection()
+                err_cursor = err_conn.cursor()
+                err_cursor.execute("UPDATE Scan SET status = -1 WHERE id_scan = %s", (scan_id,))
+                err_conn.commit()
+                err_conn.close()
+            except Exception as e_inner:
+                print(f"Failed to update scan status for #{scan_id} to -1: {e_inner}")
+        finally:
+            if conn and conn.is_connected():
+                cursor.close()
+                conn.close()
+    else:
+        conn = None
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE Scan SET status = -1 WHERE id_scan = %s", (scan_id,))
+            conn.commit()
+        except Exception:
+            pass
+        finally:
+            if conn and conn.is_connected():
+                cursor.close()
+                conn.close()
