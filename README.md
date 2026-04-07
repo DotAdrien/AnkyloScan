@@ -9,7 +9,9 @@ not working / finish
 - 🐳 **Docker-Native**: Easy one-command setup with Docker Compose.
 - 💻 **Web UI**: Intuitive dashboard to manage your scans.
 - 🛡️ **Hardened**: Identification of vulnerable services and CVEs.
-- 📧 **Email Notifications**: Send alerts and notifications via email. 
+- 📧 **Email Notifications**: Send alerts and notifications via email.
+- 🕵️ **Unified Agents**: Easy-to-deploy Windows and Linux agents for security log collection.
+
 
 ## 🛠️ Quick Start
 ```bash
