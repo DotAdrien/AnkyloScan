@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navContainer) {
         const publicMenu = [
             { id: 'landing', label: 'LANDING' },
-            { id: 'about', label: 'ABOUT' },
-            { id: 'contact', label: 'CONTACT' }
+            { id: 'about', label: 'ABOUT' }
         ];
 
         const privateMenu = [
