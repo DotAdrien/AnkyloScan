@@ -31,9 +31,9 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             { 
                 id: 'travail_menu', 
-                label: 'WORK', 
+                label: 'Agents', 
                 sub: [
-                    { id: 'agent', label: 'AGENTS' },
+                    { id: 'agent', label: 'DOWNLOAD' },
                     { id: 'logs', label: 'LOGS' }
                 ] 
             }

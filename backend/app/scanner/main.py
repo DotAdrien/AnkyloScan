@@ -18,32 +18,35 @@ def get_local_network():
 def execute_nmap_process(scan_type, args, xml_path=None):
     try:
         print(f"Scan {scan_type} started on {args[-1]}", flush=True)
-        
+
         process = subprocess.Popen(["nmap"] + args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
-        
+
         output_lines = []
         for line in process.stdout:
             output_lines.append(line)
             if "Stats:" in line or "About" in line:
                 print(f"[Scan {scan_type}] Progress: {line.strip()}", flush=True)
-                
+
         process.wait()
         if process.returncode != 0:
             raise subprocess.CalledProcessError(process.returncode, process.args)
-        
+
         xml_output = None
         if xml_path and os.path.exists(xml_path):
             with open(xml_path, 'r', encoding='utf-8') as f:
                 xml_output = f.read()
 
         raw_output = "".join(output_lines)
-        save_scan_result(scan_type, raw_output, xml_output)
+        file_path = save_scan_result(scan_type, raw_output, xml_output)  # ← récupère le chemin
 
         send_scan_report(scan_type, raw_output)
-            
+
         print(f"Scan {scan_type} completed", flush=True)
+        return file_path  # ← retourne le chemin
+
     except Exception as e:
         print(f"Error scan {scan_type}: {e}", flush=True)
+        return None
     finally:
         if xml_path and os.path.exists(xml_path):
             try:
@@ -53,24 +56,20 @@ def execute_nmap_process(scan_type, args, xml_path=None):
 
 def run_scan(scan_type):
     target_network = get_local_network()
-    
+
     xml_path = None
     if scan_type == 3:
         fd, xml_path = tempfile.mkstemp(suffix=".xml")
         os.close(fd)
         args = [
-                    "-p-",
-                    "-T4",
-                    "-A",
-                    "--script", "vulners,vuln",
-                    "-oX", xml_path,
-                    target_network
-                ]
+            "-p-", "-T4", "-A",
+            "--script", "vulners,vuln",
+            "-oX", xml_path,
+            target_network
+        ]
     elif scan_type == 2:
         args = ["-p-", "-T4", "-O", target_network]
     else:
-        args = ["-O",  "-T4", target_network]
-        
-    execute_nmap_process(scan_type, args, xml_path)
-    
-    return True
+        args = ["-O", "-T4", target_network]
+
+    return execute_nmap_process(scan_type, args, xml_path)  # ← retourne file_path ou None

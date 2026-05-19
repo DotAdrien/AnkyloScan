@@ -43,26 +43,50 @@ def get_graph_data(admin=Depends(verify_admin)):
         today = datetime.now()
         for i in range(7):
             day_str = (today - timedelta(days=(6 - i))).strftime('%Y-%m-%d')
-            data_map[day_str] = 0
+            data_map[day_str] = {"vulns": 0, "logs": 0}
 
-        query = """
+        # 1. Récupérer les vulnérabilités du scan LE PLUS RÉCENT par jour
+        vuln_query = """
             SELECT DATE_FORMAT(Scan.Time, '%Y-%m-%d') as log_date, Vuln.text
             FROM Vuln
             JOIN Scan ON Vuln.id_scan = Scan.id_scan
-            WHERE Scan.Time >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            WHERE Scan.id_scan IN (
+                SELECT MAX(id_scan)
+                FROM Scan
+                WHERE Time >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                GROUP BY DATE(Time)
+            )
         """
-        cursor.execute(query)
-        results = cursor.fetchall()
+        cursor.execute(vuln_query)
+        vuln_results = cursor.fetchall()
 
-        for row in results:
+        for row in vuln_results:
             if row['log_date'] in data_map and row['text']:
                 try:
                     vulns = json.loads(row['text'])
-                    data_map[row['log_date']] += len(vulns)
+                    # On remplace par le nombre du dernier scan
+                    data_map[row['log_date']]["vulns"] = len(vulns)
                 except Exception:
                     pass
 
-        return [{"date": date, "count": count} for date, count in data_map.items()]
+        # 2. Récupérer le nombre de logs des agents par jour
+        log_query = """
+            SELECT DATE_FORMAT(Time, '%Y-%m-%d') as log_date, COUNT(*) as log_count
+            FROM Logs
+            WHERE Time >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            GROUP BY DATE(Time)
+        """
+        try:
+            cursor.execute(log_query)
+            log_results = cursor.fetchall()
+            for row in log_results:
+                if row['log_date'] in data_map:
+                    data_map[row['log_date']]["logs"] = row['log_count']
+        except mysql.connector.Error:
+            # Si la table Logs n'existe pas encore ou erreur, on laisse à 0
+            pass
+
+        return [{"date": date, "vulns": val["vulns"], "logs": val["logs"]} for date, val in data_map.items()]
 
     except mysql.connector.Error as e:
         print(f"Graph Error: {e}")
