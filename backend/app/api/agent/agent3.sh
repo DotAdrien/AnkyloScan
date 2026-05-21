@@ -39,7 +39,7 @@ SOURCE="Agent-Linux-Security"
 CHANGES_DETECTED=false
 
 # 1. Surveillance des processus et commandes (Comportements anormaux)
-SUSPICIOUS_REGEX="\b(nc|netcat|socat|nmap|tcpdump|wireshark|strace|wget|curl|whoami|id|uname|ncat|john|hydra|sqlmap|chisel)\b|bash -i|sh -i|python[0-9]* -c|perl -e"
+SUSPICIOUS_REGEX="\b(nc|netcat|socat|tcpdump|wireshark|strace|wget|curl|whoami|id|uname|ncat|john|hydra|sqlmap|chisel)\b|bash -i|sh -i|python[0-9]* -c|perl -e"
 
 # a) Processus suspects en cours d'exécution
 SUSPICIOUS_PROCESSES=\$(ps -eo user,pid,cmd --no-headers | grep -E -i "\$SUSPICIOUS_REGEX" | grep -v -E "(grep|ankylo_linux_agent)")
