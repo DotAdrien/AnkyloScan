@@ -12,18 +12,16 @@ $StateFile = 'C:\AnkyloAgent_LastRecord.txt'
 $LastId = 0
 if (Test-Path $StateFile) { $LastId = [long](Get-Content $StateFile) }
 
-# Added 4624 (Successful logon) to monitor admins
-$EventIDs = @(4624, 4625, 4768, 4720, 4728, 4732, 4756, 1102, 4719, 5136)
+$EventIDs = @(4720, 4728, 4732, 4756, 1102, 4719, 5136)
 
 $Events = Get-WinEvent -FilterHashtable @{LogName='Security'; Id=$EventIDs; StartTime=(Get-Date).AddMinutes(-5)} -ErrorAction SilentlyContinue | 
           Where-Object RecordId -gt $LastId | 
           Sort-Object RecordId
 
 $MaxId = $LastId
-$SeenEvents = @{} # For smart deduplication in the current loop
+$SeenEvents = @{}
 
 foreach ($Event in $Events) {
-    # Parse the XML to extract key information cleanly ✨
     $Id = $Event.Id
     $Xml = [xml]$Event.ToXml()
     $EventData = $Xml.Event.EventData.Data
@@ -37,42 +35,15 @@ foreach ($Event in $Events) {
         continue 
     }
 
-    # Ignore successful Kerberos TGTs (too noisy)
-    $ResultCode = Get-EventValue $EventData "ResultCode"
-    $Status = Get-EventValue $EventData "Status"
-    if ($Event.Id -eq 4768 -and $Status -eq "0x0") {
-        $MaxId = [math]::Max($MaxId, $Event.RecordId)
-        continue 
-    }
-
-    # --- SMART DEDUPLICATION AND FILTERING LOGIC ---
-    # Unique key to avoid spam (e.g., "Kerberos-Administrator" will only appear once per scan)
     $DedupKey = "$Id-$TargetUserName"
-    if ($Id -eq 4768) { $DedupKey = "KerberosFail-$TargetUserName" } 
     
     if ($SeenEvents.ContainsKey($DedupKey)) { 
         $MaxId = [math]::Max($MaxId, $Event.RecordId)
         continue 
     }
     $SeenEvents[$DedupKey] = $true
-
-    # Get LogonType for connection events
-    $LogonType = Get-EventValue $EventData "LogonType"
-
-    # ADMIN FILTER FOR SUCCESSFUL LOGONS (4624)
-    if ($Id -eq 4624) {
-        # Modify this condition based on your conventions (e.g., adm_*, admin, root)
-        if ($TargetUserName -notmatch "(?i)admin|root") { 
-            $MaxId = [math]::Max($MaxId, $Event.RecordId)
-            continue 
-        }
-    }
     
-    # Construct a pure key-value message (Language agnostic) 📜
     $DetailedMsg = switch ($Id) {
-        4624 { "User=$TargetUserName, IP=$(Get-EventValue $EventData 'IpAddress'), LogonType=$LogonType" }
-        4625 { "User=$TargetUserName, IP=$(Get-EventValue $EventData 'IpAddress'), LogonType=$LogonType" }
-        4768 { "User=$TargetUserName, IP=$(Get-EventValue $EventData 'ClientAddr'), Status=$Status" }
         4720 { "Target=$TargetUserName, Actor=$SubjectUserName" }
         4728 { "Group=$TargetUserName, Member=$(Get-EventValue $EventData 'MemberName'), Actor=$SubjectUserName" }
         4732 { "Group=$TargetUserName, Member=$(Get-EventValue $EventData 'MemberName'), Actor=$SubjectUserName" }
@@ -99,16 +70,12 @@ foreach ($Event in $Events) {
 
 if ($MaxId -gt $LastId) { $MaxId | Set-Content -Path $StateFile }
 '@
+
 # Installation
 Set-Content -Path "C:\AnkyloAgent.ps1" -Value $ScriptContent -Encoding UTF8
 
-# --- Enable Security Audits (Local GPO equivalent) ---
 Write-Host "Enabling Windows audit policies... 🛡️" -ForegroundColor Cyan
 
-# Enable audit for Account Logon (Kerberos, NTLM) using GUID to avoid localization issues
-auditpol /set /category:"{69979850-797A-11D9-BED3-505054503030}" /success:enable /failure:enable | Out-Null
-# Enable audit for Logon/Logoff
-auditpol /set /category:"{69979849-797A-11D9-BED3-505054503030}" /success:enable /failure:enable | Out-Null
 # Enable audit for Account Management (User creation, group addition...)
 auditpol /set /category:"{6997984E-797A-11D9-BED3-505054503030}" /success:enable /failure:enable | Out-Null
 # Enable audit for Policy Change
