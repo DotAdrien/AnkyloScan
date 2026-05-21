@@ -42,8 +42,8 @@ async function loadScanHistory() {
                         </button>
                     `}
                 </div>
-            `;
-        }).join('');
+            </div>
+        `).join('');
 
     } catch (error) {
         console.error(error);
