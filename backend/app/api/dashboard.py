@@ -64,17 +64,16 @@ def get_graph_data(admin=Depends(verify_admin)):
             if row['log_date'] in data_map and row['text']:
                 try:
                     vulns = json.loads(row['text'])
-                    # On remplace par le nombre du dernier scan
                     data_map[row['log_date']]["vulns"] = len(vulns)
                 except Exception:
                     pass
 
         # 2. Récupérer le nombre de logs des agents par jour
         log_query = """
-            SELECT DATE_FORMAT(Time, '%Y-%m-%d') as log_date, COUNT(*) as log_count
-            FROM Logs
-            WHERE Time >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-            GROUP BY DATE(Time)
+            SELECT DATE_FORMAT(timestamp, '%Y-%m-%d') as log_date, COUNT(*) as log_count
+            FROM SystemLogs
+            WHERE timestamp >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            GROUP BY DATE(timestamp)
         """
         try:
             cursor.execute(log_query)
@@ -83,7 +82,6 @@ def get_graph_data(admin=Depends(verify_admin)):
                 if row['log_date'] in data_map:
                     data_map[row['log_date']]["logs"] = row['log_count']
         except mysql.connector.Error:
-            # Si la table Logs n'existe pas encore ou erreur, on laisse à 0
             pass
 
         return [{"date": date, "vulns": val["vulns"], "logs": val["logs"]} for date, val in data_map.items()]
