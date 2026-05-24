@@ -45,6 +45,13 @@ foreach ($Event in $Events) {
     $IsSuspiciousCommand = $CommandLine -match $SuspiciousCommands
     $IsShell = $ProcessExecutable -match "(?i)^(cmd\.exe|powershell\.exe|pwsh\.exe|powershell_ise\.exe|wsl\.exe|bash\.exe|wt\.exe)$"
 
+    # Filter: ignore self-reporting from AnkyloScan agents
+    $IsAnkyloSelf = $CommandLine -match "(?i)Ankyl"
+    if ($IsAnkyloSelf) {
+        $MaxId = [math]::Max($MaxId, $Event.RecordId)
+        continue
+    }
+
     # Filter: we keep it if it's a shell OR if it's an abnormal/suspicious action
     if (-not ($IsSuspiciousProcess -or $IsSuspiciousCommand -or $IsShell)) {
         $MaxId = [math]::Max($MaxId, $Event.RecordId)

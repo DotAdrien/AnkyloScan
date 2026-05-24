@@ -142,29 +142,22 @@ def parse_scan_expert(content, ignored_rules=None):
     return results
 
 def background_scan_task(scan_type: int, scan_id: int):
-    success = run_scan(scan_type)
-    
-    if success:
+    file_path = run_scan(scan_type)  # ← retourne le chemin ou None
+
+    if file_path:
         conn = None
         try:
             conn = get_db_connection()
             cursor = conn.cursor(dictionary=True)
 
-            cursor.execute("SELECT id_scan, file_path FROM Scan WHERE Type=%s ORDER BY id_scan DESC LIMIT 1", (str(scan_type),))
-            last_scan = cursor.fetchone()
-
-            if last_scan and last_scan['id_scan'] > scan_id:
-                file_path = last_scan['file_path']
-                cursor.execute("DELETE FROM Scan WHERE id_scan = %s", (last_scan['id_scan'],))
-            elif last_scan:
-                file_path = last_scan['file_path']
-            else:
-                file_path = "path_not_found"
-
-            cursor.execute("UPDATE Scan SET status = 1, file_path = %s WHERE id_scan = %s", (file_path, scan_id))
+            # Mise à jour directe du scan pending — plus de doublon possible
+            cursor.execute(
+                "UPDATE Scan SET status = 1, file_path = %s WHERE id_scan = %s",
+                (file_path, scan_id)
+            )
             conn.commit()
 
-            if scan_type == 3 and file_path != "in_progress...":
+            if scan_type == 3:
                 base_dir = os.path.abspath("/app/outputs") if os.name != 'nt' else os.path.abspath("outputs")
                 filename = os.path.basename(file_path).replace(".txt", ".xml")
                 safe_path = os.path.join(base_dir, filename)
@@ -193,7 +186,6 @@ def background_scan_task(scan_type: int, scan_id: int):
                     for host in vuln_results:
                         ip = host['ip']
                         vulns_json = json.dumps(host['ports'], ensure_ascii=False)
-                        
                         cursor.execute(
                             "INSERT INTO Vuln (id_scan, hosts, text) VALUES (%s, %s, %s)",
                             (scan_id, ip, vulns_json)

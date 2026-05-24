@@ -40,20 +40,33 @@ document.addEventListener('alpine:init', () => {
             }
 
             const labels = data.map(item => item.date);
-            const counts = data.map(item => item.count);
+            const vulnData = data.map(item => item.vulns);
+            const logData = data.map(item => item.logs);
 
             this.chartInstance = new Chart(ctx, {
-                type: 'bar',
+                type: 'line',
                 data: {
                     labels: labels,
-                    datasets: [{
-                        label: 'Detected Vulnerabilities',
-                        data: counts,
-                        backgroundColor: 'rgba(231, 76, 60, 0.6)',
-                        borderColor: 'rgba(231, 76, 60, 1)',
-                        borderWidth: 1,
-                        borderRadius: 5
-                    }]
+                    datasets: [
+                        {
+                            label: 'Vulnérabilités détectées',
+                            data: vulnData,
+                            borderColor: '#e74c3c', // Rouge
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3, // Courbe un peu lisse
+                            fill: true
+                        },
+                        {
+                            label: 'Logs Agents',
+                            data: logData,
+                            borderColor: '#3498db', // Bleu
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
