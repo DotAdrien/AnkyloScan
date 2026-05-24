@@ -65,8 +65,8 @@ No complex configuration, no external SaaS subscription, no data leaving your in
 │  └─────────────┘      └──────────┬───────────┘    │
 │                                  │                │
 │                       ┌──────────▼───────────┐    │
-│                       │       MySQL DB        │   │
-│                       │  Scans, Logs, Agents  │   │
+│                       │       MySQL DB       │    │
+│                       │  Scans, Logs, Agents │    │
 │                       └──────────────────────┘    │
 └───────────────────────────────────────────────────┘
 ```
