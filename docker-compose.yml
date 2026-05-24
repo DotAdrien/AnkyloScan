@@ -38,8 +38,6 @@ services:
       echo '--------------------------------------------' &&
       echo '🦖 AnkyloScan est prêt ! 🛡️' &&
       echo 'Lien : http://localhost:8000' &&
-      echo 'User Admin : admin' &&
-      echo 'MDP Admin : ${ADMIN_PASSWORD:-password_aleatoire}' &&
       echo 'Tigrounet veille sur tes données ! 🐱😶' &&
       echo '--------------------------------------------'"
 
