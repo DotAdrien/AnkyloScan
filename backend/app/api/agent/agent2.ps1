@@ -31,13 +31,10 @@ foreach ($Event in $Events) {
     $SubjectUserName = Get-EventValue $EventData "SubjectUserName"
     $SubjectDomainName = Get-EventValue $EventData "SubjectDomainName"
 
-    # Security: ignore the event if there is no process name
     if (-not $NewProcessName) { continue }
 
-    # Extracts just the executable name
     $ProcessExecutable = Split-Path -Path $NewProcessName -Leaf
 
-    # Detection of abnormal behaviors (what a standard user should not do)
     $SuspiciousProcesses = "(?i)^(vssadmin\.exe|certutil\.exe|bitsadmin\.exe|whoami\.exe|nltest\.exe|net\.exe|net1\.exe|wmic\.exe|reg\.exe|schtasks\.exe|sc\.exe|taskkill\.exe|ipconfig\.exe|ping\.exe|tracert\.exe|arp\.exe|route\.exe|ftp\.exe|tftp\.exe|mshta\.exe|cscript\.exe|wscript\.exe|rundll32\.exe|regsvr32\.exe|mmc\.exe|control\.exe)$"
     $SuspiciousCommands = "(?i)(-enc|-encodedcommand|iex|invoke-expression|downloadstring|bypass|hidden|net user|net localgroup|vssadmin|certutil|schtasks|reg add|reg delete|runas)"
 
@@ -45,20 +42,25 @@ foreach ($Event in $Events) {
     $IsSuspiciousCommand = $CommandLine -match $SuspiciousCommands
     $IsShell = $ProcessExecutable -match "(?i)^(cmd\.exe|powershell\.exe|pwsh\.exe|powershell_ise\.exe|wsl\.exe|bash\.exe|wt\.exe)$"
 
-    # Filter: ignore self-reporting from AnkyloScan agents
+    # Filter: ignore AnkyloScan self-reporting
     $IsAnkyloSelf = $CommandLine -match "(?i)Ankyl"
     if ($IsAnkyloSelf) {
         $MaxId = [math]::Max($MaxId, $Event.RecordId)
         continue
     }
 
-    # Filter: we keep it if it's a shell OR if it's an abnormal/suspicious action
+    # Filter: ignore machine accounts (ending with $)
+    $IsMachineAccount = $SubjectUserName -match '\$$'
+    if ($IsMachineAccount) {
+        $MaxId = [math]::Max($MaxId, $Event.RecordId)
+        continue
+    }
+
     if (-not ($IsSuspiciousProcess -or $IsSuspiciousCommand -or $IsShell)) {
         $MaxId = [math]::Max($MaxId, $Event.RecordId)
         continue
     }
 
-    # Construct a pure key-value message (Language agnostic)
     $DetailedMsg = "Actor=$SubjectDomainName\$SubjectUserName, Process=$ProcessExecutable, CommandLine=$CommandLine"
 
     $Body = @{
@@ -70,9 +72,7 @@ foreach ($Event in $Events) {
 
     try {
         Invoke-RestMethod -Uri $Url -Method Post -Body $Body -ContentType 'application/json; charset=utf-8' -ErrorAction Stop
-    } catch {
-        # Silent if the server is unreachable or other sending error
-    }
+    } catch {}
 
     $MaxId = [math]::Max($MaxId, $Event.RecordId)
 }
