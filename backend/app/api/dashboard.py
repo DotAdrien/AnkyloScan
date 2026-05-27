@@ -48,17 +48,17 @@ def get_graph_data(admin=Depends(verify_admin)):
 
         print(f"[GRAPH] data_map keys: {list(data_map.keys())}")
 
-        # 1. Vulnérabilités : dernier scan par jour
+        # -------------------------------------------------------
+        # FIX 1 : Compter TOUTES les vulnérabilités de TOUS les
+        # scans du jour (pas juste le dernier scan via MAX(id_scan))
+        # et sommer correctement les CVEs dans chaque port de chaque hôte
+        # -------------------------------------------------------
         vuln_query = """
             SELECT DATE_FORMAT(s.Time, '%Y-%m-%d') AS log_date, v.text
             FROM Vuln v
             JOIN Scan s ON v.id_scan = s.id_scan
-            WHERE s.id_scan IN (
-                SELECT MAX(id_scan)
-                FROM Scan
-                WHERE Time >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-                GROUP BY DATE(Time)
-            )
+            WHERE s.Time >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            AND s.status = 1
         """
         cursor.execute(vuln_query)
         for row in cursor.fetchall():
@@ -66,25 +66,34 @@ def get_graph_data(admin=Depends(verify_admin)):
             if date not in data_map or not row['text']:
                 continue
             try:
+                # text = JSON list of {port, vulns:[...]}
+                # On compte le nombre de ports qui ont au moins 1 vuln
                 ports = json.loads(row['text'])
-                count = sum(len(port.get('vulns', [])) for port in ports if isinstance(port, dict))
+                count = sum(
+                    1
+                    for port in ports
+                    if isinstance(port, dict) and len(port.get('vulns', [])) > 0
+                )
                 data_map[date]["vulns"] += count
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"[GRAPH] JSON parse error: {e}")
 
-        # 2. Logs agents par jour
+        # -------------------------------------------------------
+        # FIX 2 : Élargir la fenêtre logs à 8 jours pour absorber
+        # le décalage UTC/heure locale (UTC+2 en France)
+        # -------------------------------------------------------
         log_query = """
-            SELECT DATE(timestamp) AS log_date, COUNT(*) AS log_count
+            SELECT DATE(CONVERT_TZ(timestamp, '+00:00', '+02:00')) AS log_date,
+                   COUNT(*) AS log_count
             FROM SystemLogs
-            WHERE timestamp >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-            GROUP BY DATE(timestamp)
+            WHERE timestamp >= DATE_SUB(NOW(), INTERVAL 8 DAY)
+            GROUP BY DATE(CONVERT_TZ(timestamp, '+00:00', '+02:00'))
         """
         cursor.execute(log_query)
         rows = cursor.fetchall()
         print(f"[GRAPH] log rows raw: {rows}")
 
         for row in rows:
-            # DATE() retourne un objet datetime.date en Python, on le convertit en string
             date_str = str(row['log_date'])
             print(f"[GRAPH] log_date={date_str!r}, log_count={row['log_count']}, in data_map={date_str in data_map}")
             if date_str in data_map:
