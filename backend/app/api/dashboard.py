@@ -46,8 +46,6 @@ def get_graph_data(admin=Depends(verify_admin)):
             day_str = (today - timedelta(days=(6 - i))).strftime('%Y-%m-%d')
             data_map[day_str] = {"vulns": 0, "logs": 0}
 
-        print(f"[GRAPH] data_map keys: {list(data_map.keys())}")
-
         # -------------------------------------------------------
         # FIX 1 : Compter TOUTES les vulnérabilités de TOUS les
         # scans du jour (pas juste le dernier scan via MAX(id_scan))
@@ -76,7 +74,7 @@ def get_graph_data(admin=Depends(verify_admin)):
                 )
                 data_map[date]["vulns"] += count
             except Exception as e:
-                print(f"[GRAPH] JSON parse error: {e}")
+                pass
 
         # -------------------------------------------------------
         # FIX 2 : Élargir la fenêtre logs à 8 jours pour absorber
@@ -91,16 +89,13 @@ def get_graph_data(admin=Depends(verify_admin)):
         """
         cursor.execute(log_query)
         rows = cursor.fetchall()
-        print(f"[GRAPH] log rows raw: {rows}")
 
         for row in rows:
             date_str = str(row['log_date'])
-            print(f"[GRAPH] log_date={date_str!r}, log_count={row['log_count']}, in data_map={date_str in data_map}")
             if date_str in data_map:
                 data_map[date_str]["logs"] = row['log_count']
 
         result = [{"date": date, "vulns": val["vulns"], "logs": val["logs"]} for date, val in data_map.items()]
-        print(f"[GRAPH] final result: {result}")
         return result
 
     except mysql.connector.Error as e:
