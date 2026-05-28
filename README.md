@@ -117,8 +117,6 @@ URL    : http://localhost:8000
 
 Open `http://<your-server-ip>:8000` in any browser on your network.
 
-> **Tip for SMBs:** Install AnkyloScan on a dedicated machine (even a small server or repurposed PC) and expose port `8000` only on your internal network. This way the dashboard is accessible to your IT team without being reachable from the outside.
-
 ---
 
 ## 🕵️ Deploying Agents
